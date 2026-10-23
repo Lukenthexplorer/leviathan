@@ -26,6 +26,8 @@ export type CouncilmanDecision =
   | { kind: "neighbourhood"; id: NeighbourhoodId }
   | { kind: "meeting"; with: CharacterId }
   | { kind: "read"; book: BookId }
+  | { kind: "fundraise" }
+  | { kind: "seekNomination" }
   /** Answer a scheme paper with a plan (picks per slot), or null to walk away. */
   | { kind: "scheme"; itemId: string; scheme: SchemeId; picks: Record<string, string> | null };
 
@@ -227,6 +229,29 @@ export function readingRule(state: GameState): Effect[] {
   ];
 }
 
+// ------------------------------------------------------------------ campaign
+
+/** How much a small-donor drive raises: honest money grows with your roots in the neighbourhoods. */
+export function fundraiseAmount(state: GameState): number {
+  const roots = Object.values(state.neighbourhoods).reduce((s, n) => s + n.base, 0);
+  return Math.round(BALANCE.fundraising.base + roots * BALANCE.fundraising.perRootPoint);
+}
+
+export function resolveFundraise(state: GameState): Resolved {
+  const amount = fundraiseAmount(state);
+  return {
+    cause: { kind: "neighbourhood", id: "fundraise", label: `Fez uma vaquinha de campanha (${amount}k)` },
+    effects: [{ type: "funds", delta: amount }, { type: "flag", key: "fundraisers" }],
+  };
+}
+
+export function resolveSeekNomination(): Resolved {
+  return {
+    cause: { kind: "system", id: "seek_nomination", label: "Pediu a indicação do partido à prefeitura" },
+    effects: [{ type: "flag", key: "sought_nomination", set: 1 }],
+  };
+}
+
 // ------------------------------------------------------------------ conspiracy
 
 export type SchemePicks = Record<string, string>;
@@ -288,6 +313,10 @@ export function resolveCouncilmanDecision(state: GameState, decision: ChapterDec
       return resolveRead(state, d.book);
     case "scheme":
       return resolveScheme(state, d);
+    case "fundraise":
+      return resolveFundraise(state);
+    case "seekNomination":
+      return resolveSeekNomination();
   }
   throw new Error(`Unknown councilman decision "${decision.kind}"`);
 }

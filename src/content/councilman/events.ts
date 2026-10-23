@@ -1,4 +1,5 @@
 import type { EventDef } from "../../core/chapter";
+import { BALANCE } from "../balance";
 import { flag, funds, integrity, opinion, relation } from "../helpers";
 
 /**
@@ -268,6 +269,21 @@ export const EVENTS: EventDef[] = [
         { id: "attend", label: "Ir e circular pelo salão", effects: [funds(12), relation("party_boss", 4)] },
         { id: "skip", label: "Mandar suas desculpas", effects: [relation("party_boss", -3)] },
       ],
+    },
+  },
+
+  {
+    id: "convention_warning",
+    trigger: { ref: "turn", op: ">=", value: BALANCE.councilman.conventionWeek - BALANCE.councilman.conventionWarningWeeks },
+    item: {
+      id: "convention_warning",
+      kind: "letter",
+      from: "party_boss",
+      expression: "neutral",
+      title: "Convenção em quatro semanas",
+      body:
+        "A convenção do partido escolhe o candidato a prefeito daqui a quatro semanas. Os nomes estão na mesa. " +
+        "Quem quiser ser lembrado precisa da cúpula, de dinheiro e de povo. Nessa ordem, dizem alguns. Em qualquer ordem, digo eu.",
     },
   },
 

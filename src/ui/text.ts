@@ -35,6 +35,10 @@ export function describeDecision(state: GameState, d: Decision): string {
       return `Começar a ler ${BOOKS[c.book].title}`;
     case "scheme":
       return "Plano em andamento";
+    case "fundraise":
+      return "Fazer uma vaquinha de campanha";
+    case "seekNomination":
+      return "Pedir a indicação do partido";
   }
   return d.kind;
 }

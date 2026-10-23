@@ -1,3 +1,4 @@
+import { fundraiseAmount } from "../../../chapters/councilman/actions";
 import { GROUPS, type GroupId } from "../../../content/councilman/groups";
 import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS } from "../../../content/councilman/neighbourhoods";
 import type { GameState } from "../../../core/types";
@@ -10,6 +11,9 @@ export function NeighbourhoodPanel({ state, onClose }: { state: GameState; onClo
   return (
     <Sheet title="Os bairros" onClose={onClose} wide>
       <p className="panel-intro">Bata de porta em porta, apareça na padaria, escute. Quanto mais raízes você tem num lugar, mais cada visita conta.</p>
+      <ActionRow title="Vaquinha de campanha" decision={{ kind: "fundraise" }} cta="Arrecadar" aside={<div className="nb-stats">+{fundraiseAmount(state)}k</div>}>
+        Pequenas doações de quem te conhece. Dinheiro limpo e lento: rende mais quanto mais raízes você tem nos bairros.
+      </ActionRow>
       {NEIGHBOURHOOD_IDS.map((id) => {
         const def = NEIGHBOURHOODS[id];
         const nb = state.neighbourhoods[id]!;

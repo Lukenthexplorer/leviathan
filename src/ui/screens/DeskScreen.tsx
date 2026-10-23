@@ -10,6 +10,7 @@ import { useHoverLift } from "../feel/useHoverLift";
 import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
+import { GoalsCard } from "../desk/GoalsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { OpinionStrip } from "../desk/OpinionStrip";
 import { PaperView } from "../desk/PaperView";
@@ -25,9 +26,10 @@ import { agendaOf, answerFor, useGame } from "../store";
 
 type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
 
-const TOOLS: { id: Panel; label: string; hint: string }[] = [
-  { id: "bills", label: "Projetos", hint: "Propor uma lei" },
-  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião" },
+/** Desk drawers. `icon` is final art; tools without it show text only until their art exists. */
+const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
+  { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
+  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
   { id: "streets", label: "Ruas", hint: "Construir uma base" },
   { id: "social", label: "Celular", hint: "Postar nas redes" },
   { id: "library", label: "Estante", hint: "Ler e aprender" },
@@ -133,12 +135,13 @@ export function DeskScreen() {
       <main className="desk-middle">
         <div className="desk-left">
           <AgendaPad state={state} />
+          <GoalsCard state={state} />
           <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
         </div>
         <InboxStack state={state} onOpen={setOpenItem} />
         <nav className="tools">
           {TOOLS.map((t) => (
-            <Tool key={t.id} label={t.label} hint={t.hint} onClick={() => setPanel(t.id)} />
+            <Tool key={t.id} label={t.label} hint={t.hint} icon={t.icon} onClick={() => setPanel(t.id)} />
           ))}
         </nav>
       </main>
@@ -177,10 +180,11 @@ export function DeskScreen() {
   );
 }
 
-function Tool({ label, hint, onClick }: { label: string; hint: string; onClick: () => void }) {
+function Tool({ label, hint, icon, onClick }: { label: string; hint: string; icon?: string; onClick: () => void }) {
   const [ref, hover] = useHoverLift<HTMLButtonElement>();
   return (
-    <button ref={ref} {...hover} className="tool" onClick={onClick}>
+    <button ref={ref} {...hover} className={`tool ${icon ? "with-icon" : ""}`} onClick={onClick}>
+      {icon && <img className="tool-icon" src={icon} alt="" />}
       <span className="tool-label">{label}</span>
       <span className="tool-hint">{hint}</span>
     </button>

@@ -8,7 +8,9 @@
  */
 import { lawAvailable, type SchemePicks } from "../src/chapters/councilman/actions";
 import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter";
-import { LAW_IDS } from "../src/content/councilman/laws";
+import { councilmanGoals, goalsMet } from "../src/chapters/councilman/goals";
+import { LAWS, LAW_IDS } from "../src/content/councilman/laws";
+import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS } from "../src/content/councilman/neighbourhoods";
 import { GROUP_IDS } from "../src/content/councilman/groups";
 import { advanceTurn } from "../src/core/advanceTurn";
 import { evaluate, readRef } from "../src/core/conditions";
@@ -55,10 +57,35 @@ const STRATEGIES: Record<string, Strategy> = {
     prefers: ["honest", "refuse", "independent", "keynes_jobs", "own_way", "decline", "ally"],
     decide: (s) => {
       const law = firstLaw(s);
-      const d: Decision[] = [{ kind: "neighbourhood", id: "morro_esperanca" }];
+      const streets = ["morro_esperanca", "vila_operaria", "sao_bento"] as const;
+      const d: Decision[] = [{ kind: "neighbourhood", id: streets[s.turn % streets.length]! }];
       if (s.turn === 1) d.push({ kind: "read", book: "keynes" });
       else if (law) d.push({ kind: "proposeLaw", law });
-      if (s.turn % 3 === 0) d.push({ kind: "post", style: "informative", group: rotate(s) });
+      else d.push({ kind: "meeting", with: "party_boss" });
+      d.push(s.turn % 2 === 0 ? { kind: "fundraise" } : { kind: "post", style: "informative", group: rotate(s) });
+      return d;
+    },
+  },
+  focused: {
+    describe: "Focused honest: picks the 3 groups the party already likes and serves only them",
+    prefers: ["honest", "refuse", "loyal", "keynes_jobs", "own_way", "decline", "ally", "attend"],
+    decide: (s) => {
+      const allies = Object.entries(s.groups)
+        .sort(([, a], [, b]) => b.baseline - a.baseline)
+        .slice(0, 3)
+        .map(([g]) => g as (typeof GROUP_IDS)[number]);
+      const helps = (l: (typeof LAW_IDS)[number]) =>
+        (LAWS[l].onPass as readonly { type: string; group?: string; delta?: number }[]).every(
+          (e) => e.type !== "opinion" || !allies.includes(e.group as never) || (e.delta ?? 0) > 0,
+        ) && (LAWS[l].onPass as readonly { group?: string }[]).some((e) => allies.includes(e.group as never));
+      const law = LAW_IDS.find((l) => lawAvailable(s, l) && helps(l));
+      const home = NEIGHBOURHOOD_IDS.filter((n) => Object.keys(NEIGHBOURHOODS[n].residents).some((g) => allies.includes(g as never)));
+      const d: Decision[] = [];
+      if (s.turn === 1) d.push({ kind: "meeting", with: "party_boss" });
+      else if (law) d.push({ kind: "proposeLaw", law });
+      else d.push({ kind: "neighbourhood", id: home[(s.turn + 1) % home.length]! });
+      d.push({ kind: "neighbourhood", id: home[s.turn % home.length]! });
+      d.push(s.turn % 3 === 0 ? { kind: "fundraise" } : { kind: "post", style: "informative", group: allies[s.turn % 3]! });
       return d;
     },
   },
@@ -88,7 +115,7 @@ const STRATEGIES: Record<string, Strategy> = {
   },
 };
 
-const [only, weeksArg = "30", party = "labour"] = process.argv.slice(2);
+const [only, weeksArg = "45", party = "labour"] = process.argv.slice(2);
 const weeks = Number(weeksArg);
 const names = only ? [only] : Object.keys(STRATEGIES);
 
@@ -107,6 +134,8 @@ for (const name of names) {
 
   for (let i = 0; i < weeks && !s.ending; i++) {
     const decisions = [...answerDesk(s, strat.prefers ?? [], strat.plan), ...strat.decide(s)];
+    // Every strategy asks for the nomination as soon as it can (it doesn't use a slot check here: replace the last action).
+    if (goalsMet(s) && s.turn >= 26) decisions.splice(decisions.length - 1, 1, { kind: "seekNomination" });
     const { state, report } = advanceTurn(s, decisions, chapter);
     s = state;
     const ops = allOpinions(s);
@@ -121,6 +150,7 @@ for (const name of names) {
     );
   }
   console.log(s.ending ? `>>> ENDING: ${s.ending} in week ${s.turn}` : `>>> Still standing after ${weeks} weeks`);
+  console.log(`    goals: ${councilmanGoals(s).map((g) => `${g.met ? "✓" : "✗"} ${g.label} (${g.progress})`).join(" | ")}`);
   console.log(
     `    funds ${s.player.funds}k | boss ${s.characters.party_boss!.relation} | laws passed ${s.flags.laws_passed ?? 0}, ` +
       `rejected ${s.flags.laws_rejected ?? 0} | books ${s.books.finished.join(", ") || "none"} | dossier threads ${s.hidden.dossier.reduce((a, d) => a + d.threads, 0)}`,

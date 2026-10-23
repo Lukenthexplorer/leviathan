@@ -39,6 +39,8 @@ export const DESK_ART = {
   newspaper_frame: "assets/desk/newspaper_frame.svg",
   phone: "assets/desk/phone.svg",
   coffee_cup: "assets/desk/coffee_cup.png", // final art
+  bills_folder: "assets/desk/bills_folder.png", // final art
+  rolodex: "assets/desk/rolodex.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 

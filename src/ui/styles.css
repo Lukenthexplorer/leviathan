@@ -376,13 +376,37 @@ h1, h2, h3 { margin: 0; }
 }
 .curtain-text { font-family: var(--display); font-size: clamp(3rem, 9vw, 6rem); color: var(--brass-light); text-shadow: 0 6px 30px #000; }
 
-/* ------------------------------------------------------------- ending (placeholder) */
+/* ------------------------------------------------------------- ending & legacy page */
 
-.ending-screen { height: 100%; display: grid; place-content: center; gap: 24px; justify-items: center; background: #120d09; padding: 24px; }
-.newspaper { width: min(720px, 100%); padding: 30px 40px; background: #e8e1cc; color: var(--ink); box-shadow: 0 30px 60px #000; }
+.ending-screen {
+  height: 100%; overflow: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 30px;
+  padding: 40px 24px 60px;
+  background: radial-gradient(ellipse at top, #3a271a, #0d0907 75%);
+}
+.ending-screen.tone-defeat { background: radial-gradient(ellipse at top, #3a1c16, #0d0907 75%); }
 .newspaper-masthead { font-family: var(--display); font-size: 2.2rem; text-align: center; border-bottom: 3px double var(--ink); padding-bottom: 6px; }
-.newspaper-date { font-family: var(--type); text-align: center; font-size: 0.85rem; margin: 6px 0 18px; }
-.newspaper-headline { font-family: var(--display); font-size: 2.4rem; line-height: 1.1; margin-bottom: 14px; }
+.newspaper-headline { font-family: var(--display); font-weight: 900; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; margin: 10px 0 16px; }
+.legacy-front { width: min(860px, 100%); padding: 28px 40px 34px; background: #e8e1cc; color: var(--ink); box-shadow: 0 30px 60px #000; }
+.legacy-front .newspaper-meta { display: flex; justify-content: space-between; font-family: var(--type); font-size: 0.8rem; border-bottom: 1px solid var(--ink); padding: 4px 0; }
+.legacy-front .newspaper-body { column-count: 2; column-gap: 28px; line-height: 1.6; text-align: justify; margin: 0; }
+.tone-defeat .newspaper-headline { color: var(--red); }
+
+.legacy-book {
+  width: min(760px, 100%);
+  padding: 34px 48px 40px;
+  background: #f3ecd9;
+  color: var(--ink);
+  box-shadow: 0 20px 50px #000c, inset 14px 0 18px -14px #0005;
+  font-size: 1.02rem; line-height: 1.75;
+}
+.legacy-book-head { font-family: var(--type); font-size: 0.78rem; color: var(--ink-soft); text-align: center; border-bottom: 1px solid #0002; padding-bottom: 8px; margin-bottom: 8px; }
+.legacy-section h2, .legacy-verdict h2 { font-family: var(--display); font-size: 1.25rem; margin: 22px 0 6px; }
+.legacy-section p { margin: 0 0 8px; }
+.legacy-section.secret { border-left: 3px solid var(--red); padding-left: 16px; }
+.legacy-section.secret h2 { color: var(--red); }
+.legacy-verdict { margin-top: 26px; padding: 14px 20px; background: #e9dfc4; border: 1px solid #0002; font-style: italic; }
+.legacy-verdict h2 { font-style: normal; margin-top: 0; }
 
 /* ------------------------------------------------------------- small screens */
 
@@ -424,7 +448,7 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .newspaper-filler { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
 .newspaper-filler span { height: 46px; background: repeating-linear-gradient(#0002 0 2px, transparent 2px 7px); }
 .newspaper-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
-@media (max-width: 700px) { .newspaper-body { column-count: 1; } }
+@media (max-width: 700px) { .newspaper-body, .legacy-front .newspaper-body { column-count: 1; } }
 
 .scandal-flash { position: fixed; inset: 0; background: #b0170b; mix-blend-mode: multiply; opacity: 0; pointer-events: none; z-index: 40; }
 
@@ -567,3 +591,36 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .map-card .action-row { grid-template-columns: 1fr auto; border-bottom: none; padding-bottom: 0; }
 .map-card-hint { font-family: var(--type); font-size: 0.8rem; color: var(--ink-soft); margin: 0; }
 .map-card-notice { font-family: var(--type); font-size: 0.8rem; color: var(--red); margin: 6px 0 0; }
+
+/* Tools with final art: the illustration spills out of the drawer, like an object lying on it. */
+.tool.with-icon { position: relative; padding-left: 92px; min-height: 76px; }
+.tool-icon {
+  position: absolute; left: -14px; top: 50%; translate: 0 -50%;
+  width: 104px; rotate: -8deg;
+  filter: drop-shadow(0 8px 10px #000b);
+  pointer-events: none;
+}
+
+/* goals card */
+.goals {
+  width: 250px;
+  padding: 14px 16px 12px;
+  background: #f0e2b8;
+  color: var(--ink);
+  box-shadow: 0 12px 24px #000a;
+  transform: rotate(-1deg);
+  font-size: 0.85rem;
+}
+.goals-title { font-family: var(--display); font-size: 1.1rem; margin-bottom: 6px; }
+.goals ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.goals li { display: flex; gap: 8px; align-items: baseline; opacity: 0.85; }
+.goals li.met { opacity: 1; }
+.goals li strong { display: block; font-weight: 700; }
+.goals li small { display: block; font-family: var(--type); font-size: 0.72rem; color: var(--ink-soft); line-height: 1.3; }
+.goals-check { font-family: var(--type); font-size: 1rem; width: 14px; }
+.goals li.met .goals-check { color: var(--green); }
+.goals-clock { margin-top: 8px; font-family: var(--type); font-size: 0.75rem; border-top: 1px dashed #0003; padding-top: 6px; }
+.goals-clock.urgent { color: var(--red); }
+.goals-note { font-family: var(--type); font-size: 0.72rem; color: var(--ink-soft); margin-top: 4px; }
+.goals-ask { margin-top: 8px; }
+.goals-ask .desk-btn { width: 100%; font-size: 0.9rem; padding: 9px 10px; }

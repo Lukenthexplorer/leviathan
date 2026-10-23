@@ -77,6 +77,12 @@ export const BALANCE = {
     bossOpposedReaction: -8,
   },
 
+  fundraising: {
+    /** A small-donor drive ("vaquinha"): base amount plus a share of your total roots across neighbourhoods. */
+    base: 2,
+    perRootPoint: 0.03,
+  },
+
   neighbourhoodWork: {
     baseGain: 8,
     moodGain: 3,
@@ -105,6 +111,19 @@ export const BALANCE = {
 
   councilman: {
     startingFunds: 5,
+    /** The party convention picks its mayoral candidate in this week (~9 months in). */
+    conventionWeek: 40,
+    /** The party only hears candidacies from this week on: the corrupt sprint has to survive until here. */
+    nominationOpensWeek: 26,
+    /** A warning lands on the desk this many weeks before the convention. */
+    conventionWarningWeeks: 4,
+    /** Goal 1: the party boss must trust you (relation >= this, "Confiança"). */
+    nominationRelation: 50,
+    /** Goal 2: campaign money, in thousands. */
+    fundsNeeded: 60,
+    /** Goal 3: this many groups must have at least this opinion of you. */
+    groupsNeeded: 3,
+    groupSupportThreshold: 20,
     /** Game over when total exposed dossier threads reach this. */
     arrestAtExposedThreads: 8,
     /** Game over when the party boss's relation drops to this. */

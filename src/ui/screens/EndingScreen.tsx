@@ -1,33 +1,72 @@
-import { weekDate } from "../../core/calendar";
+import gsap from "gsap";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { writeLegacy } from "../../chapters/councilman/legacy";
+import { audio } from "../audio/audio";
 import { DeskButton } from "../desk/DeskButton";
 import { useGame } from "../store";
 
-// Placeholder: the proper newspaper-style legacy page comes in step 8.
-const HEADLINES: Record<string, [masc: string, fem: string]> = {
-  arrested: ["VEREADOR DEIXA A CÂMARA ALGEMADO", "VEREADORA DEIXA A CÂMARA ALGEMADA"],
-  expelled: ["PARTIDO EXPULSA VEREADOR REBELDE", "PARTIDO EXPULSA VEREADORA REBELDE"],
-  lost_support: ["UMA CARREIRA TERMINA EM SILÊNCIO: NINGUÉM ESCUTA MAIS", "UMA CARREIRA TERMINA EM SILÊNCIO: NINGUÉM ESCUTA MAIS"],
-  candidacy: ["CANDIDATURA A PREFEITO ANUNCIADA", "CANDIDATURA A PREFEITA ANUNCIADA"],
-};
-
+/**
+ * The end of the chapter: the front page spins in, then the history book
+ * slides up underneath with what the public never knew.
+ */
 export function EndingScreen() {
   const state = useGame((s) => s.state);
   const goto = useGame((s) => s.goto);
-  if (!state) return null;
-  const headline = HEADLINES[state.ending ?? ""]?.[state.player.form === "f" ? 1 : 0] ?? state.ending;
+  const root = useRef<HTMLDivElement>(null);
+  const legacy = useMemo(() => (state ? writeLegacy(state) : null), [state]);
+
+  useLayoutEffect(() => {
+    if (!legacy) return;
+    audio.setTension(legacy.tone === "defeat" ? 1 : 0);
+    audio.sfx("newspaper_spin");
+    const ctx = gsap.context(() => {
+      gsap
+        .timeline()
+        .fromTo(".legacy-front", { scale: 0.05, rotation: -720, opacity: 0 }, { scale: 1, rotation: -1.5, opacity: 1, duration: 1, ease: "power2.out" })
+        .add(() => audio.sfx(legacy.tone === "defeat" ? "scandal_sting" : "stamp_thud"))
+        .from(".legacy-book", { y: 120, opacity: 0, duration: 0.8, ease: "power3.out" }, "+=0.6")
+        .from(".legacy-section", { opacity: 0, y: 16, stagger: 0.35, duration: 0.5, onStart: () => audio.sfx("page_flip", { volume: 0.5 }) }, "-=0.2")
+        .from(".legacy-verdict", { opacity: 0, scale: 0.96, duration: 0.8 }, "+=0.3")
+        .from(".legacy-actions", { opacity: 0, duration: 0.5 });
+    }, root);
+    return () => ctx.revert();
+  }, [legacy]);
+
+  if (!state || !legacy) return null;
   return (
-    <div className="ending-screen">
-      <div className="newspaper">
+    <div className={`ending-screen tone-${legacy.tone}`} ref={root}>
+      <article className="legacy-front">
         <div className="newspaper-masthead">CORREIO DE PORTO FERRO</div>
-        <div className="newspaper-date">{weekDate(state.turn)}</div>
-        <h1 className="newspaper-headline">{headline}</h1>
-        <p>
-          A carreira de {state.player.name} na Câmara Municipal termina depois de {state.turn - 1} semanas.
-        </p>
+        <div className="newspaper-meta">
+          <span>{legacy.kicker}</span>
+          <span>{legacy.date}</span>
+          <span>Edição extra</span>
+        </div>
+        <h1 className="newspaper-headline">{legacy.headline}</h1>
+        <p className="newspaper-body">{legacy.lede}</p>
+      </article>
+
+      <article className="legacy-book">
+        <div className="legacy-book-head">Porto Ferro: uma história política (1985–2010) · cap. 7</div>
+        {legacy.sections.map((s) => (
+          <section key={s.title} className={`legacy-section ${s.title === "O que ninguém soube" ? "secret" : ""}`}>
+            <h2>{s.title}</h2>
+            {s.paragraphs.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </section>
+        ))}
+        <section className="legacy-verdict">
+          <h2>{legacy.verdict.title}</h2>
+          <p>{legacy.verdict.paragraphs[0]}</p>
+        </section>
+      </article>
+
+      <div className="legacy-actions">
+        <DeskButton variant="primary" onClick={() => goto("party")}>
+          Começar uma nova carreira
+        </DeskButton>
       </div>
-      <DeskButton variant="primary" onClick={() => goto("party")}>
-        Começar uma nova carreira
-      </DeskButton>
     </div>
   );
 }

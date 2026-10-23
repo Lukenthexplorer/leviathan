@@ -7,14 +7,15 @@ import type { ChapterDefinition, ChapterSetup } from "../../core/chapter";
 import { readRef } from "../../core/conditions";
 import { EVENTS } from "../../content/councilman/events";
 import { expectationsPressure } from "../../core/hidden";
-import type { GameState } from "../../core/types";
+import type { Effect, GameState } from "../../core/types";
+import { goalsMet } from "./goals";
 import { LAW_IDS } from "../../content/councilman/laws";
 import { readingRule, resolveCouncilmanDecision } from "./actions";
 import { confessionRule, pressRule } from "./rules";
 
 const C = BALANCE.councilman;
 
-export const COUNCILMAN_ENDINGS = ["arrested", "expelled", "lost_support", "candidacy"] as const;
+export const COUNCILMAN_ENDINGS = ["arrested", "expelled", "lost_support", "candidacy", "kingmaker", "passed_over"] as const;
 export type CouncilmanEnding = (typeof COUNCILMAN_ENDINGS)[number];
 
 function createInitialState({ playerName, party, form = "m" }: ChapterSetup): GameState {
@@ -62,11 +63,39 @@ function createInitialState({ playerName, party, form = "m" }: ChapterSetup): Ga
   };
 }
 
+/** Game-over checks first (a scandal can still sink a candidacy), then the convention. */
 function checkEnding(state: GameState): CouncilmanEnding | null {
   if (readRef(state, "exposedThreads") >= C.arrestAtExposedThreads) return "arrested";
   if (readRef(state, "relation:party_boss") <= C.expelledAtBossRelation) return "expelled";
   if (readRef(state, "averageOpinion") <= C.lostSupportAtAverageOpinion) return "lost_support";
+  // Asking for the nomination early, with everything in place, wins it.
+  if (state.flags.sought_nomination === 1 && goalsMet(state)) return "candidacy";
+  if (state.turn >= C.conventionWeek) {
+    if (goalsMet(state)) return "candidacy";
+    if (state.flags.backed_rival) return "kingmaker";
+    return "passed_over";
+  }
   return null;
+}
+
+/** Asked for the nomination but something slipped the same week: the party says "not yet". */
+function nominationRule(state: GameState): Effect[] {
+  if (state.flags.sought_nomination !== 1 || goalsMet(state)) return [];
+  return [
+    { type: "flag", key: "sought_nomination", set: 0 },
+    {
+      type: "deskItem",
+      item: {
+        id: `nomination_refused@${state.turn}`,
+        kind: "letter",
+        from: "party_boss",
+        expression: "neutral",
+        title: "Ainda não",
+        body: "A cúpula discutiu seu nome. Cedo demais, foi a conclusão. Volte quando tiver tudo no lugar: o partido, o dinheiro e o povo.",
+        turn: state.turn,
+      },
+    },
+  ];
 }
 
 export const councilmanChapter: ChapterDefinition = {
@@ -92,6 +121,11 @@ export const councilmanChapter: ChapterDefinition = {
     }
     const schemes = decisions.filter((d) => d.kind === "scheme").map((d) => d.itemId);
     if (new Set(schemes).size !== schemes.length) throw new Error("Um plano por esquema");
+    if (decisions.some((d) => d.kind === "seekNomination")) {
+      if (state.turn < C.nominationOpensWeek) throw new Error(`As pré-candidaturas só abrem na semana ${C.nominationOpensWeek}`);
+      if (!goalsMet(state)) throw new Error("Você ainda não reúne as três condições para pedir a indicação");
+    }
+    if (count("fundraise") > 1) throw new Error("Uma vaquinha por semana");
     const laws = decisions.filter((d) => d.kind === "proposeLaw").map((d) => d.law);
     if (new Set(laws).size !== laws.length) throw new Error("Cada projeto só pode ser proposto uma vez");
   },
@@ -101,6 +135,7 @@ export const councilmanChapter: ChapterDefinition = {
   weeklyRules(state) {
     return [
       ...readingRule(state),
+      ...nominationRule(state),
       ...expectationsPressure(state),
       // Confession first: once everything is out, there's nothing left to dig.
       ...(state.flags.confess === 1 ? confessionRule(state) : pressRule(state)),
