@@ -6,6 +6,7 @@ import { LAWS } from "../content/councilman/laws";
 import { NEIGHBOURHOODS } from "../content/councilman/neighbourhoods";
 import { PARTIES, type PartyId } from "../content/councilman/parties";
 import type { Condition, Decision, GameState } from "../core/types";
+import { portrait, type Expression } from "./assets";
 
 /** Player-facing wording. Kept apart from components so text is easy to find and change. */
 
@@ -17,6 +18,12 @@ export function characterName(state: GameState, id: string): string {
 export function characterRole(state: GameState, id: string): string {
   if (id === "party_boss") return PARTIES[state.party as PartyId].boss.title;
   return CHARACTERS[id as CharacterId]?.role ?? "";
+}
+
+/** Which portrait to show for a character. The party boss depends on the player's party. */
+export function characterPortrait(state: GameState, id: string, expression?: Expression): string {
+  const subject = id === "party_boss" ? `party_boss_${state.party}` : (CHARACTERS[id as CharacterId]?.portrait ?? id);
+  return portrait(subject, expression);
 }
 
 /** One typewritten line for the agenda pad. */

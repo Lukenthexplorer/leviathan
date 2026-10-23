@@ -42,7 +42,8 @@ export const DESK_ART = {
   bills_folder: "assets/desk/bills_folder.png", // final art
   rolodex: "assets/desk/rolodex.png", // final art
   city_map_folded: "assets/desk/city_map_folded.png", // final art
-  brick_phone: "assets/desk/brick_phone.png", // final art
+  brick_phone: "assets/desk/brick_phone.png", // final art (kept for phone calls)
+  radio: "assets/desk/radio.png", // final art
   city_skyline: "assets/desk/city_skyline.png", // final art
   book_stack: "assets/desk/book_stack.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
@@ -67,6 +68,14 @@ const FINAL_PORTRAITS: Record<string, Partial<Record<Expression, string>>> = {
     neutral: "assets/portraits/journalist_neutral.png",
     suspicious: "assets/portraits/journalist_suspicious.png",
   },
+  rival: { neutral: "assets/portraits/rival_neutral.png" },
+  donor: { neutral: "assets/portraits/donor_neutral.png" },
+  // Each party has its own boss. The "statesman" portrait fits the three men;
+  // Cida Ramos (labour) keeps a placeholder until her own portrait exists.
+  party_boss_liberal: { neutral: "assets/portraits/party_boss_statesman.png" },
+  party_boss_conservative: { neutral: "assets/portraits/party_boss_statesman.png" },
+  party_boss_centrao: { neutral: "assets/portraits/party_boss_statesman.png" },
+  community_leader: { neutral: "assets/portraits/community_leader_neutral.png" },
 };
 
 /** Closest substitutes for each expression, in order. */

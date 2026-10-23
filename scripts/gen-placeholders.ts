@@ -27,7 +27,7 @@ function svg(w: number, h: number, bg: string, label: string, sub = "") {
 </svg>`;
 }
 
-const PORTRAIT_SUBJECTS = ["mentor", "rival", "journalist", "party_boss", "donor", "community_leader"];
+const PORTRAIT_SUBJECTS = ["mentor", "rival", "journalist", "party_boss_labour", "donor", "community_leader"];
 const EXPRESSIONS: Record<string, string> = {
   neutral: "#5a4a3a",
   pleased: "#6b5a32",

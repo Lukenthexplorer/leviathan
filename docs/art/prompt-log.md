@@ -13,3 +13,8 @@
 | 2026-10-22 | desk/city_skyline.png (Ruas drawer) | (added by Lucas; model/settings to fill in) | warm umber city skyline | – | Background removed |
 | 2026-10-22 | desk/book_stack.png (Estante drawer) | (added by Lucas; model/settings to fill in) | worn stack of political and economic books | – | Background removed |
 | 2026-10-22 | desk.png (desk background, "Warm Light on Worn Mahogany") | (added by Lucas; model/settings to fill in) | worn mahogany desk top, warm light top-left | – | 1672x941, no alpha. Lamp light is baked in at top-left |
+| 2026-10-23 | portraits/rival_neutral.png (Renata Saldanha) | (added by Lucas; model/settings to fill in) | Renata, ambitious young councillor, sepia polaroid | – | 800px web copy |
+| 2026-10-23 | portraits/donor_neutral.png (Augusto Teixeira) | (added by Lucas; model/settings to fill in) | construction magnate with glasses, sepia polaroid | – | 800px web copy |
+| 2026-10-23 | portraits/party_boss_statesman.png (bosses of NRL, POF, UCD) | (added by Lucas; model/settings to fill in) | "statesman", older party chief, sepia polaroid | – | Not used for Cida Ramos (PTP), who needs her own portrait |
+| 2026-10-23 | portraits/community_leader_neutral.png (Dona Lurdes) | (added by Lucas; model/settings to fill in) | elderly community leader, sepia polaroid | – | 800px web copy |
+| 2026-10-23 | desk/radio.png (Imprensa drawer) | (added by Lucas; model/settings to fill in) | worn 1980s portable radio | – | Transparent; cropped to content and resized to 520px |

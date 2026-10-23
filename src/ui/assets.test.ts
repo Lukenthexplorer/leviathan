@@ -21,11 +21,19 @@ describe("asset manifest", () => {
 });
 
 describe("portrait fallback", () => {
+  it("every character has final art: no placeholder face ever shows", () => {
+    for (const who of ["mentor", "rival", "journalist", "party_boss_liberal", "party_boss_conservative", "party_boss_centrao", "donor", "community_leader"]) {
+      for (const e of ["neutral", "pleased", "angry", "suspicious"] as const) {
+        expect(portrait(who, e), `${who}/${e}`).toMatch(/\.png$/);
+      }
+    }
+  });
+
   it("uses the closest existing expression for characters with final art", () => {
     expect(portrait("journalist", "suspicious")).toBe("assets/portraits/journalist_suspicious.png");
     expect(portrait("journalist", "angry")).toBe("assets/portraits/journalist_suspicious.png");
     expect(portrait("journalist", "pleased")).toBe("assets/portraits/journalist_neutral.png");
     expect(portrait("mentor", "angry")).toBe("assets/portraits/mentor_neutral.png");
-    expect(portrait("rival", "angry")).toBe("assets/portraits/rival_angry.svg"); // still a placeholder
+    expect(portrait("rival", "angry")).toBe("assets/portraits/rival_neutral.png");
   });
 });

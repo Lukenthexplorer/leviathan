@@ -1,7 +1,6 @@
 import { CHARACTERS, type CharacterId } from "../../../content/councilman/characters";
 import type { GameState } from "../../../core/types";
-import { portrait } from "../../assets";
-import { characterName, characterRole, relationWord } from "../../text";
+import { characterName, characterPortrait, characterRole, relationWord } from "../../text";
 import { Sheet } from "../Sheet";
 import { ActionRow } from "./ActionRow";
 
@@ -19,7 +18,7 @@ export function MeetingsPanel({ state, onClose }: { state: GameState; onClose: (
             key={id}
             title={
               <span className="person">
-                <img src={portrait(CHARACTERS[id].portrait)} alt="" />
+                <img src={characterPortrait(state, id)} alt="" />
                 <span>
                   {characterName(state, id)}
                   <small>{characterRole(state, id)}</small>

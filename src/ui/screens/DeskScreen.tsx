@@ -37,8 +37,7 @@ const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
   { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
   { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
   { id: "streets", label: "Ruas", hint: "Construir uma base", icon: DESK_ART.city_skyline },
-  // The phone stays as the icon until a period microphone/radio illustration exists.
-  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", icon: DESK_ART.brick_phone },
+  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", icon: DESK_ART.radio },
   { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
 ];
 

@@ -2,11 +2,10 @@ import { useRef, useState } from "react";
 import { CHARACTERS, type CharacterId } from "../../content/councilman/characters";
 import { evaluate } from "../../core/conditions";
 import type { DeskChoice, DeskItem, GameState } from "../../core/types";
-import { portrait } from "../assets";
 import { audio } from "../audio/audio";
 import { stampDown, tossAway } from "../feel/feel";
 import { answerFor, useGame } from "../store";
-import { characterName, characterRole, lockReason } from "../text";
+import { characterName, characterPortrait, characterRole, lockReason } from "../text";
 import { DeskButton } from "./DeskButton";
 import { NewspaperView } from "./NewspaperView";
 import { SchemeBoard } from "./SchemeBoard";
@@ -61,7 +60,7 @@ function Document({ item, state, onClose }: { item: DeskItem; state: GameState; 
       <div className={`document kind-${item.kind}`}>
         {who && CHARACTERS[who] && (
           <div className="doc-from">
-            <img src={portrait(CHARACTERS[who].portrait, item.expression)} alt="" />
+            <img src={characterPortrait(state, who, item.expression)} alt="" />
             <div>
               <div className="doc-from-name">{characterName(state, who)}</div>
               <div className="doc-from-role">{characterRole(state, who)}</div>
