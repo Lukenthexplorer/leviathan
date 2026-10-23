@@ -154,6 +154,16 @@ h1, h2, h3 { margin: 0; }
   pointer-events: none;
 }
 
+/* Corruption chills the room: a cold blue wash drains the warmth from the wood as integrity falls. */
+.desk-chill {
+  position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  background: #1d2b3c;
+  mix-blend-mode: color;
+  opacity: calc(var(--corruption, 0) * 0.55);
+  transition: opacity 4s ease;
+}
+
 /* Lamp light from the top-left, then a vignette darkening the edges. Above the wood, below the UI. */
 .desk-light {
   position: absolute; inset: 0; z-index: 1;
@@ -661,3 +671,25 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .law-row { grid-template-columns: 1fr auto auto; }
 .law-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 190px; }
 .law-actions .desk-btn { font-size: 0.8rem; padding: 7px 10px; }
+.map-loading { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; font-family: var(--type); color: #cdbb98; background: #120d09cc; }
+
+/* desk clock: brass rim, paper face, ticking second hand */
+.desk-clock {
+  position: absolute; z-index: 2;
+  left: clamp(300px, 22vw, 420px); bottom: 70px;
+  width: 118px; aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 7px;
+  background: radial-gradient(circle at 30% 25%, #e8c98a, #9a7438 55%, #5b4120);
+  box-shadow: var(--desk-shadow);
+  pointer-events: none;
+}
+.clock-face { position: relative; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f6eedb, #d9cba8); box-shadow: inset 0 2px 6px #0006; }
+.clock-mark { position: absolute; left: 50%; top: 4px; width: 2px; height: 7px; margin-left: -1px; background: var(--ink); transform-origin: 1px 48px; }
+.hand-wrap { position: absolute; inset: 0; }
+.hand { position: absolute; left: 50%; bottom: 50%; transform-origin: 50% 100%; border-radius: 2px; }
+.hand-hour { width: 4px; height: 24%; margin-left: -2px; background: var(--ink); animation: clock-spin 43200s linear infinite; rotate: 300deg; }
+.hand-minute { width: 3px; height: 36%; margin-left: -1.5px; background: var(--ink); animation: clock-spin 3600s linear infinite; }
+.hand-second { width: 1px; height: 40%; margin-left: -0.5px; background: #9a2f25; animation: clock-spin 60s steps(60) infinite; }
+.clock-pin { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9a7438; }
+@keyframes clock-spin { to { transform: rotate(360deg); } }

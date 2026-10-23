@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { DeskItem, GameState } from "../../core/types";
@@ -10,6 +10,7 @@ import { useHoverLift } from "../feel/useHoverLift";
 import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
+import { DeskClock } from "../desk/DeskClock";
 import { GoalsCard } from "../desk/GoalsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { OpinionStrip } from "../desk/OpinionStrip";
@@ -21,7 +22,9 @@ import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
 import { MediaPanel } from "../desk/panels/MediaPanel";
 import { MapThumb } from "../map/MapThumb";
-import { MapView } from "../map/MapView";
+// The map pulls in PixiJS (~500 KB). Lazy-loading it means the desk opens
+// without it; the browser fetches the map's code the first time it's opened.
+const MapView = lazy(() => import("../map/MapView").then((m) => ({ default: m.MapView })));
 import { agendaOf, answerFor, useGame } from "../store";
 import { capitalIncome, lawCost } from "../../chapters/councilman/actions";
 import { BALANCE } from "../../content/balance";
@@ -127,10 +130,15 @@ export function DeskScreen() {
   const PanelComponent = panel ? PANELS[panel] : null;
 
   return (
-    <div className="desk-screen" ref={desk} style={{ backgroundImage: `url(${DESK_ART.desk_bg})` }}>
+    <div
+      className="desk-screen"
+      ref={desk}
+      style={{ backgroundImage: `url(${DESK_ART.desk_bg})`, ["--corruption" as string]: corruptionLevel(state) }}
+    >
       {/* Visual layers, bottom to top: wood (background) > blotter > lamp light + vignette > UI. None take clicks. */}
       {BLOTTER && <div className="desk-blotter" style={{ backgroundImage: `url(${BLOTTER})` }} aria-hidden />}
       <div className="desk-light" aria-hidden />
+      <div className="desk-chill" aria-hidden />
 
       <header className="desk-top">
         <div className="badge">
@@ -163,6 +171,8 @@ export function DeskScreen() {
         </nav>
       </main>
 
+      <DeskClock turn={state.turn} />
+
       {/* Idle desk object: a real-size coffee cup resting on the wood. */}
       <div className="coffee">
         <img src={DESK_ART.coffee_cup} alt="" />
@@ -191,13 +201,29 @@ export function DeskScreen() {
       <div className="scandal-flash" ref={flash} />
 
       {/* A portal renders the map outside the desk element, so the desk's zoom-blur doesn't blur the map. */}
-      {mapOpen && createPortal(<MapView state={state} from={mapFrom} onClose={closeMap} />, document.body)}
+      {mapOpen &&
+        createPortal(
+          <Suspense fallback={<div className="map-loading">Desdobrando o mapa…</div>}>
+            <MapView state={state} from={mapFrom} onClose={closeMap} />
+          </Suspense>,
+          document.body,
+        )}
 
       <div className="curtain" ref={curtain}>
         <div className="curtain-text" ref={curtainText} />
       </div>
     </div>
   );
+}
+
+/**
+ * 0 (clean) .. 1 (rotten): how much the office has gone cold. The art doc asks
+ * the palette to shift from warm and hopeful to colder and darker as corruption
+ * grows. The player never sees the integrity number; they feel the room change.
+ */
+function corruptionLevel(state: GameState): number {
+  const start = BALANCE.hidden.integrityStart;
+  return Math.round(Math.max(0, Math.min(1, (start - state.hidden.integrity) / start)) * 100) / 100;
 }
 
 /** Political capital: what you have, what this week's agenda will spend, and where the income comes from. */
