@@ -184,7 +184,7 @@ describe("meetings", () => {
 
   it("book-gated choices are locked until the book is read", () => {
     let s = step(start(), [{ kind: "meeting", with: "mentor" }]).state;
-    const paper = s.inbox.find((i) => i.from === "mentor")!;
+    const paper = s.inbox.find((i) => i.from === "mentor" && i.choices)!;
     expect(() => step(s, [{ kind: "choose", itemId: paper.id, choiceId: "ask_price" }])).toThrow("locked");
     s.books.finished.push("machiavelli");
     s = step(s, [{ kind: "choose", itemId: paper.id, choiceId: "ask_price" }]).state;

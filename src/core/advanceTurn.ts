@@ -4,7 +4,7 @@ import { applyEffects } from "./effects";
 import { fireEvents } from "./events";
 import { allOpinions, forgetFadedMemories } from "./groups";
 import { fireDueEffects } from "./queue";
-import type { Cause, ChapterDecision, Decision, GameState, TurnReport } from "./types";
+import { isDeskAnswer, type Cause, type ChapterDecision, type Decision, type GameState, type TurnReport } from "./types";
 
 /**
  * The heart of the game: one week passes.
@@ -35,9 +35,10 @@ export function advanceTurn(
   // 1. decisions: answer the papers on the desk first, then take new actions
   for (const d of decisions) {
     if (d.kind === "choose") resolveChoice(state, d.itemId as string, d.choiceId as string);
+    if (d.kind === "dismiss") dismiss(state, d.itemId as string);
   }
 
-  const chapterDecisions = decisions.filter((d): d is ChapterDecision => d.kind !== "choose");
+  const chapterDecisions = decisions.filter((d): d is ChapterDecision => !isDeskAnswer(d));
   chapter.validateDecisions?.(state, chapterDecisions);
 
   for (const d of chapterDecisions) {
@@ -94,5 +95,13 @@ function resolveChoice(state: GameState, itemId: string, choiceId: string): void
   const cause: Cause = { kind: "event", id: item.id, turn: state.turn, label: `${item.title}: ${choice.label}` };
   state.history.push({ turn: state.turn, cause, text: cause.label });
   applyEffects(state, choice.effects, cause);
+  state.inbox = state.inbox.filter((i) => i.id !== itemId);
+}
+
+/** File away a paper that needs no answer (a report, a book's lesson...). */
+function dismiss(state: GameState, itemId: string): void {
+  const item = state.inbox.find((i) => i.id === itemId);
+  if (!item) throw new Error(`No desk item "${itemId}"`);
+  if (item.choices?.length) throw new Error(`"${itemId}" needs an answer, it can't just be filed`);
   state.inbox = state.inbox.filter((i) => i.id !== itemId);
 }

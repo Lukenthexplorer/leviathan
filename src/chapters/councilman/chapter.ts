@@ -38,7 +38,21 @@ function createInitialState({ playerName, party }: { playerName: string; party: 
     laws: Object.fromEntries(LAW_IDS.map((l) => [l, "draft" as const])),
     books: { reading: null, finished: [] },
     queue: [],
-    inbox: [],
+    inbox: [
+      {
+        id: "welcome",
+        kind: "letter",
+        from: "mentor",
+        title: "Welcome to the Câmara, kid",
+        body:
+          `Congratulations on the election, ${playerName}. You squeezed in with the last seat, so don't let it go to your head.\n\n` +
+          `Here's how it works. Every week you get three things done: a bill, a meeting, a walk in the neighbourhoods, a post, ` +
+          `a chapter of a good book. Papers will pile up on this desk; answer them, they don't answer themselves.\n\n` +
+          `In two years ${p.short} picks its candidate for mayor. Win the party, fill a campaign chest, and get the people on your side. ` +
+          `Three things. Sounds simple.\n\nIt never is.\n\n— Otávio`,
+        turn: 1,
+      },
+    ],
     history: [],
     firedEvents: [],
     flags: {},
@@ -68,7 +82,7 @@ export const councilmanChapter: ChapterDefinition = {
     const met = decisions.filter((d) => d.kind === "meeting").map((d) => d.with as string);
     if (new Set(met).size !== met.length) throw new Error("Only one meeting per person per week");
     for (const who of met) {
-      if (state.inbox.some((i) => i.from === who && i.kind === "letter")) {
+      if (state.inbox.some((i) => i.from === who && i.choices?.length)) {
         throw new Error(`Answer ${who}'s last meeting before asking for another`);
       }
     }

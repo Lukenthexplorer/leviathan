@@ -143,6 +143,14 @@ describe("events", () => {
     expect(r.state.inbox).toHaveLength(1); // still on the desk, unanswered
   });
 
+  it("papers without choices can be filed; papers with choices must be answered", () => {
+    const s = makeState({ inbox: [{ id: "memo", kind: "report", title: "Memo", body: "", turn: 1 }] });
+    expect(advanceTurn(s, [{ kind: "dismiss", itemId: "memo" }], journalistEvent).state.inbox).toEqual([]);
+
+    const withChoice = advanceTurn(makeState(), [{ kind: "acceptDonation" }], journalistEvent).state;
+    expect(() => advanceTurn(withChoice, [{ kind: "dismiss", itemId: "journalist_calls" }], journalistEvent)).toThrow("needs an answer");
+  });
+
   it("choices apply effects, clear the paper, and respect locks", () => {
     let s = advanceTurn(makeState(), [{ kind: "acceptDonation" }], journalistEvent).state;
     expect(() => advanceTurn(s, [{ kind: "choose", itemId: "journalist_calls", choiceId: "confess" }], journalistEvent)).toThrow(

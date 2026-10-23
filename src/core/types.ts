@@ -195,10 +195,19 @@ export interface DeskItem {
 }
 
 /**
- * What the player did this week. `choose` (answering a desk item) is handled by
- * the core; every other kind is resolved by the active chapter.
+ * What the player did this week. `choose` (answering a desk item) and `dismiss`
+ * (filing a paper that has no choices) are handled by the core; every other
+ * kind is resolved by the active chapter.
  */
-export type Decision = { kind: "choose"; itemId: string; choiceId: string } | ChapterDecision;
+export type Decision =
+  | { kind: "choose"; itemId: string; choiceId: string }
+  | { kind: "dismiss"; itemId: string }
+  | ChapterDecision;
+
+/** Desk answers don't use up the week's agenda; chapter actions do. */
+export function isDeskAnswer(d: Decision): boolean {
+  return d.kind === "choose" || d.kind === "dismiss";
+}
 
 export interface ChapterDecision {
   kind: string;

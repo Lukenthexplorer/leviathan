@@ -38,8 +38,22 @@ for (const who of PORTRAIT_SUBJECTS) {
   }
 }
 
+/** Wood-grain placeholder for the desk: big images get texture, not a giant label. */
+function woodSvg(w: number, h: number) {
+  let lines = "";
+  for (let y = 0; y < h; y += 6) {
+    const o = (0.04 + ((y * 7919) % 97) / 97 * 0.1).toFixed(3);
+    const wave = 4 + ((y * 31) % 11);
+    lines += `<path d="M0 ${y} Q ${w / 4} ${y + wave} ${w / 2} ${y} T ${w} ${y}" stroke="#000" stroke-opacity="${o}" stroke-width="3" fill="none"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <rect width="100%" height="100%" fill="#4a3324"/>${lines}
+  <text x="${w - 20}" y="${h - 20}" text-anchor="end" font-family="monospace" font-size="18" fill="#ffffff33">desk_bg (placeholder)</text>
+</svg>`;
+}
+write("desk/desk_bg.svg", woodSvg(1920, 1080));
+
 const DESK_ART: Record<string, [number, number, string]> = {
-  desk_bg: [1920, 1080, "#3a2a1e"],
   paper_blank: [600, 800, "#d8ccb0"],
   stamp_approved: [300, 300, "#2f5a34"],
   stamp_rejected: [300, 300, "#7a2620"],
