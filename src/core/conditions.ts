@@ -1,3 +1,4 @@
+import { monthOf } from "./calendar";
 import { allOpinions, opinionOf } from "./groups";
 import type { Comparison, Condition, GameState, NumRef } from "./types";
 
@@ -6,6 +7,8 @@ export function readRef(state: GameState, ref: NumRef): number {
   switch (ref) {
     case "turn":
       return state.turn;
+    case "month":
+      return monthOf(state.turn);
     case "funds":
       return state.player.funds;
     case "capital":

@@ -21,6 +21,7 @@ export const MEETINGS: MeetingDef[] = [
       {
         id: "cash",
         label: "Aceitar a contribuição discreta",
+        hint: { text: "Quem paga por fora não está doando: está comprando. A conta vem depois.", by: ["machiavelli", "faoro"] },
         // Taking the money is only the start: now it has to be hidden (see schemes.ts).
         effects: [
           relation("donor", 20),
@@ -65,6 +66,7 @@ export const MEETINGS: MeetingDef[] = [
       {
         id: "vote_for",
         label: "Prometer seu voto",
+        hint: { text: "Um voto vendido uma vez é um voto que ele vai querer de novo, e um segredo que ele guarda.", by: ["machiavelli", "faoro"] },
         effects: [
           dirtyFunds(20),
           integrity(-10),

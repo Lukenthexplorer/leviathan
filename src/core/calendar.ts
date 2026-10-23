@@ -10,6 +10,11 @@ export function yearOf(turn: number): number {
   return dateOf(turn).getUTCFullYear();
 }
 
+/** Calendar month (1..12) of a turn. */
+export function monthOf(turn: number): number {
+  return dateOf(turn).getUTCMonth() + 1;
+}
+
 /** "16 jan 1989" */
 export function weekDate(turn: number): string {
   const d = dateOf(turn);

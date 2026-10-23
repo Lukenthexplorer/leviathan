@@ -725,3 +725,16 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .project-strip-label { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); margin-right: 4px; }
 .project-strip .desk-btn { font-size: 0.75rem; padding: 5px 9px; }
 .project-wait { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); }
+
+/* law upgrades and foresight */
+.law-group { border-bottom: 1px dashed #0003; }
+.law-group > .action-row { border-bottom: none; }
+.law-upgrade { margin: 0 0 8px 22px; padding-left: 14px; border-left: 3px solid var(--brass); }
+.law-upgrade .action-row { border-bottom: none; padding-top: 4px; }
+.law-upgrade-label { font-family: var(--type); font-size: 0.72rem; color: #8a6a2c; text-transform: uppercase; letter-spacing: 0.04em; }
+.law-hint, .doc-hint {
+  display: block; margin-top: 4px; padding: 4px 8px;
+  font-family: var(--serif); font-style: italic; font-size: 0.85rem; color: #4a3a1a;
+  background: #e8d9a866; border-left: 2px solid var(--brass);
+}
+.law-hint span { font-style: normal; font-family: var(--type); font-size: 0.72rem; color: #8a6a2c; }

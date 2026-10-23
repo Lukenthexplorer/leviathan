@@ -33,6 +33,17 @@ export const BOOKS = {
       "espalhada entre milhões de pessoas, por isso os mercados coordenam melhor que os burocratas. Cada novo controle, dizia ele, convida o próximo.",
     unlocksText: "Nova lei: Corte do ISS no Centro. Novo argumento com financiadores empresariais.",
   },
+  faoro: {
+    title: "Os Donos do Poder",
+    author: "Raymundo Faoro",
+    year: 1958,
+    weeksToRead: 6,
+    lesson:
+      "Faoro mostrou que, no Brasil, o Estado nunca foi só do povo: desde a Colônia, um estamento de funcionários, " +
+      "fazendeiros e amigos do rei tratou o público como coisa privada. É o patrimonialismo: o cargo vira propriedade, " +
+      "o orçamento vira favor, e quem está perto do poder confunde o bolso do Estado com o próprio.",
+    unlocksText: "Você passa a enxergar o que está por trás de certas ofertas e contratos. Nova lei: Transparência com Controle Social.",
+  },
 } as const satisfies Record<string, BookDef>;
 
 export type BookId = keyof typeof BOOKS;

@@ -1,5 +1,5 @@
 import type { TextVariant } from "../core/text";
-import type { Condition, DeskChoice, Effect } from "../core/types";
+import type { Condition, DeskChoice, Effect, Hint } from "../core/types";
 
 /**
  * Shapes of content data files. Content is plain data; chapters interpret it.
@@ -61,6 +61,12 @@ export interface LawDef {
   followUps?: { inTurns: number; label: string; effects: Effect[] }[];
   /** How much it fulfils public expectations when passed. */
   delivers: number;
+  /** This law is the smarter version of another one (shown grouped with it, unlocked by a book). */
+  upgradeOf?: string;
+  /** The delayed consequence, in words, for players who read the right book. */
+  hint?: Hint;
+  /** Only exists if someone offered it to you (a desk letter sets flag `offered_<id>`). Hidden otherwise. */
+  offer?: boolean;
 }
 
 export interface BookDef {

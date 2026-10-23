@@ -7,14 +7,14 @@ import { NEIGHBOURHOODS, type NeighbourhoodId } from "../../content/councilman/n
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import { SCHEMES, type SchemeId } from "../../content/councilman/schemes";
 import { PROJECTS, type ProjectId } from "../../content/councilman/projects";
-import type { ProjectDef, SchemeDef, SchemeOption } from "../../content/types";
+import type { LawDef, ProjectDef, SchemeDef, SchemeOption } from "../../content/types";
 import type { CharacterId } from "../../content/councilman/characters";
 import { channelFor } from "../../content/media";
 import { yearOf } from "../../core/calendar";
 import { evaluate } from "../../core/conditions";
 import { opinionOf } from "../../core/groups";
 import { pickVariant } from "../../core/text";
-import type { Cause, ChapterDecision, Effect, GameState } from "../../core/types";
+import type { Cause, ChapterDecision, Effect, GameState, Hint } from "../../core/types";
 
 /**
  * The Councilman's desk actions, as typed decisions.
@@ -90,6 +90,22 @@ export function lawAvailable(state: GameState, id: LawId): boolean {
   const law = LAWS[id];
   const status = state.laws[id] ?? "draft";
   return status === "draft" && (!("requires" in law) || evaluate(state, law.requires));
+}
+
+/**
+ * Foresight: the hint line is revealed once the player has read one of the
+ * books that explain it. Knowledge is literally the power to see what's coming.
+ */
+export function revealHint(state: GameState, hint: Hint | undefined): { text: string; book: string } | null {
+  if (!hint) return null;
+  const book = hint.by.find((b) => state.books.finished.includes(b));
+  return book ? { text: hint.text, book: BOOKS[book as BookId]?.title ?? book } : null;
+}
+
+/** Offers only exist once offered; everything else always shows (locked or not). */
+export function lawVisible(state: GameState, id: LawId): boolean {
+  const law: LawDef = LAWS[id];
+  return !law.offer || lawAvailable(state, id) || (state.laws[id] ?? "draft") !== "draft";
 }
 
 /** Capital needed to propose a bill at a given lobbying level. */

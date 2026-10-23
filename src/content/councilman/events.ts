@@ -1,5 +1,6 @@
 import type { EventDef } from "../../core/chapter";
-import { flag, funds, integrity, opinion, relation } from "../helpers";
+import { BALANCE } from "../balance";
+import { flag, funds, integrity, log, opinion, relation } from "../helpers";
 
 /**
  * Events: things that happen TO the player. Every trigger is a condition on
@@ -54,6 +55,7 @@ export const EVENTS: EventDef[] = [
         {
           id: "hire",
           label: "Colocar o Juninho na folha",
+          hint: { text: "Um favor ao mentor vira dívida dele com você, e prova contra você.", by: ["machiavelli", "faoro"] },
           effects: [
             relation("mentor", 15),
             integrity(-8),
@@ -268,6 +270,122 @@ export const EVENTS: EventDef[] = [
         { id: "attend", label: "Ir e circular pelo salão", effects: [funds(12), relation("party_boss", 4)] },
         { id: "skip", label: "Mandar suas desculpas", effects: [relation("party_boss", -3)] },
       ],
+    },
+  },
+
+  // =============================================================== Teixeira's "small opportunities" (only for the compromised)
+  {
+    id: "donor_opportunity",
+    trigger: {
+      all: [
+        { ref: "turn", op: ">=", value: 6 },
+        {
+          any: [
+            { ref: "integrity", op: "<=", value: BALANCE.corruptOfferIntegrity },
+            { ref: "flag:owes_teixeira", op: ">=", value: 1 },
+            { ref: "flag:hid_donation", op: ">=", value: 1 },
+          ],
+        },
+      ],
+    },
+    item: {
+      id: "donor_opportunity",
+      kind: "letter",
+      from: "donor",
+      expression: "pleased",
+      title: "Uma pequena oportunidade",
+      body:
+        "{{g:Prezado vereador/Prezada vereadora}}, a cidade precisa de obras e eu preciso de projetos. Tenho três ideias prontas, " +
+        "com tudo resolvido. Basta {{g:o senhor/a senhora}} pôr uma delas na pauta. O reconhecimento, naturalmente, viria na aprovação. — A. Teixeira",
+      choices: [
+        {
+          id: "emergency_paving",
+          label: "Pôr na pauta o asfaltamento emergencial da Vila Operária",
+          requires: { ref: "flag:offered_emergency_paving", op: "==", value: 0 },
+          effects: [flag("offered_emergency_paving"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "Sem licitação, a obra é dele e a comissão é sua. Asfalto feito assim racha.", by: ["faoro", "machiavelli"] },
+        },
+        {
+          id: "morro_rezoning",
+          label: "Pôr na pauta o rezoneamento da mata do Morro",
+          requires: { ref: "flag:offered_morro_rezoning", op: "==", value: 0 },
+          effects: [flag("offered_morro_rezoning"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "A mata segura a encosta. Sem ela, a próxima chuva forte desce o morro.", by: ["faoro", "machiavelli"] },
+        },
+        {
+          id: "school_lunch_contract",
+          label: "Pôr na pauta a terceirização da merenda escolar",
+          requires: { ref: "flag:offered_school_lunch_contract", op: "==", value: 0 },
+          effects: [flag("offered_school_lunch_contract"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "Quem ganha a merenda lucra cortando a comida. Quem perde são as crianças.", by: ["faoro", "machiavelli"] },
+        },
+        { id: "decline", label: "Agradecer e guardar a carta na gaveta", effects: [relation("donor", -5)] },
+      ],
+    },
+  },
+  {
+    id: "donor_opportunity_2",
+    trigger: { all: [{ ref: "flag:took_offer", op: ">=", value: 1 }, { ref: "turn", op: ">=", value: 18 }] },
+    item: {
+      id: "donor_opportunity_2",
+      kind: "letter",
+      from: "donor",
+      expression: "pleased",
+      title: "Mais uma oportunidade",
+      body: "Fiquei muito satisfeito com a nossa parceria. Ainda tenho projetos na gaveta, se {{g:o senhor/a senhora}} tiver interesse. — A. Teixeira",
+      choices: [
+        {
+          id: "emergency_paving",
+          label: "Pôr na pauta o asfaltamento emergencial da Vila Operária",
+          requires: { ref: "flag:offered_emergency_paving", op: "==", value: 0 },
+          effects: [flag("offered_emergency_paving"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "Sem licitação, a obra é dele e a comissão é sua. Asfalto feito assim racha.", by: ["faoro", "machiavelli"] },
+        },
+        {
+          id: "morro_rezoning",
+          label: "Pôr na pauta o rezoneamento da mata do Morro",
+          requires: { ref: "flag:offered_morro_rezoning", op: "==", value: 0 },
+          effects: [flag("offered_morro_rezoning"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "A mata segura a encosta. Sem ela, a próxima chuva forte desce o morro.", by: ["faoro", "machiavelli"] },
+        },
+        {
+          id: "school_lunch_contract",
+          label: "Pôr na pauta a terceirização da merenda escolar",
+          requires: { ref: "flag:offered_school_lunch_contract", op: "==", value: 0 },
+          effects: [flag("offered_school_lunch_contract"), relation("donor", 5), flag("took_offer")],
+          hint: { text: "Quem ganha a merenda lucra cortando a comida. Quem perde são as crianças.", by: ["faoro", "machiavelli"] },
+        },
+        { id: "decline", label: "Dizer que por enquanto está bom", effects: [relation("donor", -3)] },
+      ],
+    },
+  },
+  {
+    id: "morro_landslide",
+    trigger: {
+      all: [
+        { ref: "flag:morro_deforested", op: ">=", value: 1 },
+        // Porto Ferro is on the coast: the heavy rains come from March to July, every year.
+        { ref: "month", op: ">=", value: 3 },
+        { ref: "month", op: "<=", value: 7 },
+      ],
+    },
+    onFire: [
+      { type: "neighbourhood", id: "morro_esperanca", mood: -30, addMarker: "protest" },
+      opinion("periphery", -15, "Deslizamento na encosta desmatada"),
+      opinion("religious", -6, "Deslizamento na encosta desmatada"),
+      opinion("retirees", -4, "Deslizamento na encosta desmatada"),
+      { type: "thread", id: "morro_rezoning", add: 2 },
+      { type: "flag", key: "investigation", add: 30 },
+      log("Deslizamento no Morro da Esperança"),
+    ],
+    item: {
+      id: "morro_landslide",
+      kind: "newspaper",
+      title: "TRAGÉDIA NO MORRO: ENCOSTA DESMATADA DESABA COM A CHUVA",
+      body:
+        "Doze casas foram soterradas na madrugada no Morro da Esperança. Geólogos apontam a causa: a mata que segurava a encosta foi " +
+        "derrubada depois do rezoneamento aprovado em {{date:morro_rezoning}}. O condomínio previsto para o terreno pertence a um grupo " +
+        "ligado à Teixeira Construções. Moradores passaram a noite cavando com as mãos.",
     },
   },
 

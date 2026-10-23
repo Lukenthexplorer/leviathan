@@ -177,7 +177,9 @@ export type NumRef =
   | `mood:${string}`
   | `base:${string}`
   /** 1 if that dossier entry has been exposed, else 0. */
-  | `exposed:${string}`;
+  | `exposed:${string}`
+  /** Month of the current week, 1..12. Seasons are deterministic: the rains come every summer. */
+  | "month";
 
 export type Comparison = ">" | ">=" | "<" | "<=" | "==" | "!=";
 
@@ -192,10 +194,18 @@ export type Condition =
 
 // ------------------------------------------------------------------ desk & decisions
 
+/** Foresight a book gives you: the line is only shown once one of `by` (book ids) is read. */
+export interface Hint {
+  text: string;
+  by: string[];
+}
+
 export interface DeskChoice {
   id: string;
   label: string;
   effects: Effect[];
+  /** What a well-read player can see coming (Machiavelli reads people, Faoro reads deals). */
+  hint?: Hint;
   /** Choice is only offered when this holds (e.g. a book unlocks an argument). */
   requires?: Condition;
 }

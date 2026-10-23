@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { CHARACTERS, type CharacterId } from "../../content/councilman/characters";
+import { revealHint } from "../../chapters/councilman/actions";
 import { evaluate } from "../../core/conditions";
 import type { DeskChoice, DeskItem, GameState } from "../../core/types";
 import { audio } from "../audio/audio";
@@ -87,6 +88,9 @@ function Document({ item, state, onClose }: { item: DeskItem; state: GameState; 
                 >
                   <span>{c.label}</span>
                   {locked && <em className="doc-lock">{lockReason(c.requires)}</em>}
+                  {!locked && revealHint(state, c.hint) && (
+                    <em className="doc-hint">Você percebe ({revealHint(state, c.hint)!.book}): {c.hint!.text}</em>
+                  )}
                 </button>
               );
             })}

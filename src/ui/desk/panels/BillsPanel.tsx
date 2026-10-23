@@ -1,4 +1,5 @@
-import { lawAvailable, lawCost, lawVoteScore } from "../../../chapters/councilman/actions";
+import { lawAvailable, lawCost, lawVisible, lawVoteScore, revealHint } from "../../../chapters/councilman/actions";
+import { BOOKS, type BookId } from "../../../content/councilman/books";
 import { BALANCE } from "../../../content/balance";
 import { LAWS, LAW_IDS, type LawId } from "../../../content/councilman/laws";
 import type { LawDef } from "../../../content/types";
@@ -24,11 +25,27 @@ export function BillsPanel({ state, onClose }: { state: GameState; onClose: () =
         Propor custa capital político; articular nos corredores custa mais e compra votos. Precisa de {L.passThreshold} votos.
         Você tem <strong>{state.player.capital}</strong> de capital.
       </p>
-      {LAW_IDS.map((id) => (
-        <LawRow key={id} id={id} state={state} />
+      {/* Base laws first; each smarter version is listed right under the one it improves. */}
+      {LAW_IDS.filter((id) => !(LAWS[id] as LawDef).upgradeOf && lawVisible(state, id)).map((id) => (
+        <div key={id} className="law-group">
+          <LawRow id={id} state={state} />
+          {LAW_IDS.filter((u) => (LAWS[u] as LawDef).upgradeOf === id).map((u) => (
+            <div key={u} className="law-upgrade">
+              <div className="law-upgrade-label">Versão aprimorada · {upgradeBook(u)}</div>
+              <LawRow id={u} state={state} />
+            </div>
+          ))}
+        </div>
       ))}
     </Sheet>
   );
+}
+
+/** "desbloqueada por A Teoria Geral..." or "desbloqueada" once read. */
+function upgradeBook(id: LawId): string {
+  const req = (LAWS[id] as LawDef).requires;
+  const book = req && "bookFinished" in req ? BOOKS[req.bookFinished as BookId] : null;
+  return book ? `desbloqueada por ${book.title}` : "desbloqueada";
 }
 
 function LawRow({ id, state }: { id: LawId; state: GameState }) {
@@ -48,6 +65,14 @@ function LawRow({ id, state }: { id: LawId; state: GameState }) {
           {law.title} <span className="law-cost">custa {law.cost} de capital</span>
         </div>
         <div className="action-desc">{law.summary}</div>
+        {(() => {
+          const hint = revealHint(state, law.hint);
+          return hint ? (
+            <div className="law-hint">
+              <span>Você prevê ({hint.book}):</span> {hint.text}
+            </div>
+          ) : null;
+        })()}
         {!available && <div className="action-locked">{status !== "draft" ? STATUS_LABEL[status] : lockReason(law.requires)}</div>}
       </div>
       {available && (

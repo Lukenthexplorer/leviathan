@@ -1,4 +1,4 @@
-import { log, newspaper, opinion } from "../helpers";
+import { expectations, log, newspaper, opinion } from "../helpers";
 import type { LawDef } from "../types";
 
 /**
@@ -37,6 +37,7 @@ export const LAWS = {
       },
     ],
     delivers: 12,
+    hint: { text: "Analistas preveem: sem compensação, as empresas de ônibus vão cortar as linhas noturnas.", by: ["keynes", "hayek"] },
   },
 
   hillside_sanitation: {
@@ -101,6 +102,7 @@ export const LAWS = {
       },
     ],
     delivers: 8,
+    hint: { text: "Quem conhece o poder sabe: a ronda vai passar as noites no morro, não no Centro.", by: ["machiavelli", "faoro"] },
   },
 
   university_culture_fund: {
@@ -144,6 +146,7 @@ export const LAWS = {
       },
     ],
     delivers: 10,
+    hint: { text: "Analistas preveem: o desconto vai custar bem mais que o estimado e abrir um rombo na saúde.", by: ["keynes", "hayek"] },
   },
 
   church_tax_exemption: {
@@ -179,6 +182,7 @@ export const LAWS = {
   },
 
   public_works_jobs: {
+    upgradeOf: "cesta_basica",
     title: "Frente de Trabalho em Obras Públicas",
     summary: "Contrata desempregados para consertar ruas e praças. Gastar agora, crescer depois.",
     topics: ["jobs", "construction", "wages"],
@@ -209,6 +213,7 @@ export const LAWS = {
       },
     ],
     delivers: 15,
+    hint: { text: "Analistas preveem: vai estourar o orçamento, mas as ruas e os empregos ficam.", by: ["keynes"] },
   },
 
   street_lighting: {
@@ -256,6 +261,7 @@ export const LAWS = {
       },
     ],
     delivers: 10,
+    hint: { text: "Analistas preveem: as empresas vão repassar o custo para a passagem de quem trabalha.", by: ["hayek", "keynes"] },
   },
 
   square_renovation: {
@@ -277,11 +283,13 @@ export const LAWS = {
   },
 
   street_market: {
+    upgradeOf: "price_freeze",
     title: "Regularização das Feiras Livres",
     summary: "Licença, horário e ponto fixo para feirantes. Ordem para uns, perda do ponto para outros.",
     topics: ["regulation"],
     councilSupport: 50,
     cost: 3,
+    requires: { bookFinished: "hayek" },
     onPass: [
       opinion("business", 4, "Organizou as feiras"),
       opinion("workers", 2, "Feiras mais organizadas"),
@@ -349,6 +357,256 @@ export const LAWS = {
       },
     ],
     delivers: 6,
+    hint: { text: "O Diário Oficial vai mostrar o que todo mundo desconfia: obras pelo dobro do preço.", by: ["faoro"] },
+  },
+
+  // ------------------------------------------------------------ naive versions (books unlock the smarter ones)
+  cesta_basica: {
+    title: "Cesta Básica Municipal",
+    summary: "Uma cesta de alimentos por mês para as famílias do morro e da periferia. Rápido, visível, e o dinheiro não dura para sempre.",
+    topics: ["charity", "housing"],
+    councilSupport: 55,
+    cost: 4,
+    onPass: [
+      opinion("periphery", 9, "Distribuiu cestas básicas"),
+      opinion("religious", 5, "Distribuiu cestas básicas"),
+      expectations(12),
+    ],
+    followUps: [
+      {
+        inTurns: 12,
+        label: "Acaba o dinheiro da Cesta Básica Municipal",
+        effects: [
+          opinion("periphery", -10, "A cesta básica acabou"),
+          opinion("religious", -4, "A cesta básica acabou"),
+          newspaper(
+            "news_cesta_end",
+            "A CESTA ACABOU: FILAS VOLTAM À ASSOCIAÇÃO DE MORADORES",
+            "O programa aprovado em {{date:cesta_basica}} encerrou as entregas por falta de verba. Nenhum emprego foi criado no período. " +
+              "\"Ajudou enquanto durou\", diz Dona Lurdes Batista. \"Agora a gente está pior, porque se acostumou.\"",
+          ),
+        ],
+      },
+    ],
+    delivers: 6,
+    hint: { text: "Analistas preveem: quando a verba acabar, a cesta acaba, e nada fica no lugar.", by: ["keynes"] },
+  },
+
+  price_freeze: {
+    title: "Tabelamento de Preços na Feira",
+    summary: "Preço máximo para arroz, feijão e carne nas feiras da cidade. A dona de casa agradece. O feirante faz as contas.",
+    topics: ["regulation", "wages"],
+    councilSupport: 55,
+    cost: 3,
+    onPass: [opinion("retirees", 6, "Tabelou os preços da feira"), opinion("workers", 5, "Tabelou os preços da feira")],
+    followUps: [
+      {
+        inTurns: 6,
+        label: "Feirantes abandonam as feiras tabeladas",
+        effects: [
+          opinion("retirees", -6, "As barracas da feira ficaram vazias"),
+          opinion("workers", -4, "As barracas da feira ficaram vazias"),
+          opinion("business", -4, "Preço tabelado abaixo do custo"),
+          { type: "neighbourhood", id: "centro", mood: -6 },
+          newspaper(
+            "news_price_freeze",
+            "FEIRA TABELADA, BARRACA VAZIA",
+            "Seis semanas depois do tabelamento aprovado em {{date:price_freeze}}, metade das barracas sumiu. Os feirantes dizem que vender " +
+              "abaixo do custo não paga a viagem do interior. O feijão tabelado existe. Só não se acha.",
+          ),
+        ],
+      },
+    ],
+    delivers: 6,
+    hint: { text: "Analistas preveem: com preço abaixo do custo, os feirantes vão simplesmente parar de vir.", by: ["hayek"] },
+  },
+
+  contract_transparency_plus: {
+    upgradeOf: "contract_transparency",
+    title: "Transparência com Controle Social",
+    summary: "Contratos publicados e um conselho de moradores com poder de fiscalizar obras. O patrimonialismo detesta testemunhas.",
+    topics: ["transparency", "regulation"],
+    councilSupport: 30,
+    cost: 7,
+    requires: { bookFinished: "faoro" },
+    onPass: [
+      opinion("students", 7, "Criou o controle social das obras"),
+      opinion("periphery", 4, "Moradores fiscalizando obras"),
+      opinion("retirees", 3, "Abriu os contratos da prefeitura"),
+      { type: "relation", character: "donor", delta: -25 },
+      { type: "relation", character: "journalist", delta: 15 },
+      { type: "integrity", delta: 8 },
+    ],
+    followUps: [
+      {
+        inTurns: 6,
+        label: "Conselho de moradores barra obra superfaturada",
+        effects: [
+          opinion("periphery", 4, "Moradores barraram obra superfaturada"),
+          { type: "relation", character: "donor", delta: -10 },
+          newspaper(
+            "news_social_control",
+            "MORADORES BARRAM OBRA SUPERFATURADA",
+            "O conselho criado em {{date:contract_transparency_plus}} encontrou um contrato de recapeamento pelo triplo do preço de mercado. " +
+              "A obra foi suspensa. A empreiteira não quis comentar.",
+          ),
+        ],
+      },
+    ],
+    delivers: 8,
+  },
+
+  // ------------------------------------------------------------ tempting: they look like progress
+  beach_overpass: {
+    title: "Viaduto do Jardim Atlântico",
+    summary: "Um viaduto moderno ligando a orla ao Centro. Cartão-postal de cidade grande, obra que todo mundo vê.",
+    topics: ["construction"],
+    councilSupport: 55,
+    cost: 5,
+    onPass: [
+      opinion("business", 8, "Aprovou o viaduto da orla"),
+      opinion("retirees", 3, "Aprovou o viaduto da orla"),
+      { type: "capital", delta: 2 },
+      { type: "relation", character: "donor", delta: 10 },
+      { type: "neighbourhood", id: "jardim_atlantico", mood: 8, addMarker: "construction" },
+    ],
+    followUps: [
+      {
+        inTurns: 10,
+        label: "Verba do viaduto sai das linhas de ônibus do Morro e do posto de saúde",
+        effects: [
+          opinion("periphery", -9, "Perdeu ônibus e posto de saúde para o viaduto"),
+          opinion("workers", -3, "Ônibus cortados para pagar o viaduto"),
+          { type: "neighbourhood", id: "morro_esperanca", mood: -12 },
+          { type: "neighbourhood", id: "jardim_atlantico", removeMarker: "construction" },
+          newspaper(
+            "news_overpass_cost",
+            "O VIADUTO DA ORLA E O POSTO QUE FECHOU NO MORRO",
+            "Para cobrir o custo do viaduto aprovado em {{date:beach_overpass}}, a prefeitura remanejou verbas de duas linhas de ônibus do " +
+              "Morro da Esperança e do posto de saúde da comunidade. A obra ficou com a Teixeira Construções.",
+          ),
+        ],
+      },
+    ],
+    delivers: 4,
+    hint: { text: "Quem lê o orçamento sabe: o dinheiro do viaduto vai sair dos ônibus e da saúde do morro.", by: ["keynes", "faoro"] },
+  },
+
+  downtown_revitalization: {
+    title: "Revitalização do Centro",
+    summary: "Calçadas novas, fachadas pintadas e ordem nas ruas do Centro histórico.",
+    topics: ["construction", "safety"],
+    councilSupport: 55,
+    cost: 4,
+    onPass: [opinion("business", 7, "Revitalizou o Centro"), opinion("retirees", 3, "Revitalizou o Centro"), { type: "neighbourhood", id: "centro", mood: 8 }],
+    followUps: [
+      {
+        inTurns: 3,
+        label: "Fiscais retiram os camelôs do Centro revitalizado",
+        effects: [
+          opinion("workers", -5, "Camelôs expulsos do Centro"),
+          opinion("periphery", -6, "Camelôs expulsos do Centro"),
+          { type: "neighbourhood", id: "centro", addMarker: "protest" },
+          newspaper(
+            "news_camelos",
+            "CENTRO BONITO, CAMELÔ NA RUA",
+            "A revitalização aprovada em {{date:downtown_revitalization}} veio acompanhada de fiscais. Duzentos camelôs perderam o ponto. " +
+              "\"Pintaram a fachada e apagaram a gente\", disse um vendedor de frutas da Rua Direita.",
+          ),
+        ],
+      },
+    ],
+    delivers: 4,
+    hint: { text: "Quem conhece a cidade sabe: \"ordem nas ruas\" quer dizer tirar os camelôs.", by: ["keynes", "faoro"] },
+  },
+
+  // ------------------------------------------------------------ offers: only if Teixeira brings them
+  emergency_paving: {
+    offer: true,
+    title: "Asfaltamento Emergencial",
+    summary: "Asfalto em caráter de urgência na Vila Operária, sem licitação. A empresa já está escolhida.",
+    topics: ["construction"],
+    councilSupport: 55,
+    cost: 4,
+    requires: { ref: "flag:offered_emergency_paving", op: ">=", value: 1 },
+    onPass: [
+      opinion("workers", 5, "Asfaltou a Vila Operária"),
+      { type: "neighbourhood", id: "vila_operaria", mood: 6 },
+      { type: "funds", delta: 20, source: "dirty" },
+      { type: "relation", character: "donor", delta: 10 },
+      { type: "dossier", id: "emergency_paving", label: "Comissão no asfaltamento emergencial sem licitação", threads: 2 },
+    ],
+    followUps: [
+      {
+        inTurns: 8,
+        label: "O asfalto emergencial racha na Vila Operária",
+        effects: [
+          opinion("workers", -6, "O asfalto novo rachou"),
+          { type: "neighbourhood", id: "vila_operaria", mood: -8 },
+          { type: "thread", id: "emergency_paving", add: 1 },
+          newspaper(
+            "news_paving_cracks",
+            "ASFALTO DE URGÊNCIA RACHA EM OITO SEMANAS",
+            "O asfaltamento sem licitação aprovado em {{date:emergency_paving}} já está cheio de rachaduras. O metro quadrado custou o dobro " +
+              "da média da cidade. A empresa contratada pertence ao grupo Teixeira.",
+          ),
+        ],
+      },
+    ],
+    delivers: 5,
+  },
+
+  morro_rezoning: {
+    offer: true,
+    title: "Rezoneamento da Mata do Morro",
+    summary: "Libera a encosta de mata do Morro da Esperança para um condomínio. Mais imposto, mais emprego na obra.",
+    topics: ["construction", "deregulation"],
+    councilSupport: 50,
+    cost: 5,
+    requires: { ref: "flag:offered_morro_rezoning", op: ">=", value: 1 },
+    onPass: [
+      opinion("business", 6, "Liberou a encosta para construção"),
+      { type: "funds", delta: 30, source: "dirty" },
+      { type: "relation", character: "donor", delta: 20 },
+      { type: "dossier", id: "morro_rezoning", label: "Propina pelo rezoneamento da mata do Morro", threads: 3 },
+      { type: "neighbourhood", id: "morro_esperanca", addMarker: "construction" },
+    ],
+    // The landslide is an event (events.ts): it comes when the cut slope meets the rainy season. Never by chance.
+    followUps: [{ inTurns: 6, label: "Tratores derrubam a mata da encosta do Morro", effects: [{ type: "flag", key: "morro_deforested", set: 1 }] }],
+    delivers: 3,
+  },
+
+  school_lunch_contract: {
+    offer: true,
+    title: "Merenda Escolar Terceirizada",
+    summary: "A merenda das escolas municipais passa para uma empresa privada. Mais eficiência, diz o projeto.",
+    topics: ["privatisation", "education"],
+    councilSupport: 50,
+    cost: 4,
+    requires: { ref: "flag:offered_school_lunch_contract", op: ">=", value: 1 },
+    onPass: [
+      opinion("business", 4, "Terceirizou a merenda"),
+      { type: "funds", delta: 15, source: "dirty" },
+      { type: "relation", character: "donor", delta: 8 },
+      { type: "dossier", id: "school_lunch_contract", label: "Comissão no contrato da merenda escolar", threads: 2 },
+    ],
+    followUps: [
+      {
+        inTurns: 6,
+        label: "Merenda terceirizada piora nas escolas",
+        effects: [
+          opinion("students", -6, "A merenda piorou"),
+          opinion("periphery", -6, "A merenda piorou"),
+          newspaper(
+            "news_school_lunch",
+            "BOLACHA E SUCO EM PÓ: A NOVA MERENDA DAS ESCOLAS",
+            "Desde a terceirização aprovada em {{date:school_lunch_contract}}, o almoço quente virou lanche nas escolas municipais. " +
+              "Professoras relatam crianças desmaiando de fome no Morro. O contrato custa mais que a merenda antiga.",
+          ),
+        ],
+      },
+    ],
+    delivers: 3,
   },
 } as const satisfies Record<string, LawDef>;
 

@@ -99,6 +99,9 @@ export const BALANCE = {
     bossOpposedReaction: -8,
   },
 
+  /** At or below this hidden integrity, Teixeira starts bringing "small opportunities". */
+  corruptOfferIntegrity: 55,
+
   meetings: {
     /** Repeat small talk within this many weeks counts as "again?". */
     repeatWindowWeeks: 3,
