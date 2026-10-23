@@ -80,13 +80,18 @@ export const useGame = create<GameStore>((set, get) => ({
   clearNotice: () => set({ notice: null }),
 }));
 
-/** Answering the same paper twice replaces the earlier answer. */
+/**
+ * Anything with an itemId answers a paper on the desk (a choice, filing it,
+ * a scheme plan). Answering the same paper twice replaces the earlier answer.
+ */
+const answers = (d: Decision): d is Decision & { itemId: string } => isDeskAnswer(d) || typeof d.itemId === "string";
+
 function sameDeskTarget(a: Decision, b: Decision): boolean {
-  return isDeskAnswer(a) && isDeskAnswer(b) && a.itemId === b.itemId;
+  return answers(a) && answers(b) && a.itemId === b.itemId;
 }
 
 // ------------------------------------------------------------------ selectors
 
-export const agendaOf = (pending: Decision[]) => pending.filter((d) => !isDeskAnswer(d));
-export const answerFor = (pending: Decision[], itemId: string) =>
-  pending.find((d) => isDeskAnswer(d) && d.itemId === itemId);
+/** This week's actions (what fills the agenda pad), without desk answers. */
+export const agendaOf = (pending: Decision[]) => pending.filter((d) => !answers(d));
+export const answerFor = (pending: Decision[], itemId: string) => pending.find((d) => answers(d) && d.itemId === itemId);

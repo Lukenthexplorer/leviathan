@@ -44,7 +44,7 @@ function PaperCard(props: { item: DeskItem; state: GameState; order: number; ans
       {who && CHARACTERS[who] && <img className="paper-card-portrait" src={portrait(CHARACTERS[who].portrait, item.expression)} alt="" />}
       <div className="paper-card-title">{item.title}</div>
       {who && <div className="paper-card-from">{characterName(state, who)}</div>}
-      {props.answered && <div className="paper-card-ink">{item.choices?.length ? "ANSWERED" : "FILED"}</div>}
+      {props.answered && <div className="paper-card-ink">{item.scheme ? "IN MOTION" : item.choices?.length ? "ANSWERED" : "FILED"}</div>}
     </button>
   );
 }

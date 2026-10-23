@@ -69,6 +69,8 @@ export interface HiddenState {
 export interface DossierEntry {
   id: string;
   label: string;
+  /** Short version for a newspaper headline; falls back to label. */
+  headline?: string;
   /** Loose threads an investigator can pull. More threads = easier to expose. */
   threads: number;
   turn: number;
@@ -118,8 +120,11 @@ export type Effect =
   | { type: "funds"; delta: number }
   | { type: "integrity"; delta: number }
   | { type: "expectations"; delta: number }
-  | { type: "dossier"; id: string; label: string; threads: number }
+  | { type: "dossier"; id: string; label: string; threads: number; headline?: string }
   | { type: "expose"; id: string }
+  /** A weak link breaks later: more loose threads on an existing dossier entry. */
+  | { type: "thread"; id: string; add: number }
+  | { type: "removeDeskItem"; id: string }
   | { type: "relation"; character: string; delta: number }
   | { type: "neighbourhood"; id: string; mood?: number; base?: number; addMarker?: MapMarker; removeMarker?: MapMarker }
   | { type: "flag"; key: string; add?: number; set?: number }
@@ -159,7 +164,9 @@ export type NumRef =
   | `relation:${string}`
   | `flag:${string}`
   | `mood:${string}`
-  | `base:${string}`;
+  | `base:${string}`
+  /** 1 if that dossier entry has been exposed, else 0. */
+  | `exposed:${string}`;
 
 export type Comparison = ">" | ">=" | "<" | "<=" | "==" | "!=";
 
@@ -184,13 +191,15 @@ export interface DeskChoice {
 
 export interface DeskItem {
   id: string;
-  kind: "letter" | "event" | "newspaper" | "report" | "phone";
+  kind: "letter" | "event" | "newspaper" | "report" | "phone" | "scheme";
   from?: string;
   title: string;
   body: string;
   choices?: DeskChoice[];
   /** For newspapers: the earlier decision this story is about. */
   cause?: Cause;
+  /** For kind "scheme": which scheme this paper asks the player to plan. Must be answered, can't be filed. */
+  scheme?: string;
   /** Portrait expression of `from`. Characters' faces carry the hidden morality. */
   expression?: "neutral" | "pleased" | "angry" | "suspicious";
   turn: number;

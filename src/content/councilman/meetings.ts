@@ -21,12 +21,22 @@ export const MEETINGS: MeetingDef[] = [
       {
         id: "cash",
         label: "Accept the discreet contribution",
+        // Taking the money is only the start: now it has to be hidden (see schemes.ts).
         effects: [
-          funds(40),
-          integrity(-12),
           relation("donor", 20),
           flag("took_dirty_money"),
-          { type: "dossier", id: "teixeira_cash", label: "Undeclared cash from Teixeira Construções", threads: 3 },
+          {
+            type: "deskItem",
+            item: {
+              id: "plan_teixeira_donation",
+              kind: "scheme",
+              scheme: "teixeira_donation",
+              from: "donor",
+              title: "Plan: Teixeira's money",
+              body: "40 thousand, undeclared, ready by Friday. It has to reach your campaign without touching your name.",
+              turn: 0,
+            },
+          },
         ],
       },
       {

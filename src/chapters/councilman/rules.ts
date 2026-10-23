@@ -22,7 +22,7 @@ export function pressRule(state: GameState): Effect[] {
     item: {
       id: `scandal_${entry.id}`,
       kind: "newspaper",
-      title: `EXCLUSIVE: ${entry.label.toUpperCase()}`,
+      title: `EXCLUSIVE: ${(entry.headline ?? entry.label).toUpperCase()}`,
       body:
         `Documents obtained by the Correio show that in ${monthYear(entry.turn)} councillor {{player}} was involved in what sources ` +
         `describe as "${lowerFirst(entry.label)}". ${entry.threads > 2 ? "Several people" : "At least one person"} close to the councillor ` +

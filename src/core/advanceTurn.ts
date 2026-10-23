@@ -102,6 +102,6 @@ function resolveChoice(state: GameState, itemId: string, choiceId: string): void
 function dismiss(state: GameState, itemId: string): void {
   const item = state.inbox.find((i) => i.id === itemId);
   if (!item) throw new Error(`No desk item "${itemId}"`);
-  if (item.choices?.length) throw new Error(`"${itemId}" needs an answer, it can't just be filed`);
+  if (item.choices?.length || item.scheme) throw new Error(`"${itemId}" needs an answer, it can't just be filed`);
   state.inbox = state.inbox.filter((i) => i.id !== itemId);
 }

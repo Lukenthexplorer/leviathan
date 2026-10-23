@@ -82,3 +82,42 @@ export interface MeetingDef {
   /** Same meeting, different tone depending on hidden state. */
   variants?: TextVariant[];
 }
+
+/** One choice inside a scheme slot ("who carries the money?" -> "your brother-in-law"). */
+export interface SchemeOption {
+  id: string;
+  label: string;
+  description: string;
+  /** Shown on the planning board: the weak link, in words. */
+  weakness: string;
+  /** Loose threads this choice leaves in the dossier. */
+  threads: number;
+  /** Third-person phrase for the dossier label, e.g. "carried by the councillor's brother-in-law". */
+  phrase: string;
+  requires?: Condition;
+  /** Extra consequences, often delayed: a weak link that breaks months later. */
+  effects?: Effect[];
+}
+
+export interface SchemeSlot {
+  id: string;
+  question: string;
+  options: SchemeOption[];
+}
+
+/**
+ * A conspiracy to plan. The same structure will cover every scheme in later
+ * chapters (rigging votes, silencing enemies...): who, how, and who knows.
+ */
+export interface SchemeDef {
+  title: string;
+  briefing: string;
+  dossierId: string;
+  /** Uses {slotId} placeholders filled with each picked option's phrase. */
+  dossierLabel: string;
+  /** What the newspaper calls it if it ever comes out. */
+  headline: string;
+  effects: Effect[];
+  slots: SchemeSlot[];
+  abort: { label: string; effects: Effect[] };
+}

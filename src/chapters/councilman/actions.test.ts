@@ -150,9 +150,10 @@ describe("meetings", () => {
       { kind: "choose", itemId: paper.id, choiceId: "cash" },
       { kind: "meeting", with: "donor" },
     ]).state;
-    expect(s.player.funds).toBe(BALANCE.councilman.startingFunds + 40);
-    expect(s.hidden.dossier.map((d) => d.id)).toEqual(["teixeira_cash"]);
-    expect(s.inbox.find((i) => i.from === "donor")!.title).toBe("Teixeira calls in a favour");
+    // Taking the cash doesn't hide it: a plan lands on the desk (see schemes.test.ts).
+    expect(s.hidden.dossier).toEqual([]);
+    expect(s.inbox.some((i) => i.scheme === "teixeira_donation")).toBe(true);
+    expect(s.inbox.find((i) => i.from === "donor" && i.choices)!.title).toBe("Teixeira calls in a favour");
   });
 
   it("an honest refusal leads to small talk, not the favour", () => {

@@ -421,3 +421,72 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 @media (max-width: 700px) { .newspaper-body { column-count: 1; } }
 
 .scandal-flash { position: fixed; inset: 0; background: #b0170b; mix-blend-mode: multiply; opacity: 0; pointer-events: none; z-index: 40; }
+
+/* ------------------------------------------------------------- step 6: conspiracy board */
+
+.paper-card.kind-scheme { background: linear-gradient(170deg, #7a2a20, #551b14); color: var(--cream); }
+.paper-card.kind-scheme .paper-card-kind::after { content: " · confidential"; }
+
+.sheet-scheme {
+  width: min(1100px, 100%);
+  background:
+    radial-gradient(#0000 60%, #0006),
+    repeating-radial-gradient(circle at 30% 40%, #8a6a45 0 1px, #7d5e3c 1px 3px),
+    #84633f;
+  color: var(--ink);
+  padding: 26px 30px;
+}
+.scheme-head { background: var(--paper); padding: 14px 18px; box-shadow: 0 6px 14px #0007; transform: rotate(-0.6deg); margin-bottom: 18px; }
+.scheme-label { font-family: var(--type); font-size: 0.75rem; color: var(--red); letter-spacing: 0.1em; }
+.scheme-title { font-family: var(--display); font-size: 1.6rem; }
+.scheme-briefing { margin: 6px 0 0; line-height: 1.55; font-size: 0.95rem; }
+
+.scheme-board { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.scheme-string { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: visible; filter: drop-shadow(0 2px 1px #0007); }
+.scheme-col { display: flex; flex-direction: column; gap: 12px; }
+.scheme-question { font-family: var(--type); color: var(--cream); font-size: 1rem; text-shadow: 0 2px 4px #000; text-align: center; }
+.scheme-card {
+  position: relative;
+  text-align: left;
+  padding: 16px 14px 12px;
+  background: #f5efdc repeating-linear-gradient(transparent 0 21px, #9fb7cf44 21px 22px);
+  border: none;
+  border-top: 3px solid #c96a5c99;
+  box-shadow: 0 6px 12px #0008;
+  cursor: pointer;
+  transition: opacity 0.2s, filter 0.2s, transform 0.15s;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.scheme-card:hover:not(:disabled) { transform: translateY(-3px); }
+.scheme-card.dimmed { opacity: 0.55; filter: grayscale(0.5); }
+.scheme-card:disabled { opacity: 0.4; cursor: not-allowed; }
+.scheme-card.chosen { box-shadow: 0 10px 20px #000a, 0 0 0 2px #b3241b; }
+.scheme-pin {
+  position: absolute; top: 4px; left: 50%; translate: -50% 0;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ddd, #777);
+  box-shadow: 0 2px 2px #0008;
+}
+.scheme-card.chosen .scheme-pin { background: radial-gradient(circle at 35% 35%, #ff8a7a, #9e1a10); }
+.scheme-card-label { font-family: var(--display); font-size: 1rem; }
+.scheme-card-desc { font-size: 0.82rem; line-height: 1.4; color: var(--ink-soft); }
+.scheme-card-weak { font-family: var(--type); font-size: 0.78rem; color: var(--red); margin-top: 4px; }
+
+.scheme-foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 22px; }
+.scheme-risk { display: flex; align-items: center; gap: 10px; background: var(--paper); padding: 8px 14px; box-shadow: 0 4px 10px #0007; font-family: var(--type); }
+.scheme-risk strong { font-family: var(--display); font-size: 1.2rem; }
+.scheme-risk.level-0 strong { color: var(--green); }
+.scheme-risk.level-1 strong { color: #9a6a1a; }
+.scheme-risk.level-2 strong, .scheme-risk.level-3 strong { color: var(--red); }
+.scheme-threads { display: flex; gap: 3px; }
+.scheme-threads i { width: 4px; height: 22px; background: #b3241b; border-radius: 2px; rotate: 12deg; }
+.scheme-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.scheme-actions .ghost { color: var(--cream); border-color: var(--cream); }
+
+.scheme-confidential {
+  position: absolute; top: 40%; left: 50%; translate: -50% -50%;
+  font-family: var(--type); font-size: 4rem; letter-spacing: 0.15em;
+  color: #b3241b; border: 8px double #b3241b; padding: 8px 28px;
+  opacity: 0; pointer-events: none; mix-blend-mode: multiply;
+}
+@media (max-width: 800px) { .scheme-board { grid-template-columns: 1fr; } }

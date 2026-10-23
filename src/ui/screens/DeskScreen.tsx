@@ -76,7 +76,7 @@ export function DeskScreen() {
 
   const party = PARTIES[state.party as PartyId];
   const agendaCount = agendaOf(pending).length;
-  const waiting = state.inbox.filter((i) => i.choices?.length && !pending.some((p) => p.itemId === i.id)).length;
+  const waiting = state.inbox.filter((i) => (i.choices?.length || i.scheme) && !answerFor(pending, i.id)).length;
 
   function onNextWeek() {
     if (advancing) return;

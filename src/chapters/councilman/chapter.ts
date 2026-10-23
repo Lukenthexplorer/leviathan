@@ -74,7 +74,9 @@ export const councilmanChapter: ChapterDefinition = {
   createInitialState,
 
   validateDecisions(state, decisions) {
-    if (decisions.length > BALANCE.turn.agendaSlots) {
+    // Planning a scheme answers a paper on the desk; it doesn't use up the agenda.
+    const agenda = decisions.filter((d) => d.kind !== "scheme");
+    if (agenda.length > BALANCE.turn.agendaSlots) {
       throw new Error(`Only ${BALANCE.turn.agendaSlots} actions per week`);
     }
     const count = (kind: string) => decisions.filter((d) => d.kind === kind).length;
@@ -88,6 +90,8 @@ export const councilmanChapter: ChapterDefinition = {
         throw new Error(`Answer ${who}'s last meeting before asking for another`);
       }
     }
+    const schemes = decisions.filter((d) => d.kind === "scheme").map((d) => d.itemId);
+    if (new Set(schemes).size !== schemes.length) throw new Error("One plan per scheme");
     const laws = decisions.filter((d) => d.kind === "proposeLaw").map((d) => d.law);
     if (new Set(laws).size !== laws.length) throw new Error("Each bill can only be proposed once");
   },

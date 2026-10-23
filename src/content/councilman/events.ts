@@ -271,6 +271,34 @@ export const EVENTS: EventDef[] = [
     },
   },
 
+  // =============================================================== weak links breaking (conspiracy)
+  {
+    id: "mentor_leak",
+    trigger: { all: [{ ref: "flag:mentor_knows", op: ">=", value: 1 }, { ref: "relation:mentor", op: "<=", value: -10 }, { ref: "exposed:teixeira_cash", op: "==", value: 0 }] },
+    onFire: [{ type: "flag", key: "investigation", add: 40 }, { type: "thread", id: "teixeira_cash", add: 2 }],
+    item: {
+      id: "mentor_leak",
+      kind: "report",
+      title: "Seen at Bar Brasil",
+      body:
+        "Your aide saw Otávio Brandão having a long lunch with Helena Vaz yesterday. He was doing most of the talking. " +
+        "He knows exactly how Teixeira's money reached you.",
+    },
+  },
+  {
+    id: "church_scandal",
+    trigger: { all: [{ ref: "flag:laundered_church", op: ">=", value: 1 }, { ref: "exposed:teixeira_cash", op: "==", value: 1 }] },
+    onFire: [{ type: "neighbourhood", id: "sao_bento", mood: -15, addMarker: "protest" }, opinion("religious", -15, "Used a soup kitchen to launder money")],
+    item: {
+      id: "church_scandal",
+      kind: "newspaper",
+      title: "SOUP KITCHEN USED TO LAUNDER CAMPAIGN MONEY",
+      body:
+        "Pastor Gilmar Rocha wept as he told the Correio that his charity had been \"used like a laundromat\" by councillor {{player}}. " +
+        "Worshippers in São Bento gathered outside the cathedral last night. \"We fed the hungry with stolen money,\" said one volunteer.",
+    },
+  },
+
   // =============================================================== crises (newspapers)
   {
     id: "crisis_students",

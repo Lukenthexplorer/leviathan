@@ -32,7 +32,14 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
       state.hidden.expectations = clamp(state.hidden.expectations - effect.amount, H.expectationsMin, H.expectationsMax);
       return;
     case "dossier":
-      state.hidden.dossier.push({ id: effect.id, label: effect.label, threads: effect.threads, turn: state.turn, exposed: false });
+      state.hidden.dossier.push({
+        id: effect.id,
+        label: effect.label,
+        threads: effect.threads,
+        turn: state.turn,
+        exposed: false,
+        ...(effect.headline ? { headline: effect.headline } : {}),
+      });
       return;
     case "expose": {
       const entry = state.hidden.dossier.find((d) => d.id === effect.id);
@@ -40,6 +47,14 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
       entry.exposed = true;
       return;
     }
+    case "thread": {
+      const entry = state.hidden.dossier.find((d) => d.id === effect.id);
+      if (entry && !entry.exposed) entry.threads += effect.add;
+      return;
+    }
+    case "removeDeskItem":
+      state.inbox = state.inbox.filter((i) => i.id !== effect.id);
+      return;
     case "relation": {
       const c = state.characters[effect.character];
       if (!c) throw new Error(`Effect targets unknown character "${effect.character}"`);

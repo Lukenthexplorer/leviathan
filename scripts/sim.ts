@@ -6,7 +6,7 @@
  *   npm run sim -- populist 30    # one strategy, 30 weeks
  *   npm run sim -- dirty 40 liberal
  */
-import { lawAvailable } from "../src/chapters/councilman/actions";
+import { lawAvailable, type SchemePicks } from "../src/chapters/councilman/actions";
 import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter";
 import { LAW_IDS } from "../src/content/councilman/laws";
 import { GROUP_IDS } from "../src/content/councilman/groups";
@@ -21,11 +21,14 @@ type Strategy = {
   decide: (s: GameState) => Decision[];
   /** Which choice id to pick for papers on the desk, by preference. */
   prefers?: string[];
+  /** How this strategy plans conspiracies (null = walk away). */
+  plan?: SchemePicks | null;
 };
 
 /** Answer every paper on the desk with the first preferred choice it offers (else the last one). */
-function answerDesk(s: GameState, prefers: string[]): Decision[] {
+function answerDesk(s: GameState, prefers: string[], plan: SchemePicks | null = null): Decision[] {
   return s.inbox.map((i): Decision => {
+    if (i.scheme) return { kind: "scheme", itemId: i.id, scheme: i.scheme, picks: plan };
     if (!i.choices?.length) return { kind: "dismiss", itemId: i.id };
     const open = i.choices.filter((c) => !c.requires || evaluate(s, c.requires));
     const pick = prefers.find((p) => open.some((c) => c.id === p)) ?? open.at(-1)!.id;
@@ -62,6 +65,7 @@ const STRATEGIES: Record<string, Strategy> = {
   climber: {
     describe: "Corrupt climber: takes the cash, sells votes, posts populism, rides the party machine",
     prefers: ["cash", "vote_for", "learn", "loyal", "promise", "ally"],
+    plan: { intermediary: "brother_in_law", payment: "invoices", knows: "chief_of_staff" },
     decide: (s) => {
       const law = firstLaw(s);
       const d: Decision[] = [{ kind: "post", style: "populist", group: rotate(s) }];
@@ -102,7 +106,7 @@ for (const name of names) {
   console.log(`week | ${GROUP_IDS.map((g) => pad(g.slice(0, 5), 5)).join(" ")} |   avg | expec | integ | invest | notes`);
 
   for (let i = 0; i < weeks && !s.ending; i++) {
-    const decisions = [...answerDesk(s, strat.prefers ?? []), ...strat.decide(s)];
+    const decisions = [...answerDesk(s, strat.prefers ?? [], strat.plan), ...strat.decide(s)];
     const { state, report } = advanceTurn(s, decisions, chapter);
     s = state;
     const ops = allOpinions(s);

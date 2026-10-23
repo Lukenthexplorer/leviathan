@@ -36,6 +36,8 @@ export function readRef(state: GameState, ref: NumRef): number {
       return requireKey(state.neighbourhoods, key, ref).mood;
     case "base":
       return requireKey(state.neighbourhoods, key, ref).base;
+    case "exposed":
+      return state.hidden.dossier.some((d) => d.id === key && d.exposed) ? 1 : 0;
   }
   throw new Error(`Unknown ref "${ref}"`);
 }

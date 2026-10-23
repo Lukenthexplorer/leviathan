@@ -9,6 +9,7 @@ import { answerFor, useGame } from "../store";
 import { characterName, characterRole, lockReason } from "../text";
 import { DeskButton } from "./DeskButton";
 import { NewspaperView } from "./NewspaperView";
+import { SchemeBoard } from "./SchemeBoard";
 import { Sheet } from "./Sheet";
 
 /**
@@ -18,6 +19,7 @@ import { Sheet } from "./Sheet";
  */
 export function PaperView(props: { item: DeskItem; state: GameState; onClose: () => void }) {
   if (props.item.kind === "newspaper") return <NewspaperView item={props.item} onClose={props.onClose} />;
+  if (props.item.scheme) return <SchemeBoard {...props} />;
   return <Document {...props} />;
 }
 

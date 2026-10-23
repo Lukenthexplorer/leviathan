@@ -5,6 +5,8 @@ import { LAWS, type LawId } from "../../content/councilman/laws";
 import { MEETINGS } from "../../content/councilman/meetings";
 import { NEIGHBOURHOODS, type NeighbourhoodId } from "../../content/councilman/neighbourhoods";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
+import { SCHEMES, type SchemeId } from "../../content/councilman/schemes";
+import type { SchemeDef, SchemeOption } from "../../content/types";
 import type { CharacterId } from "../../content/councilman/characters";
 import { evaluate } from "../../core/conditions";
 import { pickVariant } from "../../core/text";
@@ -23,7 +25,9 @@ export type CouncilmanDecision =
   | { kind: "proposeLaw"; law: LawId }
   | { kind: "neighbourhood"; id: NeighbourhoodId }
   | { kind: "meeting"; with: CharacterId }
-  | { kind: "read"; book: BookId };
+  | { kind: "read"; book: BookId }
+  /** Answer a scheme paper with a plan (picks per slot), or null to walk away. */
+  | { kind: "scheme"; itemId: string; scheme: SchemeId; picks: Record<string, string> | null };
 
 type Resolved = { effects: Effect[]; cause: Omit<Cause, "turn"> };
 
@@ -223,6 +227,50 @@ export function readingRule(state: GameState): Effect[] {
   ];
 }
 
+// ------------------------------------------------------------------ conspiracy
+
+export type SchemePicks = Record<string, string>;
+
+/** The options picked for each slot, in slot order. Throws on an incomplete or invalid plan. */
+export function pickedOptions(state: GameState, def: SchemeDef, picks: SchemePicks): SchemeOption[] {
+  return def.slots.map((slot) => {
+    const opt = slot.options.find((o) => o.id === picks[slot.id]);
+    if (!opt) throw new Error(`The plan needs an answer to "${slot.question}"`);
+    if (opt.requires && !evaluate(state, opt.requires)) throw new Error(`"${opt.label}" is not an option for you right now`);
+    return opt;
+  });
+}
+
+/** How many loose threads a plan would leave. The planning board shows this as risk. */
+export function schemeThreads(def: SchemeDef, picks: SchemePicks): number {
+  return def.slots.reduce((sum, slot) => sum + (slot.options.find((o) => o.id === picks[slot.id])?.threads ?? 0), 0);
+}
+
+export function resolveScheme(state: GameState, d: { itemId: string; scheme: SchemeId; picks: SchemePicks | null }): Resolved {
+  const def: SchemeDef = SCHEMES[d.scheme];
+  if (!def) throw new Error(`Unknown scheme "${d.scheme}"`);
+  if (!state.inbox.some((i) => i.id === d.itemId && i.scheme === d.scheme)) throw new Error(`No "${d.scheme}" plan on the desk`);
+
+  if (!d.picks) {
+    return {
+      cause: { kind: "scheme", id: d.scheme, label: `Walked away from ${def.title.toLowerCase()}` },
+      effects: [{ type: "removeDeskItem", id: d.itemId }, ...def.abort.effects],
+    };
+  }
+
+  const options = pickedOptions(state, def, d.picks);
+  const label = def.dossierLabel.replace(/\{(\w+)\}/g, (_, slot: string) => options[def.slots.findIndex((s) => s.id === slot)]?.phrase ?? "");
+  return {
+    cause: { kind: "scheme", id: d.scheme, label: `Planned ${def.title.toLowerCase()}` },
+    effects: [
+      { type: "removeDeskItem", id: d.itemId },
+      ...def.effects,
+      ...options.flatMap((o) => o.effects ?? []),
+      { type: "dossier", id: def.dossierId, label, headline: def.headline, threads: schemeThreads(def, d.picks) },
+    ],
+  };
+}
+
 // ------------------------------------------------------------------ dispatch
 
 export function resolveCouncilmanDecision(state: GameState, decision: ChapterDecision): Resolved {
@@ -238,6 +286,8 @@ export function resolveCouncilmanDecision(state: GameState, decision: ChapterDec
       return resolveMeeting(state, d.with);
     case "read":
       return resolveRead(state, d.book);
+    case "scheme":
+      return resolveScheme(state, d);
   }
   throw new Error(`Unknown councilman decision "${decision.kind}"`);
 }
