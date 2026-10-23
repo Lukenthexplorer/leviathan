@@ -270,7 +270,7 @@ h1, h2, h3 { margin: 0; }
 .paper-card.kind-phone { background: linear-gradient(170deg, #f1d9c4, #d7b99c); }
 .paper-card.answered { filter: saturate(0.6) brightness(0.92); }
 .paper-card-kind { font-family: var(--type); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
-.paper-card-portrait { float: right; width: 48px; height: 60px; object-fit: contain; margin: 0 0 6px 6px; filter: drop-shadow(0 3px 4px #0007); rotate: 3deg; }
+.paper-card-portrait { float: right; width: 68px; height: 90px; object-fit: contain; margin: -4px -4px 6px 8px; filter: drop-shadow(3px 4px 4px #0007); rotate: 4deg; }
 .paper-card-title { font-family: var(--display); font-size: 1.02rem; margin: 6px 0; line-height: 1.25; }
 .paper-card-from { font-size: 0.78rem; font-style: italic; opacity: 0.75; }
 .paper-card-ink {
@@ -332,7 +332,8 @@ h1, h2, h3 { margin: 0; }
 /* opened document */
 .document { position: relative; min-height: 260px; }
 .doc-from { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
-.doc-from img { width: 96px; height: 128px; object-fit: contain; filter: drop-shadow(0 6px 8px #0008); rotate: -2deg; }
+.doc-from { gap: 18px; }
+.doc-from img { width: 140px; height: 186px; object-fit: contain; filter: drop-shadow(6px 8px 10px #0008); rotate: -3deg; margin: -6px 0 -4px -8px; }
 .doc-from-name { font-family: var(--display); font-size: 1.15rem; }
 .doc-from-role { font-size: 0.85rem; font-style: italic; color: var(--ink-soft); }
 .doc-title { font-family: var(--display); font-size: 1.5rem; margin-bottom: 12px; }
