@@ -42,6 +42,10 @@ export interface NeighbourhoodDef {
   startingMood: number;
   /** Share of each group living here (0..1). Building a base here wins these groups over. */
   residents: Record<string, number>;
+  /** Registered voters, in thousands. */
+  voters: number;
+  /** Share who actually vote (0..1). The pension queue votes; the hill, an hour from the polling station, less. */
+  turnout: number;
 }
 
 export interface LawDef {
@@ -178,6 +182,13 @@ export interface CandidateDef {
   profile: Record<string, number>;
   /** How they attack in the campaign: the tone of their accusations. */
   attackVerb: string;
+  /** How they grow from the player's weaknesses (vote model). */
+  reacts?: {
+    /** Gains everywhere from the player's broken promises (the populist). */
+    onBrokenPromises?: boolean;
+    /** Gains where this group dislikes the player. */
+    dislikedBy?: string;
+  };
 }
 
 /** Someone whose public support moves votes: Dona Lurdes, a pastor, the union... */

@@ -136,11 +136,23 @@ export interface ElectionResult {
   path: PathId;
   candidates: { id: string; name: string; party: string; portrait: string }[];
   /** Fixed reporting order: the drama lives here. */
-  batches: { unitId: string; label: string; votes: Record<string, number>; cumulativePct: number }[];
+  batches: { unitId: string; label: string; votes: Record<string, number>; nulls: number; cumulativePct: number }[];
   final: Record<string, number>;
+  finalNulls: number;
+  /** Most votes overall. */
   winner: string;
+  /** Who takes a seat (1 for mayor; the party's top N for council and deputy). */
+  elected: string[];
   /** Top reasons per unit, for the election-night narrator. */
   causes: { unitId: string; text: string; cause: Cause }[];
+  /** Mayor races where nobody got a majority: the top two face off (Brazil: cities over 200k voters). */
+  runoff?: {
+    candidates: [string, string];
+    batches: { unitId: string; label: string; votes: Record<string, number>; nulls: number; cumulativePct: number }[];
+    final: Record<string, number>;
+    finalNulls: number;
+    winner: string;
+  };
 }
 
 // ------------------------------------------------------------------ causes
@@ -189,6 +201,8 @@ export type Effect =
   | { type: "attack"; attack: Attack }
   | { type: "attackStatus"; key: string; status: Attack["status"] }
   | { type: "opponentHit"; candidate: string; delta: number }
+  | { type: "poll"; shares: Record<string, number> }
+  | { type: "setElection"; result: ElectionResult }
   | { type: "relation"; character: string; delta: number }
   | { type: "neighbourhood"; id: string; mood?: number; base?: number; addMarker?: MapMarker; removeMarker?: MapMarker }
   | { type: "flag"; key: string; add?: number; set?: number }

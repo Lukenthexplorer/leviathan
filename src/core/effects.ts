@@ -67,6 +67,12 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
     case "choosePath":
       state.campaign = { path: effect.path, presence: {}, cabos: {}, endorsements: [], attacks: [], opponentDamage: {}, polls: [] };
       return;
+    case "setElection":
+      state.election = effect.result;
+      return;
+    case "poll":
+      state.campaign?.polls.push({ turn: state.turn, shares: effect.shares });
+      return;
     case "presence":
     case "cabos":
     case "endorse":

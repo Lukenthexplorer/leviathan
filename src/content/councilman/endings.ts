@@ -12,14 +12,42 @@ export interface EndingDef {
 }
 
 export const ENDINGS: Record<string, EndingDef> = {
-  // Temporary until the vote count exists (v2 step 4): the chapter stops on election day.
-  election_day: {
-    tone: "bittersweet",
-    kicker: "Eleições 1989",
-    headline: "PORTO FERRO VAI ÀS URNAS",
-    lede:
-      "Oito semanas de campanha acabaram. Santinhos no chão, carros de som calados, urnas lacradas a caminho do ginásio. " +
-      "Amanhã a cidade conta os votos, e {{player}} vai saber se tudo o que fez nesses meses valeu.",
+  // Election results. The legacy page (v2 step 6) adds the vote count and its causes.
+  reelected: {
+    tone: "victory",
+    kicker: "Eleições 1989 · Câmara Municipal",
+    headline: "{{PLAYER}} REELEIT{{g:O/A}}",
+    lede: "Contados os votos no ginásio, {{player}} garantiu mais quatro anos na Câmara de Porto Ferro. Quem achou que a última vaga tinha sido sorte vai ter que rever.",
+  },
+  elected_mayor: {
+    tone: "victory",
+    kicker: "Eleições 1989 · Prefeitura",
+    headline: "{{PLAYER}} É {{g:O NOVO PREFEITO/A NOVA PREFEITA}} DE PORTO FERRO",
+    lede: "Madrugada de festa no ginásio: {{player}}, que entrou na Câmara com a última vaga, vai governar a cidade. Agora, prometer acabou. Agora é entregar.",
+  },
+  elected_deputy: {
+    tone: "victory",
+    kicker: "Eleições 1989 · Assembleia Legislativa",
+    headline: "{{PLAYER}} ELEIT{{g:O/A}} DEPUTAD{{g:O/A}} ESTADUAL",
+    lede: "Das ruas de Porto Ferro para a Assembleia Legislativa. {{player}} vai representar a cidade, e o interior que aprendeu a conhecer.",
+  },
+  defeated_council: {
+    tone: "defeat",
+    kicker: "Eleições 1989 · Câmara Municipal",
+    headline: "{{PLAYER}} NÃO SE REELEGE",
+    lede: "Os votos não vieram. Outros nomes do partido ficaram com as vagas, e {{player}} volta para casa depois de um mandato só.",
+  },
+  defeated_mayor: {
+    tone: "defeat",
+    kicker: "Eleições 1989 · Prefeitura",
+    headline: "{{PLAYER}} PERDE A PREFEITURA",
+    lede: "A aposta era alta, e a cidade disse não. {{player}} deixou a vaga na Câmara para tentar a prefeitura, e agora não tem nenhuma das duas.",
+  },
+  defeated_deputy: {
+    tone: "defeat",
+    kicker: "Eleições 1989 · Assembleia Legislativa",
+    headline: "{{PLAYER}} FICA DE FORA DA ASSEMBLEIA",
+    lede: "O interior não conhecia {{player}}, e Porto Ferro sozinha não bastou. Sem a vaga na Câmara e sem a da Assembleia, a carreira para aqui.",
   },
   arrested: {
     tone: "defeat",

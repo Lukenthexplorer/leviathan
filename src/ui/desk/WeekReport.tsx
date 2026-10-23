@@ -1,4 +1,6 @@
 import { useRef } from "react";
+import { PLAYER } from "../../chapters/councilman/election";
+import { CANDIDATES, type CandidateId } from "../../content/councilman/candidates";
 import type { GameState, TurnReport } from "../../core/types";
 import { weekDate } from "./Calendar";
 import { DeskButton } from "./DeskButton";
@@ -32,6 +34,7 @@ export function WeekReport({ report, state, onClose }: { report: TurnReport; sta
             </li>
           ))}
         </ul>
+        <Poll state={state} />
         {newPapers > 0 && (
           <p className="briefing-new">
             {newPapers} {newPapers > 1 ? "papéis novos" : "papel novo"} na sua mesa.
@@ -42,5 +45,29 @@ export function WeekReport({ report, state, onClose }: { report: TurnReport; sta
         </DeskButton>
       </div>
     </Sheet>
+  );
+}
+
+/**
+ * The weekly poll: the vote model as it stood a week ago, city-wide, rounded.
+ * Deterministic, but always one week behind, so there's still suspense.
+ */
+function Poll({ state }: { state: GameState }) {
+  const poll = state.campaign?.polls.at(-1);
+  if (!poll) return null;
+  const rows = Object.entries(poll.shares).sort((a, b) => b[1] - a[1]);
+  const name = (id: string) => (id === PLAYER ? state.player.name : CANDIDATES[id as CandidateId].name);
+  return (
+    <div className="poll">
+      <div className="poll-title">Pesquisa IPOF · Instituto Porto-Ferrense de Opinião</div>
+      {rows.map(([id, pct]) => (
+        <div key={id} className={`poll-row ${id === PLAYER ? "me" : ""}`}>
+          <span>{name(id)}</span>
+          <span className="poll-bar" style={{ width: `${pct * 2}%` }} />
+          <strong>{pct}%</strong>
+        </div>
+      ))}
+      <div className="poll-note">Margem de erro de 3 pontos. Pesquisa feita na semana passada.</div>
+    </div>
   );
 }

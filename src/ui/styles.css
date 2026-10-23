@@ -750,3 +750,13 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .street-name small { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); }
 .street-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .street-actions .desk-btn { font-size: 0.75rem; padding: 5px 9px; }
+
+/* weekly poll */
+.poll { margin: 12px 0 16px; padding: 10px 14px; background: #fff7; border: 1px solid #0002; }
+.poll-title { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); margin-bottom: 6px; }
+.poll-row { display: grid; grid-template-columns: 170px 1fr 48px; gap: 8px; align-items: center; font-size: 0.9rem; margin: 3px 0; }
+.poll-row.me { font-weight: bold; }
+.poll-bar { height: 10px; background: var(--ink-soft); }
+.poll-row.me .poll-bar { background: var(--red); }
+.poll-row strong { font-family: var(--type); text-align: right; }
+.poll-note { font-family: var(--type); font-size: 0.7rem; color: var(--ink-soft); margin-top: 4px; }

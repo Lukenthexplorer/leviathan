@@ -10,6 +10,7 @@ import type { EndorserDef, LawDef } from "../../content/types";
 import { evaluate } from "../../core/conditions";
 import { allOpinions, opinionOf } from "../../core/groups";
 import { lowerFirst } from "../../core/text";
+import { computeElection, pollShares } from "./election";
 import type { Attack, Cause, Condition, DeskChoice, Effect, GameState, PathId } from "../../core/types";
 
 /**
@@ -470,6 +471,11 @@ export function campaignRule(state: GameState): Effect[] {
   }
 
   const c = state.campaign;
+  // Election day: count every vote once, store it; the TV only replays it.
+  if (c && state.turn === K.endWeek + 1 && !state.election) {
+    effects.push({ type: "setElection", result: computeElection(state, c.path) });
+    return effects;
+  }
   if (!c || state.turn < K.startWeek || state.turn > K.endWeek) return effects;
 
   for (const unit of campaignUnits(state)) {
@@ -506,6 +512,8 @@ export function campaignRule(state: GameState): Effect[] {
     }
   }
   if (state.turn <= K.endWeek) effects.push(...attackRule(state));
+  // The weekly poll: this is the state *before* this week's campaigning lands, so it always runs a week behind.
+  effects.push({ type: "poll", shares: pollShares(state, c.path) });
   return effects;
 }
 

@@ -38,7 +38,7 @@ function verdictFor(integrity: number): string {
  * the state and its history, so every ending reads differently.
  */
 export function writeLegacy(state: GameState): Legacy {
-  const ending = ENDINGS[state.ending ?? ""] ?? ENDINGS.election_day!;
+  const ending = ENDINGS[state.ending ?? ""] ?? ENDINGS.lost_support!;
   const t = (text: string) => fillTemplate(state, text);
   const party = PARTIES[state.party as PartyId];
 

@@ -173,6 +173,54 @@ export const BALANCE = {
     kingmakerCapital: 5,
   },
 
+  /** The vote model (chapters/councilman/election.ts). */
+  election: {
+    /** Player strength before anything else: a councillor is not a nobody. */
+    playerBase: 22,
+    /** Per point of resident-weighted group opinion (-100..100). */
+    opinionWeight: 0.35,
+    /** Per point of roots in the neighbourhood (0..100). */
+    baseWeight: 0.25,
+    /** Per point of campaign presence. */
+    presenceWeight: 0.45,
+    /** An endorser where their word counts. */
+    endorsementBonus: 12,
+    /** Per exposed dossier thread, everywhere. */
+    scandalPerThread: 2.5,
+    /** Per point of expectations above tolerance, everywhere. */
+    brokenPromisePerPoint: 0.25,
+    /** Interior regions (deputy race): the player is a stranger there. */
+    regionBase: 30,
+    /** Per point of the party's standing with the region's groups. */
+    partyRegionWeight: 0.6,
+    /** Per point of mentor relation: Otávio's friends in the interior. */
+    mentorRegionWeight: 0.15,
+    /** Opponents grow from the player's weaknesses. */
+    opponentBrokenPromiseWeight: 0.35,
+    opponentDislikeWeight: 0.35,
+    /** Unknown units: an opponent's default strength. */
+    opponentDefault: 20,
+    /** The bigger the office, the stronger the machines you face. */
+    opponentBonus: { council: 0, mayor: 30, deputy: 4 },
+    /** share = score^k / sum(score^k): k > 1 rewards the stronger candidate. */
+    shareExponent: 2,
+    /** Scores are floored here, so nobody ever gets a negative or NaN share. */
+    minScore: 2,
+    /** Blank and spoiled ballots: a base share, more where the neighbourhood is angry. */
+    nullBase: 0.06,
+    nullVotesPerMoodPoint: 0.002,
+    nullMax: 0.3,
+    /** Each unit's urns are counted in batches of these sizes (sum = 1). */
+    batchFractions: [0.3, 0.25, 0.25, 0.2],
+    /** Under this margin (points), the race is "close" (TV slows down). */
+    closeRaceMargin: 3,
+    /** Seats: re-election needs a top-N finish among the party's candidates; deputy, among the slate. */
+    councilSeats: 2,
+    deputySeats: 2,
+    /** Mayor: below this share of valid votes, the top two go to a second round. */
+    runoffBelow: 0.5,
+  },
+
   /** The campaign: weeks 33-40. */
   campaign: {
     warningWeek: 28,

@@ -77,11 +77,19 @@ describe("end of term: choosing a path", () => {
     expect(s.inbox.some((i) => i.id === "auto_council")).toBe(true);
   });
 
-  it("the chapter ends on election day", () => {
+  it("the chapter ends with the vote count, the week after the campaign", () => {
     let s = campaigning();
     while (!s.ending && s.turn < 60) s = step(s);
-    expect(s.ending).toBe("election_day");
     expect(s.turn).toBe(K.endWeek + 1);
+    expect(s.election).not.toBeNull();
+    expect(["reelected", "defeated_council"]).toContain(s.ending);
+  });
+
+  it("a poll every campaign week, one entry per candidate", () => {
+    let s = campaigning("mayor");
+    for (let i = 0; i < 3; i++) s = step(s);
+    expect(s.campaign!.polls).toHaveLength(3);
+    expect(Object.keys(s.campaign!.polls[0]!.shares).sort()).toEqual(["galvao", "player", "renata", "tiao"]);
   });
 });
 

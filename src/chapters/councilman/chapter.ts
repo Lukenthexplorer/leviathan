@@ -9,13 +9,24 @@ import { EVENTS } from "../../content/councilman/events";
 import { expectationsPressure } from "../../core/hidden";
 import type { GameState } from "../../core/types";
 import { campaignRule } from "./campaign";
+import { PLAYER } from "./election";
 import { LAW_IDS } from "../../content/councilman/laws";
 import { capitalRule, readingRule, resolveCouncilmanDecision } from "./actions";
 import { confessionRule, pressRule } from "./rules";
 
 const C = BALANCE.councilman;
 
-export const COUNCILMAN_ENDINGS = ["arrested", "expelled", "lost_support", "election_day"] as const;
+export const COUNCILMAN_ENDINGS = [
+  "arrested",
+  "expelled",
+  "lost_support",
+  "reelected",
+  "elected_mayor",
+  "elected_deputy",
+  "defeated_council",
+  "defeated_mayor",
+  "defeated_deputy",
+] as const;
 export type CouncilmanEnding = (typeof COUNCILMAN_ENDINGS)[number];
 
 function createInitialState({ playerName, party, form = "m" }: ChapterSetup): GameState {
@@ -69,15 +80,16 @@ function createInitialState({ playerName, party, form = "m" }: ChapterSetup): Ga
   };
 }
 
-/**
- * Game-over checks first (a scandal can sink a campaign too). The vote count
- * itself arrives in step 4; until then the chapter ends on election day.
- */
+/** Game-over checks first (a scandal can sink a campaign too), then the vote count. */
 function checkEnding(state: GameState): CouncilmanEnding | null {
   if (readRef(state, "exposedThreads") >= C.arrestAtExposedThreads) return "arrested";
   if (readRef(state, "relation:party_boss") <= C.expelledAtBossRelation) return "expelled";
   if (readRef(state, "averageOpinion") <= C.lostSupportAtAverageOpinion) return "lost_support";
-  if (state.turn > BALANCE.campaign.endWeek) return "election_day";
+  const e = state.election;
+  if (e) {
+    const won = e.elected.includes(PLAYER);
+    return ({ council: won ? "reelected" : "defeated_council", mayor: won ? "elected_mayor" : "defeated_mayor", deputy: won ? "elected_deputy" : "defeated_deputy" } as const)[e.path];
+  }
   return null;
 }
 
