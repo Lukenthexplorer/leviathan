@@ -7,6 +7,7 @@ import { NEIGHBOURHOODS, type NeighbourhoodId } from "../../content/councilman/n
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { CharacterId } from "../../content/councilman/characters";
 import { evaluate } from "../../core/conditions";
+import { pickVariant } from "../../core/text";
 import type { Cause, ChapterDecision, Effect, GameState } from "../../core/types";
 
 /**
@@ -176,15 +177,14 @@ export function nextMeeting(state: GameState, who: CharacterId) {
 export function resolveMeeting(state: GameState, who: CharacterId): Resolved {
   const m = nextMeeting(state, who);
   if (!m) throw new Error(`Nobody to meet: "${who}"`);
+  const item = pickVariant(
+    state,
+    { id: `${m.id}@${state.turn}`, kind: "letter" as const, from: who, title: m.title, body: m.body, choices: m.choices, turn: state.turn },
+    m.variants,
+  );
   return {
     cause: { kind: "meeting", id: m.id, label: m.title },
-    effects: [
-      { type: "flag", key: `met_${m.id}` },
-      {
-        type: "deskItem",
-        item: { id: `${m.id}@${state.turn}`, kind: "letter", from: who, title: m.title, body: m.body, choices: m.choices, turn: state.turn },
-      },
-    ],
+    effects: [{ type: "flag", key: `met_${m.id}` }, { type: "deskItem", item }],
   };
 }
 

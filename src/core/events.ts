@@ -1,6 +1,7 @@
 import type { EventDef } from "./chapter";
 import { evaluate } from "./conditions";
 import { applyEffects } from "./effects";
+import { fillItem, pickVariant } from "./text";
 import type { DeskItem, GameState } from "./types";
 
 /**
@@ -15,7 +16,7 @@ export function fireEvents(state: GameState, events: readonly EventDef[]): DeskI
     if (state.firedEvents.includes(ev.id) || !evaluate(state, ev.trigger)) continue;
     state.firedEvents.push(ev.id);
     applyEffects(state, ev.onFire ?? [], { kind: "event", id: ev.id, turn: state.turn, label: ev.item.title });
-    const item: DeskItem = { ...ev.item, turn: state.turn };
+    const item: DeskItem = fillItem(state, pickVariant(state, { ...ev.item, turn: state.turn }, ev.variants));
     state.inbox.push(item);
     fired.push(item);
   }

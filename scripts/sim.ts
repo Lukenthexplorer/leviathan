@@ -11,7 +11,7 @@ import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter
 import { LAW_IDS } from "../src/content/councilman/laws";
 import { GROUP_IDS } from "../src/content/councilman/groups";
 import { advanceTurn } from "../src/core/advanceTurn";
-import { readRef } from "../src/core/conditions";
+import { evaluate, readRef } from "../src/core/conditions";
 import { allOpinions } from "../src/core/groups";
 import type { Decision, GameState } from "../src/core/types";
 
@@ -25,12 +25,12 @@ type Strategy = {
 
 /** Answer every paper on the desk with the first preferred choice it offers (else the last one). */
 function answerDesk(s: GameState, prefers: string[]): Decision[] {
-  return s.inbox
-    .filter((i) => i.choices?.length)
-    .map((i) => {
-      const pick = prefers.find((p) => i.choices!.some((c) => c.id === p)) ?? i.choices!.at(-1)!.id;
-      return { kind: "choose", itemId: i.id, choiceId: pick };
-    });
+  return s.inbox.map((i): Decision => {
+    if (!i.choices?.length) return { kind: "dismiss", itemId: i.id };
+    const open = i.choices.filter((c) => !c.requires || evaluate(s, c.requires));
+    const pick = prefers.find((p) => open.some((c) => c.id === p)) ?? open.at(-1)!.id;
+    return { kind: "choose", itemId: i.id, choiceId: pick };
+  });
 }
 
 const firstLaw = (s: GameState) => LAW_IDS.find((l) => lawAvailable(s, l));
@@ -108,7 +108,8 @@ for (const name of names) {
     const ops = allOpinions(s);
     const notes = [
       ...report.consequences.map((c) => c.label),
-      ...s.history.filter((h) => h.turn === s.turn && h.text.startsWith("Exposed")).map((h) => h.text),
+      ...s.inbox.filter((i) => i.turn >= report.fromTurn && i.kind !== "newspaper" && !i.id.includes("@")).map((i) => `[${i.title}]`),
+      ...s.inbox.filter((i) => i.turn >= report.fromTurn && i.kind === "newspaper").map((i) => `NEWS: ${i.title}`),
     ].join("; ");
     console.log(
       `${pad(s.turn, 4)} | ${GROUP_IDS.map((g) => fmt(ops[g]!)).join(" ")} | ${fmt(readRef(s, "averageOpinion"))} | ` +

@@ -1,3 +1,4 @@
+import type { TextVariant } from "./text";
 import type { Cause, ChapterDecision, Condition, DeskItem, Effect, GameState } from "./types";
 
 /**
@@ -12,6 +13,8 @@ export interface EventDef {
   /** Effects applied the moment the event fires (before the player answers). */
   onFire?: Effect[];
   item: Omit<DeskItem, "turn">;
+  /** Tone variants: same event, different words and face, depending on the state. */
+  variants?: TextVariant[];
 }
 
 export interface ChapterSetup {

@@ -2,15 +2,14 @@ import { describe, expect, it } from "vitest";
 import { BALANCE } from "../../content/balance";
 import { BOOKS } from "../../content/councilman/books";
 import { CHARACTERS } from "../../content/councilman/characters";
-import { GROUPS } from "../../content/councilman/groups";
 import { LAWS } from "../../content/councilman/laws";
 import { MEETINGS } from "../../content/councilman/meetings";
-import { NEIGHBOURHOODS } from "../../content/councilman/neighbourhoods";
 import { advanceTurn } from "../../core/advanceTurn";
 import { opinionOf } from "../../core/groups";
 import type { LawDef } from "../../content/types";
-import type { Condition, Decision, Effect, GameState } from "../../core/types";
+import type { Decision, GameState } from "../../core/types";
 import { lawAvailable, lawVoteScore, nextMeeting, resolveNeighbourhood } from "./actions";
+import { badConditions, badEffects } from "./testing/lint";
 import { councilmanChapter as chapter } from "./chapter";
 
 const start = (party = "labour") => chapter.createInitialState({ playerName: "Test", party });
@@ -22,32 +21,13 @@ function wait(s: GameState, weeks: number) {
 
 // ------------------------------------------------------------------ content lint
 
-/** Walk every effect and condition in the content and check the ids they name exist. */
-function collectIds(effects: readonly Effect[], out: string[] = []): string[] {
-  for (const e of effects) {
-    if (e.type === "opinion" && !(e.group in GROUPS)) out.push(`group:${e.group}`);
-    if (e.type === "relation" && !(e.character in CHARACTERS)) out.push(`character:${e.character}`);
-    if (e.type === "neighbourhood" && !(e.id in NEIGHBOURHOODS)) out.push(`neighbourhood:${e.id}`);
-    if (e.type === "schedule") collectIds(e.effects, out);
-  }
-  return out;
-}
-function badBooks(c: Condition | undefined): string[] {
-  if (!c) return [];
-  if ("all" in c) return c.all.flatMap(badBooks);
-  if ("any" in c) return c.any.flatMap(badBooks);
-  if ("not" in c) return badBooks(c.not);
-  if ("bookFinished" in c && !(c.bookFinished in BOOKS)) return [`book:${c.bookFinished}`];
-  return [];
-}
-
 describe("content lint", () => {
   it("laws only reference real groups, characters, neighbourhoods and books", () => {
     // Widen to LawDef: we want the general shape here, not each law's literal type.
     for (const [id, law] of Object.entries(LAWS) as [string, LawDef][]) {
       const effects = [...law.onPass, ...(law.followUps ?? []).flatMap((f) => f.effects)];
-      expect(collectIds(effects), id).toEqual([]);
-      expect(badBooks(law.requires), id).toEqual([]);
+      expect(badEffects(effects), id).toEqual([]);
+      expect(badConditions(law.requires), id).toEqual([]);
     }
   });
 
@@ -56,8 +36,8 @@ describe("content lint", () => {
     for (const m of MEETINGS) {
       expect(CHARACTERS, m.id).toHaveProperty(m.with);
       for (const c of m.choices) {
-        expect(collectIds(c.effects), `${m.id}.${c.id}`).toEqual([]);
-        expect(badBooks(c.requires), `${m.id}.${c.id}`).toEqual([]);
+        expect(badEffects(c.effects), `${m.id}.${c.id}`).toEqual([]);
+        expect(badConditions(c.requires), `${m.id}.${c.id}`).toEqual([]);
       }
     }
     for (const who of ["donor", "party_boss", "mentor", "community_leader", "rival"]) {

@@ -1,4 +1,4 @@
-import { log, opinion } from "../helpers";
+import { log, newspaper, opinion } from "../helpers";
 import type { LawDef } from "../types";
 
 /**
@@ -25,6 +25,12 @@ export const LAWS = {
           opinion("periphery", -6, "Night buses cut"),
           opinion("workers", -4, "Night buses cut"),
           { type: "neighbourhood", id: "morro_esperanca", mood: -6 },
+          newspaper(
+            "news_night_buses",
+            "NIGHT BUSES CUT: OPERATORS BLAME THE FARE FREEZE",
+            "Three night routes to the hillside communities were cancelled yesterday. The bus operators' syndicate says the fare freeze " +
+              "approved in {{date:bus_fare_freeze}} left them \"no choice\". Night-shift workers now face a two-hour walk home.",
+          ),
         ],
       },
     ],
@@ -51,6 +57,12 @@ export const LAWS = {
           opinion("periphery", 8, "Clean water arrived"),
           opinion("religious", 3, "Clean water arrived"),
           log("Clean water reaches Morro da Esperança"),
+          newspaper(
+            "news_clean_water",
+            "CLEAN WATER REACHES MORRO DA ESPERANÇA",
+            "For the first time in its history, the hill has running water and sewage. The health post reports child illnesses down by a third. " +
+              "The works began with a bill proposed by councillor {{player}} in {{date:hillside_sanitation}}.",
+          ),
         ],
       },
     ],
@@ -75,6 +87,12 @@ export const LAWS = {
         effects: [
           opinion("periphery", -8, "Harassed by the new patrols"),
           { type: "neighbourhood", id: "morro_esperanca", mood: -10, addMarker: "police" },
+          newspaper(
+            "news_patrols",
+            "\"THEY STOP US FOR BEING YOUNG\": PATROLS ACCUSED OF HARASSMENT",
+            "Residents of Morro da Esperança describe nightly searches by the new municipal guards created in {{date:night_safety_patrols}}. " +
+              "The patrols were meant for downtown. They seem to spend their nights on the hill.",
+          ),
         ],
       },
     ],
@@ -107,7 +125,16 @@ export const LAWS = {
       {
         inTurns: 10,
         label: "City auditors find a hole in the health budget after the pharmacy discount",
-        effects: [opinion("business", -5, "Budget hole from the pharmacy discount"), log("Health budget overruns")],
+        effects: [
+          opinion("business", -5, "Budget hole from the pharmacy discount"),
+          log("Health budget overruns"),
+          newspaper(
+            "news_pharmacy_hole",
+            "AUDITORS FIND A HOLE IN THE HEALTH BUDGET",
+            "The pensioner pharmacy discount approved in {{date:pharmacy_discount}} has cost three times its estimate. " +
+              "Business leaders ask who will pay. \"Us, as always,\" said one shopkeeper.",
+          ),
+        ],
       },
     ],
     delivers: 10,
@@ -167,6 +194,12 @@ export const LAWS = {
           { type: "neighbourhood", id: "vila_operaria", removeMarker: "construction" },
           opinion("business", -6, "Public works overrun"),
           log("Public works go over budget"),
+          newspaper(
+            "news_works_overrun",
+            "JOBS PROGRAMME OVER BUDGET, BUT VILA OPERÁRIA HAS NEW ROADS",
+            "The public works programme launched in {{date:public_works_jobs}} is 40% over budget, the Treasury says. " +
+              "Economists are split: some see waste, others a textbook Keynesian stimulus doing exactly what it promised.",
+          ),
         ],
       },
     ],

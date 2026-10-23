@@ -1,4 +1,5 @@
 import { BALANCE } from "../content/balance";
+import { fillItem } from "./text";
 import type { Cause, Effect, GameState } from "./types";
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -75,7 +76,7 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
       state.queue.push({ fireOnTurn: state.turn + effect.inTurns, label: effect.label, effects: effect.effects, cause });
       return;
     case "deskItem":
-      state.inbox.push({ ...effect.item, turn: state.turn });
+      state.inbox.push(fillItem(state, { ...effect.item, turn: state.turn }));
       return;
     case "log":
       state.history.push({ turn: state.turn, cause, text: effect.text });

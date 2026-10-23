@@ -33,9 +33,15 @@ function PaperCard(props: { item: DeskItem; state: GameState; order: number; ans
 
   const who = item.from as CharacterId | undefined;
   return (
-    <button ref={ref} {...hover} className={`paper-card kind-${item.kind} ${props.answered ? "answered" : ""}`} onClick={props.onOpen}>
-      <div className="paper-card-kind">{item.kind}</div>
-      {who && CHARACTERS[who] && <img className="paper-card-portrait" src={portrait(CHARACTERS[who].portrait)} alt="" />}
+    <button
+      ref={ref}
+      {...hover}
+      className={`paper-card kind-${item.kind} ${props.answered ? "answered" : ""} ${item.kind === "phone" && !props.answered ? "ringing" : ""}`}
+      onClick={props.onOpen}
+    >
+      <div className="paper-card-kind">{item.kind === "phone" ? "phone call" : item.kind}</div>
+      {item.kind === "newspaper" && <div className="paper-card-masthead">Correio de Porto Ferro</div>}
+      {who && CHARACTERS[who] && <img className="paper-card-portrait" src={portrait(CHARACTERS[who].portrait, item.expression)} alt="" />}
       <div className="paper-card-title">{item.title}</div>
       {who && <div className="paper-card-from">{characterName(state, who)}</div>}
       {props.answered && <div className="paper-card-ink">{item.choices?.length ? "ANSWERED" : "FILED"}</div>}

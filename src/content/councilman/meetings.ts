@@ -15,7 +15,7 @@ export const MEETINGS: MeetingDef[] = [
     with: "donor",
     title: "Lunch with Augusto Teixeira",
     body:
-      "Teixeira orders for both of you without asking. \"Campaigns are expensive, councilman. I like to help young people with a future. " +
+      "Teixeira orders for both of you without asking. \"Campaigns are expensive, councillor. I like to help young people with a future. " +
       "My accountant can make a contribution... discreet. Or official, if you prefer paperwork.\"",
     choices: [
       {
@@ -137,7 +137,7 @@ export const MEETINGS: MeetingDef[] = [
     title: "Up the hill with Dona Lurdes",
     body:
       "Dona Lurdes walks you past open sewers. \"Every four years someone comes up here and promises sanitation. " +
-      "What are you going to promise me, councilman?\"",
+      "What are you going to promise me, councillor?\"",
     choices: [
       {
         id: "promise",

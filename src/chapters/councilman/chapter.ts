@@ -5,10 +5,12 @@ import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS } from "../../content/councilman/neig
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { ChapterDefinition } from "../../core/chapter";
 import { readRef } from "../../core/conditions";
-import { expectationsPressure, investigationStep } from "../../core/hidden";
+import { EVENTS } from "../../content/councilman/events";
+import { expectationsPressure } from "../../core/hidden";
 import type { GameState } from "../../core/types";
 import { LAW_IDS } from "../../content/councilman/laws";
 import { readingRule, resolveCouncilmanDecision } from "./actions";
+import { confessionRule, pressRule } from "./rules";
 
 const C = BALANCE.councilman;
 
@@ -96,10 +98,11 @@ export const councilmanChapter: ChapterDefinition = {
     return [
       ...readingRule(state),
       ...expectationsPressure(state),
-      ...investigationStep(state, "journalist", "party_boss"),
+      // Confession first: once everything is out, there's nothing left to dig.
+      ...(state.flags.confess === 1 ? confessionRule(state) : pressRule(state)),
     ];
   },
 
-  events: [],
+  events: EVENTS,
   checkEnding,
 };

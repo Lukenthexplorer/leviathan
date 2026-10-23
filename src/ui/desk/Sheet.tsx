@@ -11,7 +11,10 @@ export function Sheet(props: {
   onClose: () => void;
   children: ReactNode;
   wide?: boolean;
-  sound?: "drawer_open" | "paper_slide";
+  sound?: "drawer_open" | "paper_slide" | "newspaper_spin";
+  /** "spin": the classic movie newspaper, spinning in from the void. */
+  entrance?: "slide" | "spin";
+  className?: string;
   /** Lets a child close the sheet with the same animation (e.g. after stamping). */
   closeRef?: MutableRefObject<(() => void) | null>;
   /** The sheet element, for effects like screen shake on stamp. */
@@ -23,11 +26,19 @@ export function Sheet(props: {
   useLayoutEffect(() => {
     audio.sfx(props.sound ?? "drawer_open");
     gsap.fromTo(backdrop.current, { opacity: 0 }, { opacity: 1, duration: 0.25 });
-    gsap.fromTo(
-      sheet.current,
-      { y: 500, rotation: gsap.utils.random(-3, 3), opacity: 0 },
-      { y: 0, rotation: gsap.utils.random(-0.8, 0.8), opacity: 1, duration: 0.45, ease: "power3.out" },
-    );
+    if (props.entrance === "spin") {
+      gsap.fromTo(
+        sheet.current,
+        { scale: 0.05, rotation: -720, opacity: 0 },
+        { scale: 1, rotation: gsap.utils.random(-1.5, 1.5), opacity: 1, duration: 0.9, ease: "power2.out" },
+      );
+    } else {
+      gsap.fromTo(
+        sheet.current,
+        { y: 500, rotation: gsap.utils.random(-3, 3), opacity: 0 },
+        { y: 0, rotation: gsap.utils.random(-0.8, 0.8), opacity: 1, duration: 0.45, ease: "power3.out" },
+      );
+    }
   }, []);
 
   function close() {
@@ -48,7 +59,7 @@ export function Sheet(props: {
 
   return (
     <div className="sheet-backdrop" ref={backdrop} onMouseDown={(e) => e.target === backdrop.current && close()}>
-      <div className={`sheet ${props.wide ? "wide" : ""}`} ref={sheet}>
+      <div className={`sheet ${props.wide ? "wide" : ""} ${props.className ?? ""}`} ref={sheet}>
         {props.title && <h2 className="sheet-title">{props.title}</h2>}
         <button className="sheet-close" onClick={close} aria-label="Close">
           ×

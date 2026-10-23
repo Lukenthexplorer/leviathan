@@ -8,6 +8,7 @@ import { stampDown, tossAway } from "../feel/feel";
 import { answerFor, useGame } from "../store";
 import { characterName, characterRole, lockReason } from "../text";
 import { DeskButton } from "./DeskButton";
+import { NewspaperView } from "./NewspaperView";
 import { Sheet } from "./Sheet";
 
 /**
@@ -15,7 +16,12 @@ import { Sheet } from "./Sheet";
  * Answers are queued for the week, so the player can still change their mind
  * until they press Next week.
  */
-export function PaperView({ item, state, onClose }: { item: DeskItem; state: GameState; onClose: () => void }) {
+export function PaperView(props: { item: DeskItem; state: GameState; onClose: () => void }) {
+  if (props.item.kind === "newspaper") return <NewspaperView item={props.item} onClose={props.onClose} />;
+  return <Document {...props} />;
+}
+
+function Document({ item, state, onClose }: { item: DeskItem; state: GameState; onClose: () => void }) {
   const pending = useGame((s) => s.pending);
   const queue = useGame((s) => s.queue);
   const unqueue = useGame((s) => s.unqueue);
@@ -53,7 +59,7 @@ export function PaperView({ item, state, onClose }: { item: DeskItem; state: Gam
       <div className={`document kind-${item.kind}`}>
         {who && CHARACTERS[who] && (
           <div className="doc-from">
-            <img src={portrait(CHARACTERS[who].portrait)} alt="" />
+            <img src={portrait(CHARACTERS[who].portrait, item.expression)} alt="" />
             <div>
               <div className="doc-from-name">{characterName(state, who)}</div>
               <div className="doc-from-role">{characterRole(state, who)}</div>
@@ -67,6 +73,9 @@ export function PaperView({ item, state, onClose }: { item: DeskItem; state: Gam
           <div className="doc-choices">
             {item.choices.map((c) => {
               const locked = !!c.requires && !evaluate(state, c.requires);
+              // Show locked options only when a book unlocks them (it teaches "read to learn").
+              // Other secrets stay secret until the player has earned them.
+              if (locked && !(c.requires && "bookFinished" in c.requires)) return null;
               return (
                 <button
                   key={c.id}

@@ -18,7 +18,7 @@ import { LibraryPanel } from "../desk/panels/LibraryPanel";
 import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
 import { SocialPanel } from "../desk/panels/SocialPanel";
-import { agendaOf, useGame } from "../store";
+import { agendaOf, answerFor, useGame } from "../store";
 
 type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
 
@@ -45,9 +45,34 @@ export function DeskScreen() {
   const [advancing, setAdvancing] = useState(false);
   const curtain = useRef<HTMLDivElement>(null);
   const curtainText = useRef<HTMLDivElement>(null);
+  const flash = useRef<HTMLDivElement>(null);
 
   // The music follows how things are going, including things you can't see.
   useEffect(() => audio.setTension(musicTension(state, report)), [state, report]);
+
+  // A new week has landed: scandals hit with a red flash, phones ring.
+  useEffect(() => {
+    if (!report || advancing) return;
+    const scandal = state.history.some((h) => h.turn === state.turn && h.text.startsWith("Exposed"));
+    const calls = state.inbox.filter((i) => i.kind === "phone" && i.turn >= report.fromTurn).length;
+    const timers: number[] = [];
+    if (scandal) {
+      audio.sfx("scandal_sting");
+      gsap.fromTo(flash.current, { opacity: 0.75 }, { opacity: 0, duration: 0.4, repeat: 2, yoyo: true, ease: "power1.inOut" });
+    }
+    for (let i = 0; i < (scandal ? Math.max(calls, 2) : calls); i++) {
+      timers.push(window.setTimeout(() => audio.sfx("phone_ring", { volume: 0.7 }), 700 + i * 1300));
+    }
+    return () => timers.forEach(clearTimeout);
+    // Only when a new report arrives.
+  }, [report, advancing]);
+
+  /** After the briefing, the morning paper spins onto the desk by itself. */
+  function closeReport() {
+    const fresh = report && state.inbox.find((i) => i.kind === "newspaper" && i.turn >= report.fromTurn && !answerFor(pending, i.id));
+    clearReport();
+    if (fresh) window.setTimeout(() => setOpenItem(fresh), 250);
+  }
 
   const party = PARTIES[state.party as PartyId];
   const agendaCount = agendaOf(pending).length;
@@ -114,7 +139,9 @@ export function DeskScreen() {
 
       {PanelComponent && <PanelComponent state={state} onClose={() => setPanel(null)} />}
       {openItem && <PaperView item={openItem} state={state} onClose={() => setOpenItem(null)} />}
-      {report && !advancing && <WeekReport report={report} state={state} onClose={clearReport} />}
+      {report && !advancing && <WeekReport report={report} state={state} onClose={closeReport} />}
+
+      <div className="scandal-flash" ref={flash} />
 
       <div className="curtain" ref={curtain}>
         <div className="curtain-text" ref={curtainText} />

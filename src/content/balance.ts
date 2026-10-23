@@ -47,6 +47,9 @@ export const BALANCE = {
     /** Scandal damage per thread of the exposed entry. */
     scandalOpinionPerThread: -6,
     scandalBossRelationPerThread: -5,
+    /** Confessing exposes everything at once, but the public is more forgiving. */
+    confessionDamageFactor: 0.5,
+    confessionIntegrity: 10,
   },
 
   social: {

@@ -1,13 +1,8 @@
 import gsap from "gsap";
 import { useLayoutEffect, useRef } from "react";
+import { weekDate } from "../../core/calendar";
 
-const START = Date.UTC(1989, 0, 2); // Monday 2 January 1989, the first session of the new Câmara
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-export function weekDate(turn: number): string {
-  const d = new Date(START + (turn - 1) * 7 * 86_400_000);
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
+export { weekDate };
 
 /** The desk calendar. When the week changes, the new page drops in from above. */
 export function Calendar({ turn }: { turn: number }) {

@@ -389,3 +389,35 @@ h1, h2, h3 { margin: 0; }
 /* Focus rings only for keyboard users, not after a mouse click. */
 button:focus:not(:focus-visible) { outline: none; }
 button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3px; }
+
+/* ------------------------------------------------------------- step 5: press, phones, scandal */
+
+.paper-card.kind-newspaper { background: linear-gradient(170deg, #e4ddc8, #c9c0a6); }
+.paper-card-masthead { font-family: var(--display); font-size: 0.8rem; border-bottom: 2px double var(--ink); padding-bottom: 2px; margin: 2px 0 4px; }
+.paper-card.ringing { animation: ring 1.6s ease-in-out infinite; }
+@keyframes ring {
+  0%, 70%, 100% { translate: 0 0; }
+  74% { translate: -3px 0; }
+  78% { translate: 3px 0; }
+  82% { translate: -3px 0; }
+  86% { translate: 3px 0; }
+  90% { translate: 0 0; }
+}
+
+.sheet-newspaper { background: #e6dfca; padding: 28px 34px; }
+.sheet-newspaper .newspaper { width: auto; padding: 0; background: none; box-shadow: none; color: var(--ink); }
+.newspaper-meta {
+  display: flex; justify-content: space-between;
+  font-family: var(--type); font-size: 0.75rem;
+  border-bottom: 1px solid var(--ink); padding: 4px 0; margin-bottom: 16px;
+}
+.newspaper-headline { font-family: var(--display); font-weight: 900; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 1.05; margin-bottom: 14px; }
+.newspaper.scandal .newspaper-headline { color: var(--red); }
+.newspaper-body { column-count: 2; column-gap: 28px; line-height: 1.6; text-align: justify; margin: 0; }
+.newspaper-body::first-letter { font-family: var(--display); font-size: 3rem; float: left; line-height: 0.9; padding-right: 6px; }
+.newspaper-filler { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+.newspaper-filler span { height: 46px; background: repeating-linear-gradient(#0002 0 2px, transparent 2px 7px); }
+.newspaper-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+@media (max-width: 700px) { .newspaper-body { column-count: 1; } }
+
+.scandal-flash { position: fixed; inset: 0; background: #b0170b; mix-blend-mode: multiply; opacity: 0; pointer-events: none; z-index: 40; }

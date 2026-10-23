@@ -9,3 +9,9 @@ export const integrity = (delta: number): Effect => ({ type: "integrity", delta 
 export const funds = (delta: number): Effect => ({ type: "funds", delta });
 export const expectations = (delta: number): Effect => ({ type: "expectations", delta });
 export const log = (text: string): Effect => ({ type: "log", text });
+
+/** A newspaper landing on the desk. Body text may use templates like {{date:law_id}}. */
+export const newspaper = (id: string, headline: string, body: string): Effect => ({
+  type: "deskItem",
+  item: { id, kind: "newspaper", title: headline, body, turn: 0 },
+});

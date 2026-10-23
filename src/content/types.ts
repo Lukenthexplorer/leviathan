@@ -1,3 +1,4 @@
+import type { TextVariant } from "../core/text";
 import type { Condition, DeskChoice, Effect } from "../core/types";
 
 /**
@@ -78,4 +79,6 @@ export interface MeetingDef {
   title: string;
   body: string;
   choices: DeskChoice[];
+  /** Same meeting, different tone depending on hidden state. */
+  variants?: TextVariant[];
 }

@@ -191,6 +191,8 @@ export interface DeskItem {
   choices?: DeskChoice[];
   /** For newspapers: the earlier decision this story is about. */
   cause?: Cause;
+  /** Portrait expression of `from`. Characters' faces carry the hidden morality. */
+  expression?: "neutral" | "pleased" | "angry" | "suspicious";
   turn: number;
 }
 
