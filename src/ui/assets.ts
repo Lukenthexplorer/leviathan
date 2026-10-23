@@ -4,6 +4,11 @@
  * placeholder for final art is a one-line change here.
  */
 
+/**
+ * Sound effects. A value can be one file or several variations; variations
+ * play in rotation (round-robin), so repeated sounds don't feel robotic.
+ * Real recordings are .mp3; .wav files are generated placeholders.
+ */
 export const SFX = {
   stamp_thud: "assets/audio/sfx/stamp_thud.wav",
   paper_slide: "assets/audio/sfx/paper_slide.wav",
@@ -20,16 +25,37 @@ export const SFX = {
   scandal_sting: "assets/audio/sfx/scandal_sting.wav",
   opinion_up: "assets/audio/sfx/opinion_up.wav",
   opinion_down: "assets/audio/sfx/opinion_down.wav",
-  tv_power_on: "assets/audio/sfx/tv_power_on.wav",
-  tv_static: "assets/audio/sfx/tv_static.wav",
+  // election night (real recordings)
+  tv_power_on: "assets/audio/sfx/tv_power_on.mp3",
+  tv_static: "assets/audio/sfx/tv_static.mp3",
+  vote_tick: ["assets/audio/sfx/vote_tick_1.mp3", "assets/audio/sfx/vote_tick_2.mp3", "assets/audio/sfx/vote_tick_3.mp3", "assets/audio/sfx/vote_tick_4.mp3"],
+  lead_change: ["assets/audio/sfx/lead_change_1.mp3", "assets/audio/sfx/lead_change_2.mp3"],
+  fireworks: ["assets/audio/sfx/fireworks_1.mp3", "assets/audio/sfx/fireworks_2.mp3"],
+  crowd_groan: ["assets/audio/sfx/crowd_groan_1.mp3", "assets/audio/sfx/crowd_groan_2.mp3"],
+  // still placeholders
   plantao_jingle: "assets/audio/sfx/plantao_jingle.wav",
-  virada_sting: "assets/audio/sfx/virada_sting.wav",
   crowd_cheer: "assets/audio/sfx/crowd_cheer.wav",
-  crowd_murmur: "assets/audio/sfx/crowd_murmur.wav",
-} as const;
+} as const satisfies Record<string, string | readonly string[]>;
 export type SfxId = keyof typeof SFX;
 
+/**
+ * Election-night radio narration, by situation. Each situation takes several
+ * variations; empty lists are ready for future recordings (they simply don't play).
+ */
+export const NARRATION: Record<NarrationSituation, readonly string[]> = {
+  opening: ["assets/audio/narration/radio_opening.mp3"],
+  ballots: ["assets/audio/narration/radio_ballots_1.mp3"],
+  close_race: ["assets/audio/narration/radio_close_race.mp3"],
+  lead_change: ["assets/audio/narration/radio_lead_change.mp3"],
+  outraged: ["assets/audio/narration/radio_outraged.mp3"],
+  final: ["assets/audio/narration/radio_final.mp3"],
+  landslide: [],
+  last_urn: [],
+};
+
 /** Music stems play together in a loop; their volumes follow the tension level. */
+import type { NarrationSituation } from "./audio/rules";
+
 export const MUSIC_STEMS = {
   office_piano_stem: "assets/audio/music/office_piano_stem.wav",
   tension_drums_stem: "assets/audio/music/tension_drums_stem.wav",

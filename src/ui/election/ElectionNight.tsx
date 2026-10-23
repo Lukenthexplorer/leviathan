@@ -110,12 +110,12 @@ export function ElectionNight() {
     audio.sfx("clock_tick", { volume: 0.6 });
     audio.setTension(frame.close ? 0.9 : frame.leader === PLAYER ? 0.2 : 0.55);
     if (frame.leadChange && virada.current && !reducedMotion()) {
-      audio.sfx("virada_sting");
+      audio.sfx("lead_change");
       gsap.fromTo(virada.current, { scale: 2.4, opacity: 0, rotation: -8 }, { scale: 1, opacity: 1, rotation: -4, duration: 0.35, ease: "back.out(2)" });
       gsap.to(virada.current, { opacity: 0, duration: 0.4, delay: 1.3 });
     }
     // The crowd outside: louder where the player just won a neighbourhood.
-    if (frame.unitDone) audio.sfx(frame.unitWinner === PLAYER ? "crowd_cheer" : "crowd_murmur", { volume: 0.5 });
+    if (frame.unitDone) audio.sfx(frame.unitWinner === PLAYER ? "crowd_cheer" : "crowd_groan", { volume: 0.5 });
   }, [frame]);
 
   function finish() {
@@ -125,7 +125,7 @@ export function ElectionNight() {
     setFrameIdx(broadcast.rounds[last]!.frames.length - 1);
     setInterstitial(null);
     setPhase("final");
-    audio.sfx(broadcast.playerWon ? "crowd_cheer" : "crowd_murmur", { volume: broadcast.playerWon ? 1 : 0.6 });
+    audio.sfx(broadcast.playerWon ? "crowd_cheer" : "crowd_groan", { volume: broadcast.playerWon ? 1 : 0.6 });
     audio.setTension(broadcast.playerWon ? 0 : 1);
   }
 
