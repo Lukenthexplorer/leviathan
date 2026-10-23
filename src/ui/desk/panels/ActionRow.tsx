@@ -33,7 +33,7 @@ export function ActionRow(props: {
       <div className="action-cta">
         {queued ? (
           <DeskButton variant="ghost" onClick={() => (audio.sfx("paper_pickup", { volume: 0.6 }), unqueue(queued))}>
-            On agenda ✓
+            Na agenda ✓
           </DeskButton>
         ) : (
           <DeskButton disabled={props.disabled} onClick={() => queue(props.decision)}>

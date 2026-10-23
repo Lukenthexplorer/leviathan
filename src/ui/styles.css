@@ -425,7 +425,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 /* ------------------------------------------------------------- step 6: conspiracy board */
 
 .paper-card.kind-scheme { background: linear-gradient(170deg, #7a2a20, #551b14); color: var(--cream); }
-.paper-card.kind-scheme .paper-card-kind::after { content: " · confidential"; }
 
 .sheet-scheme {
   width: min(1100px, 100%);
@@ -490,3 +489,12 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
   opacity: 0; pointer-events: none; mix-blend-mode: multiply;
 }
 @media (max-width: 800px) { .scheme-board { grid-template-columns: 1fr; } }
+
+/* form of address picker (party screen) */
+.form-pick { display: flex; flex-direction: column; gap: 6px; font-family: var(--type); font-size: 0.85rem; color: #cdbb98; }
+.form-pick > div { display: flex; }
+.form-option {
+  font-family: var(--type); font-size: 1rem; padding: 8px 14px; cursor: pointer;
+  background: var(--paper-dark); color: var(--ink); border: 1px solid var(--ink-soft);
+}
+.form-option.on { background: var(--brass); border-color: var(--brass-light); }

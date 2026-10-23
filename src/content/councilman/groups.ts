@@ -5,33 +5,33 @@ export type GroupId = (typeof GROUP_IDS)[number];
 
 export const GROUPS = {
   workers: {
-    name: "Workers",
-    description: "Factory hands, bus drivers and dockers of Porto Ferro. Organised, proud, and tired of promises.",
-    concerns: ["jobs", "wages", "transport"],
+    name: "Trabalhadores",
+    description: "Operários, motoristas de ônibus e estivadores de Porto Ferro. Organizados, orgulhosos e cansados de promessas.",
+    concerns: ["emprego", "salário", "transporte"],
   },
   business: {
-    name: "Business Owners",
-    description: "Shopkeepers and the commercial association. They want lower taxes and less paperwork.",
-    concerns: ["taxes", "regulation", "safety"],
+    name: "Empresários",
+    description: "Lojistas e a Associação Comercial. Querem menos imposto e menos papelada.",
+    concerns: ["impostos", "regulação", "segurança"],
   },
   students: {
-    name: "Students",
-    description: "Loud, online and quick to take to the streets. Remember the bus fare protests.",
-    concerns: ["education", "transport", "culture"],
+    name: "Estudantes",
+    description: "Barulhentos, mobilizados e rápidos para ir às ruas. Lembram dos protestos da passagem.",
+    concerns: ["educação", "transporte", "cultura"],
   },
   retirees: {
-    name: "Retirees",
-    description: "They vote every single time, and they read the newspaper. All of it.",
-    concerns: ["health", "pensions", "safety"],
+    name: "Aposentados",
+    description: "Votam em todas as eleições e leem o jornal. Inteiro.",
+    concerns: ["saúde", "aposentadoria", "segurança"],
   },
   religious: {
-    name: "Religious Voters",
-    description: "Catholic parishes and fast-growing evangelical churches. Pastors carry a lot of votes.",
-    concerns: ["family", "safety", "charity"],
+    name: "Religiosos",
+    description: "Paróquias católicas e igrejas evangélicas em plena expansão. Pastores carregam muitos votos.",
+    concerns: ["família", "segurança", "caridade"],
   },
   periphery: {
-    name: "Poor Periphery",
-    description: "The hillside communities the city forgets until election season.",
-    concerns: ["housing", "sanitation", "safety", "transport"],
+    name: "Periferia",
+    description: "As comunidades do morro que a cidade esquece até a época de eleição.",
+    concerns: ["moradia", "saneamento", "segurança", "transporte"],
   },
 } as const satisfies Record<GroupId, GroupDef>;

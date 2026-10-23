@@ -25,7 +25,7 @@ export function NewspaperView({ item, onClose }: { item: DeskItem; onClose: () =
       <div className={`newspaper ${scandal ? "scandal" : ""}`}>
         <div className="newspaper-masthead">CORREIO DE PORTO FERRO</div>
         <div className="newspaper-meta">
-          <span>Founded 1921</span>
+          <span>Fundado em 1921</span>
           <span>{weekDate(item.turn)}</span>
           <span>Cr$ 150</span>
         </div>
@@ -38,7 +38,7 @@ export function NewspaperView({ item, onClose }: { item: DeskItem; onClose: () =
         </div>
       </div>
       <div className="newspaper-actions">
-        <DeskButton onClick={file}>{filed ? "Put it down" : "File the clipping"}</DeskButton>
+        <DeskButton onClick={file}>{filed ? "Deixar de lado" : "Arquivar o recorte"}</DeskButton>
       </div>
     </Sheet>
   );

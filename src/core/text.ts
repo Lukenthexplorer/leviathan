@@ -8,6 +8,7 @@ import type { Condition, DeskItem, GameState } from "./types";
  * the game "always shows the connection" between a crisis and its cause.
  *
  *   {{player}}            the player's name ({{PLAYER}} for headlines)
+ *   {{g:o/a}}             gendered word by the player's chosen form: {{g:vereador/vereadora}}
  *   {{flag:posts}}        a flag's value
  *   {{date:<causeId>}}    month and year of the FIRST history entry whose cause id starts with <causeId>
  *   {{what:<causeId>}}    that entry's label ("Proposed the Bus Fare Freeze")
@@ -15,35 +16,39 @@ import type { Condition, DeskItem, GameState } from "./types";
  *                         "the Night Safety Patrols (March 1989)"
  */
 export function fillTemplate(state: GameState, text: string): string {
-  return text.replace(/\{\{(\w+)(?::([\w-]+))?\}\}/g, (match, key: string, arg = "") => {
+  return text.replace(/\{\{(\w+)(?::([^}]+))?\}\}/g, (match, key: string, arg = "") => {
     switch (key) {
       case "player":
         return state.player.name;
       case "PLAYER":
         return state.player.name.toUpperCase();
+      case "g": {
+        const [masc = "", fem = masc] = arg.split("/");
+        return state.player.form === "f" ? fem : masc;
+      }
       case "flag":
         return String(state.flags[arg] ?? 0);
       case "date": {
         const h = firstCause(state, arg);
-        return h ? monthYear(h.turn) : "recent months";
+        return h ? monthYear(h.turn) : "os últimos meses";
       }
       case "what": {
         const h = firstCause(state, arg);
-        return h ? h.cause.label : "earlier decisions";
+        return h ? h.cause.label : "decisões anteriores";
       }
       case "worst": {
         const g = state.groups[arg];
         const worst = g?.memories
           .filter((m) => m.impact < 0)
           .sort((a, b) => memoryWeight(a, state.turn) - memoryWeight(b, state.turn))[0];
-        return worst ? `${lowerFirst(worst.cause.label)} (${monthYear(worst.cause.turn)})` : "years of neglect";
+        return worst ? `${lowerFirst(worst.cause.label)} (${monthYear(worst.cause.turn)})` : "anos de abandono";
       }
     }
     return match;
   });
 }
 
-/** "Proposed the Night Safety Patrols" -> "proposed the Night Safety Patrols" (keeps proper nouns). */
+/** "Propôs a Ronda Noturna" -> "propôs a Ronda Noturna" (keeps proper nouns). */
 export function lowerFirst(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }

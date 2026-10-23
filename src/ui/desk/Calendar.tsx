@@ -25,7 +25,7 @@ export function Calendar({ turn }: { turn: number }) {
     <div className="calendar">
       <div className="calendar-rings" />
       <div className="calendar-page" ref={page}>
-        <div className="calendar-week">WEEK {turn}</div>
+        <div className="calendar-week">SEMANA {turn}</div>
         <div className="calendar-date">{weekDate(turn)}</div>
       </div>
     </div>

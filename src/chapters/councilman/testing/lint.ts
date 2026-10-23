@@ -11,10 +11,11 @@ const CAUSE_PREFIXES = [...Object.keys(LAWS), "post_populist", "post_informative
 
 export function badTemplates(text: string): string[] {
   const problems: string[] = [];
-  for (const [, key, arg = ""] of text.matchAll(/\{\{(\w+)(?::([\w-]+))?\}\}/g)) {
+  for (const [, key, arg = ""] of text.matchAll(/\{\{(\w+)(?::([^}]+))?\}\}/g)) {
     if (key === "worst" && !(arg in GROUPS)) problems.push(`{{worst:${arg}}}`);
     if ((key === "date" || key === "what") && !CAUSE_PREFIXES.some((p) => p.startsWith(arg))) problems.push(`{{${key}:${arg}}}`);
-    if (!["player", "PLAYER", "flag", "date", "what", "worst"].includes(key!)) problems.push(`{{${key}}}`);
+    if (key === "g" && !arg.includes("/")) problems.push(`{{g:${arg}}} needs both forms, like {{g:o/a}}`);
+    if (!["player", "PLAYER", "g", "flag", "date", "what", "worst"].includes(key!)) problems.push(`{{${key}}}`);
   }
   return problems;
 }

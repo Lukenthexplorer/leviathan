@@ -23,11 +23,11 @@ import { agendaOf, answerFor, useGame } from "../store";
 type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
 
 const TOOLS: { id: Panel; label: string; hint: string }[] = [
-  { id: "bills", label: "Bills", hint: "Propose a law" },
-  { id: "rolodex", label: "Rolodex", hint: "Request a meeting" },
-  { id: "streets", label: "Streets", hint: "Build a base" },
-  { id: "social", label: "Phone", hint: "Post on social media" },
-  { id: "library", label: "Bookshelf", hint: "Read and learn" },
+  { id: "bills", label: "Projetos", hint: "Propor uma lei" },
+  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião" },
+  { id: "streets", label: "Ruas", hint: "Construir uma base" },
+  { id: "social", label: "Celular", hint: "Postar nas redes" },
+  { id: "library", label: "Estante", hint: "Ler e aprender" },
 ];
 
 const PANELS = { bills: BillsPanel, social: SocialPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
@@ -53,7 +53,7 @@ export function DeskScreen() {
   // A new week has landed: scandals hit with a red flash, phones ring.
   useEffect(() => {
     if (!report || advancing) return;
-    const scandal = state.history.some((h) => h.turn === state.turn && h.text.startsWith("Exposed"));
+    const scandal = report.exposed.length > 0;
     const calls = state.inbox.filter((i) => i.kind === "phone" && i.turn >= report.fromTurn).length;
     const timers: number[] = [];
     if (scandal) {
@@ -81,7 +81,7 @@ export function DeskScreen() {
   function onNextWeek() {
     if (advancing) return;
     setAdvancing(true);
-    if (curtainText.current) curtainText.current.textContent = `Week ${state.turn + 1}`;
+    if (curtainText.current) curtainText.current.textContent = `Semana ${state.turn + 1}`;
     audio.sfx("page_flip");
     gsap
       .timeline()
@@ -101,13 +101,13 @@ export function DeskScreen() {
           <div className={`badge-party party-${state.party}`}>{party.short}</div>
           <div>
             <div className="badge-name">{state.player.name}</div>
-            <div className="badge-role">City Councillor, Porto Ferro</div>
+            <div className="badge-role">{state.player.form === "f" ? "Vereadora" : "Vereador"} de Porto Ferro</div>
           </div>
         </div>
         <Calendar turn={state.turn} />
         <OpinionStrip state={state} />
-        <div className="chest" title="Campaign money, in thousands">
-          <div className="chest-label">Campaign chest</div>
+        <div className="chest" title="Dinheiro de campanha, em milhares">
+          <div className="chest-label">Caixa de campanha</div>
           <div className="chest-value">{state.player.funds}k</div>
         </div>
       </header>
@@ -129,11 +129,11 @@ export function DeskScreen() {
 
       <footer className="desk-bottom">
         <div className="desk-status">
-          {agendaCount === 0 && "Nothing on the agenda yet. "}
-          {waiting > 0 && `${waiting} paper${waiting > 1 ? "s" : ""} waiting for an answer.`}
+          {agendaCount === 0 && "Nada na agenda ainda. "}
+          {waiting > 0 && `${waiting} ${waiting > 1 ? "papéis esperando" : "papel esperando"} resposta.`}
         </div>
         <DeskButton variant="primary" onClick={onNextWeek} disabled={advancing}>
-          Next week →
+          Próxima semana →
         </DeskButton>
       </footer>
 

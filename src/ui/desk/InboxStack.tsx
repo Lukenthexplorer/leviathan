@@ -5,13 +5,13 @@ import { portrait } from "../assets";
 import { slideIn } from "../feel/feel";
 import { useHoverLift } from "../feel/useHoverLift";
 import { answerFor, useGame } from "../store";
-import { characterName } from "../text";
+import { characterName, KIND_LABEL } from "../text";
 
 /** The papers on the desk. New ones slide in one after another. */
 export function InboxStack({ state, onOpen }: { state: GameState; onOpen: (item: DeskItem) => void }) {
   const pending = useGame((s) => s.pending);
   if (state.inbox.length === 0) {
-    return <div className="inbox-empty">The desk is clear. For now.</div>;
+    return <div className="inbox-empty">A mesa está limpa. Por enquanto.</div>;
   }
   return (
     <div className="inbox">
@@ -39,12 +39,12 @@ function PaperCard(props: { item: DeskItem; state: GameState; order: number; ans
       className={`paper-card kind-${item.kind} ${props.answered ? "answered" : ""} ${item.kind === "phone" && !props.answered ? "ringing" : ""}`}
       onClick={props.onOpen}
     >
-      <div className="paper-card-kind">{item.kind === "phone" ? "phone call" : item.kind}</div>
+      <div className="paper-card-kind">{KIND_LABEL[item.kind] ?? item.kind}</div>
       {item.kind === "newspaper" && <div className="paper-card-masthead">Correio de Porto Ferro</div>}
       {who && CHARACTERS[who] && <img className="paper-card-portrait" src={portrait(CHARACTERS[who].portrait, item.expression)} alt="" />}
       <div className="paper-card-title">{item.title}</div>
       {who && <div className="paper-card-from">{characterName(state, who)}</div>}
-      {props.answered && <div className="paper-card-ink">{item.scheme ? "IN MOTION" : item.choices?.length ? "ANSWERED" : "FILED"}</div>}
+      {props.answered && <div className="paper-card-ink">{item.scheme ? "EM ANDAMENTO" : item.choices?.length ? "RESPONDIDO" : "ARQUIVADO"}</div>}
     </button>
   );
 }

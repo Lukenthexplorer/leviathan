@@ -10,8 +10,8 @@ const PEOPLE: CharacterId[] = ["party_boss", "mentor", "rival", "donor", "commun
 /** The rolodex. Ask for a meeting; their answer lands on your desk. */
 export function MeetingsPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
   return (
-    <Sheet title="Rolodex" onClose={onClose} wide>
-      <p className="panel-intro">Ask for a meeting and it lands on your desk as a paper to answer.</p>
+    <Sheet title="Agenda de contatos" onClose={onClose} wide>
+      <p className="panel-intro">Peça uma reunião e ela chega à sua mesa como um papel para responder.</p>
       {PEOPLE.map((id) => {
         const waiting = state.inbox.some((i) => i.from === id && i.choices?.length);
         return (
@@ -27,12 +27,12 @@ export function MeetingsPanel({ state, onClose }: { state: GameState; onClose: (
               </span>
             }
             decision={{ kind: "meeting", with: id }}
-            cta="Request meeting"
+            cta="Pedir reunião"
             disabled={waiting}
-            disabledReason="Their last paper is still waiting on your desk"
+            disabledReason="O último papel dessa pessoa ainda está esperando na sua mesa"
             aside={<div className="relation">{relationWord(state.characters[id]?.relation ?? 0)}</div>}
           >
-            {id === "party_boss" ? "Decides who gets the party's mayoral nomination." : CHARACTERS[id].bio}
+            {id === "party_boss" ? "Decide quem recebe a indicação do partido para prefeito." : CHARACTERS[id].bio}
           </ActionRow>
         );
       })}

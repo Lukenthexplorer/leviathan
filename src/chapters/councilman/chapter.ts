@@ -1,9 +1,9 @@
 import { BALANCE } from "../../content/balance";
-import { CHARACTERS, CHARACTER_IDS } from "../../content/councilman/characters";
+import { CHARACTERS, CHARACTER_IDS, type CharacterId } from "../../content/councilman/characters";
 import { GROUP_IDS } from "../../content/councilman/groups";
 import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS } from "../../content/councilman/neighbourhoods";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
-import type { ChapterDefinition } from "../../core/chapter";
+import type { ChapterDefinition, ChapterSetup } from "../../core/chapter";
 import { readRef } from "../../core/conditions";
 import { EVENTS } from "../../content/councilman/events";
 import { expectationsPressure } from "../../core/hidden";
@@ -17,7 +17,7 @@ const C = BALANCE.councilman;
 export const COUNCILMAN_ENDINGS = ["arrested", "expelled", "lost_support", "candidacy"] as const;
 export type CouncilmanEnding = (typeof COUNCILMAN_ENDINGS)[number];
 
-function createInitialState({ playerName, party }: { playerName: string; party: string }): GameState {
+function createInitialState({ playerName, party, form = "m" }: ChapterSetup): GameState {
   const p = PARTIES[party as PartyId];
   if (!p) throw new Error(`Unknown party "${party}"`);
 
@@ -26,7 +26,7 @@ function createInitialState({ playerName, party }: { playerName: string; party: 
     chapterId: "councilman",
     turn: 1,
     party,
-    player: { name: playerName, funds: C.startingFunds },
+    player: { name: playerName, form, funds: C.startingFunds },
     groups: Object.fromEntries(GROUP_IDS.map((g) => [g, { baseline: p.startingOpinions[g], memories: [] }])),
     hidden: {
       integrity: BALANCE.hidden.integrityStart,
@@ -45,13 +45,13 @@ function createInitialState({ playerName, party }: { playerName: string; party: 
         id: "welcome",
         kind: "letter",
         from: "mentor",
-        title: "Welcome to the Câmara, kid",
+        title: "Bem-vind" + (form === "f" ? "a" : "o") + " à Câmara, garot" + (form === "f" ? "a" : "o"),
         body:
-          `Congratulations on the election, ${playerName}. You squeezed in with the last seat, so don't let it go to your head.\n\n` +
-          `Here's how it works. Every week you get three things done: a bill, a meeting, a walk in the neighbourhoods, a post, ` +
-          `a chapter of a good book. Papers will pile up on this desk; answer them, they don't answer themselves.\n\n` +
-          `In two years ${p.short} picks its candidate for mayor. Win the party, fill a campaign chest, and get the people on your side. ` +
-          `Three things. Sounds simple.\n\nIt never is.\n\n— Otávio`,
+          `Parabéns pela eleição, ${playerName}. Você entrou com a última vaga, então não deixe isso subir à cabeça.\n\n` +
+          `É assim que funciona. Toda semana você consegue fazer três coisas: um projeto de lei, uma reunião, uma caminhada nos bairros, ` +
+          `um post, um capítulo de um bom livro. Os papéis vão se acumular nesta mesa; responda, eles não se respondem sozinhos.\n\n` +
+          `Daqui a dois anos o partido escolhe quem vai disputar a prefeitura. Conquiste a cúpula, encha o caixa de campanha e ` +
+          `ponha o povo do seu lado. Três coisas. Parece simples.\n\nNunca é.\n\n— Otávio`,
         turn: 1,
       },
     ],
@@ -77,23 +77,23 @@ export const councilmanChapter: ChapterDefinition = {
     // Planning a scheme answers a paper on the desk; it doesn't use up the agenda.
     const agenda = decisions.filter((d) => d.kind !== "scheme");
     if (agenda.length > BALANCE.turn.agendaSlots) {
-      throw new Error(`Only ${BALANCE.turn.agendaSlots} actions per week`);
+      throw new Error(`Só dá para fazer ${BALANCE.turn.agendaSlots} coisas por semana`);
     }
     const count = (kind: string) => decisions.filter((d) => d.kind === kind).length;
-    if (count("post") > BALANCE.social.maxPostsPerWeek) throw new Error("Only one post per week");
-    if (count("read") > 1) throw new Error("You can only start one book per week");
+    if (count("post") > BALANCE.social.maxPostsPerWeek) throw new Error("Só um post por semana");
+    if (count("read") > 1) throw new Error("Só dá para começar um livro por semana");
 
     const met = decisions.filter((d) => d.kind === "meeting").map((d) => d.with as string);
-    if (new Set(met).size !== met.length) throw new Error("Only one meeting per person per week");
+    if (new Set(met).size !== met.length) throw new Error("Uma reunião por pessoa por semana");
     for (const who of met) {
       if (state.inbox.some((i) => i.from === who && i.choices?.length)) {
-        throw new Error(`Answer ${who}'s last meeting before asking for another`);
+        throw new Error(`Responda o último papel de ${who === "party_boss" ? "seu partido" : CHARACTERS[who as CharacterId].name} antes de pedir outra reunião`);
       }
     }
     const schemes = decisions.filter((d) => d.kind === "scheme").map((d) => d.itemId);
-    if (new Set(schemes).size !== schemes.length) throw new Error("One plan per scheme");
+    if (new Set(schemes).size !== schemes.length) throw new Error("Um plano por esquema");
     const laws = decisions.filter((d) => d.kind === "proposeLaw").map((d) => d.law);
-    if (new Set(laws).size !== laws.length) throw new Error("Each bill can only be proposed once");
+    if (new Set(laws).size !== laws.length) throw new Error("Cada projeto só pode ser proposto uma vez");
   },
 
   resolveDecision: resolveCouncilmanDecision,

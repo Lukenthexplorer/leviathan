@@ -9,6 +9,6 @@ import type { GameState, TurnReport } from "../../core/types";
 export function musicTension(state: GameState, report: TurnReport | null): number {
   const unpopular = Math.max(0, -readRef(state, "averageOpinion")) / 50;
   const investigated = (state.flags.investigation ?? 0) / 100;
-  const scandal = report && state.history.some((h) => h.turn === state.turn && h.text.startsWith("Exposed")) ? 0.6 : 0;
+  const scandal = report?.exposed.length ? 0.6 : 0;
   return Math.min(1, unpopular * 0.5 + investigated * 0.5 + scandal);
 }

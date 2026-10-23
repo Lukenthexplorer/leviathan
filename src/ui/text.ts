@@ -24,39 +24,54 @@ export function describeDecision(state: GameState, d: Decision): string {
   const c = d as CouncilmanDecision;
   switch (c.kind) {
     case "post":
-      return `${c.style === "populist" ? "Fiery" : "Explainer"} post for ${GROUPS[c.group].name.toLowerCase()}`;
+      return `Post ${c.style === "populist" ? "inflamado" : "explicativo"} para ${GROUPS[c.group].name.toLowerCase()}`;
     case "proposeLaw":
-      return `Propose: ${LAWS[c.law].title}`;
+      return `Propor: ${LAWS[c.law].title}`;
     case "neighbourhood":
-      return `Walk the streets of ${NEIGHBOURHOODS[c.id].name}`;
+      return `Percorrer ${NEIGHBOURHOODS[c.id].name}`;
     case "meeting":
-      return `Meet ${characterName(state, c.with)}`;
+      return `Reunião com ${characterName(state, c.with)}`;
     case "read":
-      return `Start reading ${BOOKS[c.book].title}`;
+      return `Começar a ler ${BOOKS[c.book].title}`;
+    case "scheme":
+      return "Plano em andamento";
   }
   return d.kind;
 }
 
-/** Relations are felt, not measured: the player sees words, not numbers. */
+/**
+ * Relations are felt, not measured: the player sees words, not numbers.
+ * Nouns rather than adjectives, so they never need to agree with a character's gender.
+ */
 export function relationWord(v: number): string {
-  if (v <= -50) return "Hostile";
-  if (v <= -15) return "Cold";
-  if (v < 15) return "Neutral";
-  if (v < 50) return "Friendly";
-  return "Close";
+  if (v <= -50) return "Hostilidade";
+  if (v <= -15) return "Frieza";
+  if (v < 15) return "Indiferença";
+  if (v < 50) return "Simpatia";
+  return "Confiança";
 }
 
 export function moodWord(v: number): string {
-  if (v <= -40) return "Furious";
-  if (v <= -10) return "Restless";
-  if (v < 10) return "Calm";
-  if (v < 40) return "Content";
-  return "Thriving";
+  if (v <= -40) return "Revoltado";
+  if (v <= -10) return "Inquieto";
+  if (v < 10) return "Calmo";
+  if (v < 40) return "Satisfeito";
+  return "Próspero";
 }
 
 /** Why a choice or bill is locked, in words. */
 export function lockReason(c: Condition | undefined): string {
   if (!c) return "";
-  if ("bookFinished" in c) return `Requires reading ${BOOKS[c.bookFinished as keyof typeof BOOKS]?.title ?? c.bookFinished}`;
-  return "Not available yet";
+  if ("bookFinished" in c) return `Requer a leitura de ${BOOKS[c.bookFinished as keyof typeof BOOKS]?.title ?? c.bookFinished}`;
+  return "Ainda não disponível";
 }
+
+/** How each kind of paper is labelled on the desk. */
+export const KIND_LABEL: Record<string, string> = {
+  letter: "carta",
+  event: "evento",
+  newspaper: "jornal",
+  report: "relatório",
+  phone: "telefonema",
+  scheme: "esquema · confidencial",
+};

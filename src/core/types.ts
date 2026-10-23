@@ -37,6 +37,8 @@ export interface GameState {
 
 export interface PlayerState {
   name: string;
+  /** Grammatical form of address the player chose ("vereador" / "vereadora"). Templates use it via {{g:o/a}}. */
+  form: "m" | "f";
   /** Campaign money, in thousands. */
   funds: number;
 }
@@ -235,5 +237,7 @@ export interface TurnReport {
   /** Delayed consequences that fired this turn. */
   consequences: { label: string; cause: Cause }[];
   newDeskItems: DeskItem[];
+  /** Dossier entries that came out this week (exposé or confession). The UI turns these into scandals. */
+  exposed: DossierEntry[];
   ending: string | null;
 }

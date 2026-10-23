@@ -2,34 +2,35 @@ import { log, newspaper, opinion } from "../helpers";
 import type { LawDef } from "../types";
 
 /**
- * Local bills a councilman can propose. Every law helps someone and costs
+ * Local bills a councillor can propose. Every law helps someone and costs
  * someone, and most have a consequence that arrives weeks later.
+ * Topics are ids (English) matched against party favoured/opposed topics.
  */
 export const LAWS = {
   bus_fare_freeze: {
-    title: "Bus Fare Freeze",
-    summary: "Freeze city bus fares for two years. The bus companies will want compensation.",
+    title: "Congelamento da Passagem",
+    summary: "Congela a tarifa de ônibus por dois anos. As empresas de ônibus vão querer compensação.",
     topics: ["transport", "wages"],
     councilSupport: 45,
     onPass: [
-      opinion("students", 8, "Froze bus fares"),
-      opinion("workers", 6, "Froze bus fares"),
-      opinion("periphery", 6, "Froze bus fares"),
-      opinion("business", -6, "Froze bus fares without compensation"),
+      opinion("students", 8, "Congelou a passagem"),
+      opinion("workers", 6, "Congelou a passagem"),
+      opinion("periphery", 6, "Congelou a passagem"),
+      opinion("business", -6, "Congelou a passagem sem compensação"),
     ],
     followUps: [
       {
         inTurns: 6,
-        label: "Bus companies cut night routes after the fare freeze",
+        label: "Empresas cortam linhas noturnas após o congelamento da passagem",
         effects: [
-          opinion("periphery", -6, "Night buses cut"),
-          opinion("workers", -4, "Night buses cut"),
+          opinion("periphery", -6, "Ônibus noturnos cortados"),
+          opinion("workers", -4, "Ônibus noturnos cortados"),
           { type: "neighbourhood", id: "morro_esperanca", mood: -6 },
           newspaper(
             "news_night_buses",
-            "NIGHT BUSES CUT: OPERATORS BLAME THE FARE FREEZE",
-            "Three night routes to the hillside communities were cancelled yesterday. The bus operators' syndicate says the fare freeze " +
-              "approved in {{date:bus_fare_freeze}} left them \"no choice\". Night-shift workers now face a two-hour walk home.",
+            "CORTE NOS ÔNIBUS NOTURNOS: EMPRESAS CULPAM O CONGELAMENTO",
+            "Três linhas noturnas que atendiam o morro foram canceladas ontem. O sindicato das empresas de ônibus diz que o congelamento " +
+              "aprovado em {{date:bus_fare_freeze}} não deixou \"outra opção\". Quem trabalha no turno da noite agora caminha duas horas até em casa.",
           ),
         ],
       },
@@ -38,30 +39,30 @@ export const LAWS = {
   },
 
   hillside_sanitation: {
-    title: "Sanitation for Morro da Esperança",
-    summary: "Run sewage and clean water up the hill. Expensive, slow, and nobody downtown will notice.",
+    title: "Saneamento para o Morro da Esperança",
+    summary: "Leva esgoto e água tratada morro acima. Caro, lento, e ninguém no Centro vai perceber.",
     topics: ["sanitation", "housing", "construction"],
     councilSupport: 40,
-    onPass: [opinion("periphery", 10, "Fought for hillside sanitation"), opinion("business", -3, "More public spending")],
+    onPass: [opinion("periphery", 10, "Lutou pelo saneamento do morro"), opinion("business", -3, "Mais gasto público")],
     followUps: [
       {
         inTurns: 4,
-        label: "Sanitation works begin on Morro da Esperança",
+        label: "Começam as obras de saneamento no Morro da Esperança",
         effects: [{ type: "neighbourhood", id: "morro_esperanca", mood: 8, addMarker: "construction" }],
       },
       {
         inTurns: 12,
-        label: "Health post reports fewer child illnesses on the hill",
+        label: "Posto de saúde registra menos crianças doentes no morro",
         effects: [
           { type: "neighbourhood", id: "morro_esperanca", mood: 12, removeMarker: "construction" },
-          opinion("periphery", 8, "Clean water arrived"),
-          opinion("religious", 3, "Clean water arrived"),
-          log("Clean water reaches Morro da Esperança"),
+          opinion("periphery", 8, "A água limpa chegou"),
+          opinion("religious", 3, "A água limpa chegou"),
+          log("Água tratada chega ao Morro da Esperança"),
           newspaper(
             "news_clean_water",
-            "CLEAN WATER REACHES MORRO DA ESPERANÇA",
-            "For the first time in its history, the hill has running water and sewage. The health post reports child illnesses down by a third. " +
-              "The works began with a bill proposed by councillor {{player}} in {{date:hillside_sanitation}}.",
+            "ÁGUA TRATADA CHEGA AO MORRO DA ESPERANÇA",
+            "Pela primeira vez na história, o morro tem água encanada e esgoto. O posto de saúde registra um terço a menos de crianças doentes. " +
+              "As obras começaram com um projeto {{g:do vereador/da vereadora}} {{player}}, em {{date:hillside_sanitation}}.",
           ),
         ],
       },
@@ -70,28 +71,28 @@ export const LAWS = {
   },
 
   night_safety_patrols: {
-    title: "Night Safety Patrols",
-    summary: "More municipal guards on the streets at night, with stop-and-search powers.",
+    title: "Ronda Noturna",
+    summary: "Mais guardas municipais nas ruas à noite, com poder de revista.",
     topics: ["safety"],
     councilSupport: 60,
     onPass: [
-      opinion("retirees", 8, "More patrols at night"),
-      opinion("business", 6, "More patrols at night"),
-      opinion("religious", 4, "More patrols at night"),
-      opinion("students", -6, "Stop-and-search powers"),
+      opinion("retirees", 8, "Mais policiamento à noite"),
+      opinion("business", 6, "Mais policiamento à noite"),
+      opinion("religious", 4, "Mais policiamento à noite"),
+      opinion("students", -6, "Poder de revista para a guarda"),
     ],
     followUps: [
       {
         inTurns: 5,
-        label: "Complaints of police harassment on the hill after new patrols",
+        label: "Denúncias de abuso da Ronda Noturna no morro",
         effects: [
-          opinion("periphery", -8, "Harassed by the new patrols"),
+          opinion("periphery", -8, "Abordados pela nova ronda"),
           { type: "neighbourhood", id: "morro_esperanca", mood: -10, addMarker: "police" },
           newspaper(
             "news_patrols",
-            "\"THEY STOP US FOR BEING YOUNG\": PATROLS ACCUSED OF HARASSMENT",
-            "Residents of Morro da Esperança describe nightly searches by the new municipal guards created in {{date:night_safety_patrols}}. " +
-              "The patrols were meant for downtown. They seem to spend their nights on the hill.",
+            "\"PARAM A GENTE POR SER JOVEM\": RONDA É ACUSADA DE ABUSO",
+            "Moradores do Morro da Esperança relatam revistas toda noite feitas pelos guardas criados em {{date:night_safety_patrols}}. " +
+              "A ronda era para o Centro. Mas parece passar as noites no morro.",
           ),
         ],
       },
@@ -100,15 +101,15 @@ export const LAWS = {
   },
 
   university_culture_fund: {
-    title: "Student Culture Fund",
-    summary: "Grants for theatre, music and student collectives in Cidade Universitária.",
+    title: "Fundo de Cultura Estudantil",
+    summary: "Bolsas para teatro, música e coletivos estudantis na Cidade Universitária.",
     topics: ["culture", "education"],
     councilSupport: 45,
-    onPass: [opinion("students", 10, "Funded student culture"), opinion("religious", -4, "Public money for 'degenerate' art")],
+    onPass: [opinion("students", 10, "Financiou a cultura estudantil"), opinion("religious", -4, "Dinheiro público para arte \"degenerada\"")],
     followUps: [
       {
         inTurns: 6,
-        label: "Street festival fills Cidade Universitária",
+        label: "Festival de rua lota a Cidade Universitária",
         effects: [{ type: "neighbourhood", id: "cidade_universitaria", mood: 10, addMarker: "rally" }],
       },
     ],
@@ -116,23 +117,23 @@ export const LAWS = {
   },
 
   pharmacy_discount: {
-    title: "Pensioner Pharmacy Discount",
-    summary: "Municipal discount on medicines for pensioners. Popular, and not cheap.",
+    title: "Farmácia do Aposentado",
+    summary: "Desconto municipal em remédios para aposentados. Popular, e nada barato.",
     topics: ["health", "pensions"],
     councilSupport: 55,
-    onPass: [opinion("retirees", 10, "Cheaper medicine"), opinion("religious", 2, "Care for the elderly")],
+    onPass: [opinion("retirees", 10, "Remédio mais barato"), opinion("religious", 2, "Cuidado com os idosos")],
     followUps: [
       {
         inTurns: 10,
-        label: "City auditors find a hole in the health budget after the pharmacy discount",
+        label: "Auditoria encontra rombo no orçamento da saúde após a Farmácia do Aposentado",
         effects: [
-          opinion("business", -5, "Budget hole from the pharmacy discount"),
-          log("Health budget overruns"),
+          opinion("business", -5, "Rombo da Farmácia do Aposentado"),
+          log("Orçamento da saúde estoura"),
           newspaper(
             "news_pharmacy_hole",
-            "AUDITORS FIND A HOLE IN THE HEALTH BUDGET",
-            "The pensioner pharmacy discount approved in {{date:pharmacy_discount}} has cost three times its estimate. " +
-              "Business leaders ask who will pay. \"Us, as always,\" said one shopkeeper.",
+            "AUDITORIA ENCONTRA ROMBO NO ORÇAMENTO DA SAÚDE",
+            "O desconto em remédios para aposentados aprovado em {{date:pharmacy_discount}} custou três vezes o previsto. " +
+              "Empresários perguntam quem vai pagar. \"Nós, como sempre\", disse um lojista.",
           ),
         ],
       },
@@ -141,64 +142,60 @@ export const LAWS = {
   },
 
   church_tax_exemption: {
-    title: "Church Property Tax Exemption",
-    summary: "Exempt places of worship and their social projects from municipal property tax.",
+    title: "Isenção de IPTU para Templos",
+    summary: "Isenta templos e seus projetos sociais do imposto predial municipal.",
     topics: ["family", "charity"],
     councilSupport: 55,
-    onPass: [opinion("religious", 12, "Exempted churches from tax"), opinion("students", -5, "Tax breaks for churches")],
+    onPass: [opinion("religious", 12, "Isentou as igrejas de imposto"), opinion("students", -5, "Isenção de imposto para igrejas")],
     delivers: 6,
   },
 
   downtown_tax_cut: {
-    title: "Downtown Business Tax Cut",
-    summary: "Cut the municipal service tax for small businesses in Centro, to fight empty shopfronts.",
+    title: "Corte do ISS no Centro",
+    summary: "Reduz o imposto sobre serviços para pequenos negócios do Centro, contra as lojas fechadas.",
     topics: ["taxes", "deregulation"],
     councilSupport: 50,
     requires: { bookFinished: "hayek" },
     onPass: [
-      opinion("business", 12, "Cut business taxes"),
-      opinion("workers", -3, "Tax cuts for the bosses"),
-      opinion("periphery", -3, "Tax cuts for the bosses"),
+      opinion("business", 12, "Cortou impostos das empresas"),
+      opinion("workers", -3, "Corte de imposto para os patrões"),
+      opinion("periphery", -3, "Corte de imposto para os patrões"),
     ],
     followUps: [
       {
         inTurns: 8,
-        label: "New shops open in Centro after the tax cut",
-        effects: [
-          { type: "neighbourhood", id: "centro", mood: 10 },
-          opinion("workers", 5, "New jobs downtown"),
-          log("Shopfronts reopen in Centro"),
-        ],
+        label: "Novas lojas abrem no Centro após o corte do ISS",
+        effects: [{ type: "neighbourhood", id: "centro", mood: 10 }, opinion("workers", 5, "Novos empregos no Centro"), log("Vitrines reabrem no Centro")],
       },
     ],
     delivers: 8,
   },
 
   public_works_jobs: {
-    title: "Public Works Jobs Programme",
-    summary: "Hire the unemployed to repair roads and squares. Spend now, grow later.",
+    title: "Frente de Trabalho em Obras Públicas",
+    summary: "Contrata desempregados para consertar ruas e praças. Gastar agora, crescer depois.",
     topics: ["jobs", "construction", "wages"],
     councilSupport: 45,
     requires: { bookFinished: "keynes" },
-    onPass: [opinion("workers", 10, "Created public works jobs"), opinion("periphery", 6, "Created public works jobs")],
+    onPass: [opinion("workers", 10, "Criou frentes de trabalho"), opinion("periphery", 6, "Criou frentes de trabalho")],
     followUps: [
       {
         inTurns: 5,
-        label: "Road crews at work in Vila Operária",
+        label: "Frentes de trabalho em ação na Vila Operária",
         effects: [{ type: "neighbourhood", id: "vila_operaria", mood: 10, addMarker: "construction" }],
       },
       {
         inTurns: 16,
-        label: "Public works programme runs over budget",
+        label: "Frente de trabalho estoura o orçamento",
         effects: [
           { type: "neighbourhood", id: "vila_operaria", removeMarker: "construction" },
-          opinion("business", -6, "Public works overrun"),
-          log("Public works go over budget"),
+          opinion("business", -6, "Estouro das obras públicas"),
+          log("Obras públicas estouram o orçamento"),
           newspaper(
             "news_works_overrun",
-            "JOBS PROGRAMME OVER BUDGET, BUT VILA OPERÁRIA HAS NEW ROADS",
-            "The public works programme launched in {{date:public_works_jobs}} is 40% over budget, the Treasury says. " +
-              "Economists are split: some see waste, others a textbook Keynesian stimulus doing exactly what it promised.",
+            "FRENTE DE TRABALHO ESTOURA O ORÇAMENTO, MAS A VILA OPERÁRIA TEM RUAS NOVAS",
+            "A frente de trabalho criada em {{date:public_works_jobs}} está 40% acima do orçamento, diz a Fazenda. " +
+              "Os economistas se dividem: uns veem desperdício, outros um estímulo keynesiano de livro fazendo exatamente o que prometia.",
           ),
         ],
       },

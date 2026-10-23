@@ -3,34 +3,35 @@ import type { BookDef } from "../types";
 /** The library. Real books, real ideas, in plain words. */
 export const BOOKS = {
   machiavelli: {
-    title: "The Prince",
-    author: "Niccolò Machiavelli",
+    title: "O Príncipe",
+    author: "Nicolau Maquiavel",
     year: 1532,
     weeksToRead: 4,
     lesson:
-      "Machiavelli wrote that a ruler should be judged by results, not intentions. It is safer to be feared than loved if you cannot be both, " +
-      "and a wise prince keeps up the appearance of virtue while being ready to act otherwise. Politics, for him, is the art of keeping power.",
-    unlocksText: "New options in meetings: read people's hidden motives and trade favours.",
+      "Maquiavel escreveu que um governante deve ser julgado pelos resultados, não pelas intenções. Se não for possível ser amado e temido, " +
+      "é mais seguro ser temido; e um príncipe sábio mantém a aparência de virtude enquanto está pronto para agir de outra forma. " +
+      "Para ele, a política é a arte de conquistar e manter o poder.",
+    unlocksText: "Novas opções em reuniões: ler as intenções ocultas das pessoas e negociar favores.",
   },
   keynes: {
-    title: "The General Theory of Employment, Interest and Money",
+    title: "A Teoria Geral do Emprego, do Juro e da Moeda",
     author: "John Maynard Keynes",
     year: 1936,
     weeksToRead: 6,
     lesson:
-      "Keynes argued that in a slump, private spending collapses and unemployment can last for years. Government can fill the gap by spending, " +
-      "even on borrowed money, because one person's spending is another's income (the 'multiplier'). The bill comes later.",
-    unlocksText: "New law: Public Works Jobs Programme. New argument with community leaders.",
+      "Keynes argumentou que, numa recessão, o gasto privado desaba e o desemprego pode durar anos. O governo pode preencher esse buraco gastando, " +
+      "mesmo com dinheiro emprestado, porque o gasto de um é a renda de outro (o \"multiplicador\"). A conta chega depois.",
+    unlocksText: "Nova lei: Frente de Trabalho em Obras Públicas. Novo argumento com lideranças comunitárias.",
   },
   hayek: {
-    title: "The Road to Serfdom",
+    title: "O Caminho da Servidão",
     author: "Friedrich Hayek",
     year: 1944,
     weeksToRead: 5,
     lesson:
-      "Hayek warned that central planning concentrates power and knowledge that no planner can really have. Prices carry information spread " +
-      "across millions of people, so markets coordinate better than officials. Every new control, he argued, invites the next one.",
-    unlocksText: "New law: Downtown Business Tax Cut. New argument with business donors.",
+      "Hayek alertou que o planejamento central concentra poder e um conhecimento que nenhum planejador realmente tem. Os preços carregam informação " +
+      "espalhada entre milhões de pessoas, por isso os mercados coordenam melhor que os burocratas. Cada novo controle, dizia ele, convida o próximo.",
+    unlocksText: "Nova lei: Corte do ISS no Centro. Novo argumento com financiadores empresariais.",
   },
 } as const satisfies Record<string, BookDef>;
 

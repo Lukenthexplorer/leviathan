@@ -7,8 +7,8 @@ import { ActionRow } from "./ActionRow";
 export function LibraryPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
   const reading = state.books.reading;
   return (
-    <Sheet title="The bookshelf" onClose={onClose} wide>
-      <p className="panel-intro">One book at a time. Starting a new one puts the current one back on the shelf.</p>
+    <Sheet title="A estante" onClose={onClose} wide>
+      <p className="panel-intro">Um livro por vez. Começar outro devolve o atual para a estante.</p>
       {BOOK_IDS.map((id) => {
         const b = BOOKS[id];
         const finished = state.books.finished.includes(id);
@@ -22,10 +22,10 @@ export function LibraryPanel({ state, onClose }: { state: GameState; onClose: ()
               </span>
             }
             decision={{ kind: "read", book: id }}
-            cta="Start reading"
+            cta="Começar a ler"
             disabled={finished || isReading}
-            disabledReason={finished ? "Read" : isReading ? `Reading: ${reading!.progress} of ${b.weeksToRead} weeks read` : ""}
-            aside={<div className="book-weeks">{b.weeksToRead} weeks</div>}
+            disabledReason={finished ? "Lido" : isReading ? `Lendo: ${reading!.progress} de ${b.weeksToRead} semanas` : ""}
+            aside={<div className="book-weeks">{b.weeksToRead} semanas</div>}
           >
             {b.unlocksText}
           </ActionRow>

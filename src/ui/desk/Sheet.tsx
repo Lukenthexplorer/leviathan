@@ -61,7 +61,7 @@ export function Sheet(props: {
     <div className="sheet-backdrop" ref={backdrop} onMouseDown={(e) => e.target === backdrop.current && close()}>
       <div className={`sheet ${props.wide ? "wide" : ""} ${props.className ?? ""}`} ref={sheet}>
         {props.title && <h2 className="sheet-title">{props.title}</h2>}
-        <button className="sheet-close" onClick={close} aria-label="Close">
+        <button className="sheet-close" onClick={close} aria-label="Fechar">
           ×
         </button>
         {props.children}

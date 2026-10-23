@@ -24,7 +24,7 @@ interface GameStore {
   notice: string | null;
 
   goto(screen: Screen): void;
-  newGame(party: string, playerName: string): void;
+  newGame(party: string, playerName: string, form?: "m" | "f"): void;
   /** Queue an action for this week. Returns false (and sets `notice`) if the rules refuse it. */
   queue(d: Decision): boolean;
   unqueue(d: Decision): void;
@@ -42,8 +42,8 @@ export const useGame = create<GameStore>((set, get) => ({
 
   goto: (screen) => set({ screen }),
 
-  newGame(party, playerName) {
-    const state = chapterFor("councilman").createInitialState({ party, playerName });
+  newGame(party, playerName, form = "m") {
+    const state = chapterFor("councilman").createInitialState({ party, playerName, form });
     set({ state, pending: [], report: null, notice: null, screen: "desk" });
   },
 

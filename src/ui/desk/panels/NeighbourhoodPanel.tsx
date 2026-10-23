@@ -8,8 +8,8 @@ import { ActionRow } from "./ActionRow";
 /** Street work: build roots in a neighbourhood. Roots compound. */
 export function NeighbourhoodPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
   return (
-    <Sheet title="The neighbourhoods" onClose={onClose} wide>
-      <p className="panel-intro">Knock on doors, show up at the bakery, listen. The more roots you have somewhere, the more each visit counts.</p>
+    <Sheet title="Os bairros" onClose={onClose} wide>
+      <p className="panel-intro">Bata de porta em porta, apareça na padaria, escute. Quanto mais raízes você tem num lugar, mais cada visita conta.</p>
       {NEIGHBOURHOOD_IDS.map((id) => {
         const def = NEIGHBOURHOODS[id];
         const nb = state.neighbourhoods[id]!;
@@ -21,15 +21,15 @@ export function NeighbourhoodPanel({ state, onClose }: { state: GameState; onClo
             key={id}
             title={def.name}
             decision={{ kind: "neighbourhood", id }}
-            cta="Walk the streets"
+            cta="Percorrer as ruas"
             aside={
               <div className="nb-stats">
-                <div>Mood: {moodWord(nb.mood)}</div>
-                <div>Your roots: {nb.base}%</div>
+                <div>Clima: {moodWord(nb.mood)}</div>
+                <div>Suas raízes: {nb.base}%</div>
               </div>
             }
           >
-            {def.description} <em>Home to {residents}.</em>
+            {def.description} <em>Moram aqui: {residents}.</em>
           </ActionRow>
         );
       })}

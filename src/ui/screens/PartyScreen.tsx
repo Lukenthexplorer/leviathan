@@ -13,6 +13,7 @@ export function PartyScreen() {
   const newGame = useGame((s) => s.newGame);
   const [chosen, setChosen] = useState<PartyId | null>(null);
   const [name, setName] = useState("Rafael Moreira");
+  const [form, setForm] = useState<"m" | "f">("m");
   const [signing, setSigning] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const stamp = useRef<HTMLDivElement>(null);
@@ -39,30 +40,46 @@ export function PartyScreen() {
     setSigning(true);
     audio.sfx("pen_sign");
     gsap.delayedCall(0.5, () => {
-      stampDown(stamp.current!, ink.current!, root.current!).then(() => gsap.delayedCall(0.4, () => newGame(chosen, name.trim() || "Councilman")));
+      stampDown(stamp.current!, ink.current!, root.current!).then(() => gsap.delayedCall(0.4, () => newGame(chosen, name.trim() || (form === "f" ? "Vereadora" : "Vereador"), form)));
     });
   }
 
   return (
     <div className="party-screen" ref={root}>
-      <h1 className="screen-heading">Porto Ferro, January 1989</h1>
-      <p className="screen-sub">You won the last seat on the City Council. Every career needs a party. Choose yours.</p>
+      <h1 className="screen-heading">Porto Ferro, janeiro de 1989</h1>
+      <p className="screen-sub">Você conquistou a última vaga na Câmara Municipal. Toda carreira precisa de um partido. Escolha o seu.</p>
       <div className="party-folders">
         {PARTY_IDS.map((id) => (
           <PartyFolder key={id} id={id} selected={chosen === id} onPick={() => (audio.sfx("paper_pickup"), setChosen(id))} />
         ))}
       </div>
       <div className="party-sign">
+        <div className="form-pick" role="radiogroup" aria-label="Forma de tratamento">
+          <span>Como quer ser chamad{form === "f" ? "a" : "o"}?</span>
+          <div>
+            {(["m", "f"] as const).map((f) => (
+              <button
+                key={f}
+                role="radio"
+                aria-checked={form === f}
+                className={`form-option ${form === f ? "on" : ""}`}
+                onClick={() => (audio.sfx("ui_click"), setForm(f))}
+              >
+                {f === "f" ? "Vereadora" : "Vereador"}
+              </button>
+            ))}
+          </div>
+        </div>
         <label>
-          Your name
+          Seu nome
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={32} onKeyDown={() => audio.sfx("typewriter_key", { volume: 0.4 })} />
         </label>
         <DeskButton variant="primary" disabled={!chosen || signing} onClick={sign}>
-          {chosen ? `Sign the ${PARTIES[chosen].short} membership card` : "Choose a party"}
+          {chosen ? `Assinar a ficha de filiação do ${PARTIES[chosen].short}` : "Escolha um partido"}
         </DeskButton>
         <div className="party-stamp-area">
           <div className="doc-ink party-ink" ref={ink}>
-            {chosen ? PARTIES[chosen].short : ""} · MEMBER
+            {chosen ? PARTIES[chosen].short : ""} · {form === "f" ? "FILIADA" : "FILIADO"}
           </div>
           <div className="doc-stamp" ref={stamp} />
         </div>
@@ -83,12 +100,12 @@ function PartyFolder({ id, selected, onPick }: { id: PartyId; selected: boolean;
       <div className="folder-ideology">{p.ideology}</div>
       <p className="folder-desc">{p.description}</p>
       <div className="folder-boss">
-        Boss: <strong>{p.boss.name}</strong>
+        Chefia: <strong>{p.boss.name}</strong>
         <br />
         <em>{p.boss.bio}</em>
       </div>
-      {friends.length > 0 && <div className="folder-friends">Trusted by: {friends.join(", ")}</div>}
-      {foes.length > 0 && <div className="folder-foes">Distrusted by: {foes.join(", ")}</div>}
+      {friends.length > 0 && <div className="folder-friends">Têm confiança: {friends.join(", ")}</div>}
+      {foes.length > 0 && <div className="folder-foes">Desconfiam: {foes.join(", ")}</div>}
     </button>
   );
 }

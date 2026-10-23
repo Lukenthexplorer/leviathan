@@ -13,10 +13,10 @@ import { Sheet } from "./Sheet";
 
 /** Risk in words. The numbers stay hidden; the feeling doesn't. */
 function riskWord(threads: number): { word: string; level: number } {
-  if (threads <= 2) return { word: "Careful", level: 0 };
-  if (threads <= 4) return { word: "Risky", level: 1 };
-  if (threads <= 6) return { word: "Sloppy", level: 2 };
-  return { word: "Reckless", level: 3 };
+  if (threads <= 2) return { word: "Cuidadoso", level: 0 };
+  if (threads <= 4) return { word: "Arriscado", level: 1 };
+  if (threads <= 6) return { word: "Desleixado", level: 2 };
+  return { word: "Imprudente", level: 3 };
 }
 
 /**
@@ -99,7 +99,7 @@ export function SchemeBoard({ item, state, onClose }: { item: DeskItem; state: G
   return (
     <Sheet onClose={onClose} closeRef={closeRef} sheetRef={sheetRef} className="sheet-scheme" wide sound="drawer_open">
       <div className="scheme-head">
-        <div className="scheme-label">CONFIDENTIAL · DESTROY AFTER READING</div>
+        <div className="scheme-label">CONFIDENCIAL · DESTRUIR APÓS A LEITURA</div>
         <h2 className="scheme-title">{def.title}</h2>
         <p className="scheme-briefing">{def.briefing}</p>
       </div>
@@ -127,7 +127,7 @@ export function SchemeBoard({ item, state, onClose }: { item: DeskItem; state: G
                 >
                   <span className="scheme-pin" />
                   <span className="scheme-card-label">{o.label}</span>
-                  <span className="scheme-card-desc">{locked ? "Not an option for you right now." : o.description}</span>
+                  <span className="scheme-card-desc">{locked ? "Não é uma opção para você agora." : o.description}</span>
                   {chosen && <span className="scheme-card-weak">⚠ {o.weakness}</span>}
                 </button>
               );
@@ -138,7 +138,7 @@ export function SchemeBoard({ item, state, onClose }: { item: DeskItem; state: G
 
       <div className="scheme-foot">
         <div className={`scheme-risk level-${risk.level}`}>
-          <span>Loose ends:</span>
+          <span>Pontas soltas:</span>
           <strong>{complete ? risk.word : "…"}</strong>
           <span className="scheme-threads" aria-hidden>
             {Array.from({ length: complete ? threads : 0 }, (_, i) => (
@@ -149,7 +149,7 @@ export function SchemeBoard({ item, state, onClose }: { item: DeskItem; state: G
         <div className="scheme-actions">
           {existing && !busy ? (
             <DeskButton variant="ghost" onClick={() => unqueue(existing)}>
-              Rethink the plan
+              Repensar o plano
             </DeskButton>
           ) : (
             <DeskButton variant="ghost" onClick={walkAway} disabled={busy}>
@@ -157,13 +157,13 @@ export function SchemeBoard({ item, state, onClose }: { item: DeskItem; state: G
             </DeskButton>
           )}
           <DeskButton variant="danger" onClick={commit} disabled={!complete || busy || !!existing}>
-            {existing ? "Plan set in motion" : "Set it in motion"}
+            {existing ? "Plano em andamento" : "Pôr em andamento"}
           </DeskButton>
         </div>
       </div>
 
       <div className="scheme-confidential" ref={confidential}>
-        CONFIDENTIAL
+        CONFIDENCIAL
       </div>
     </Sheet>
   );

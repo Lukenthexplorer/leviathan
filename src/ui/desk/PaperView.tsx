@@ -93,14 +93,14 @@ function Document({ item, state, onClose }: { item: DeskItem; state: GameState; 
             })}
             {answer && !busy && (
               <DeskButton variant="ghost" onClick={() => unqueue(answer)}>
-                Withdraw my answer
+                Retirar minha resposta
               </DeskButton>
             )}
           </div>
         ) : (
           <div className="doc-choices">
             <DeskButton onClick={file} disabled={busy || !!answer}>
-              {answer ? "Filed" : "File it away"}
+              {answer ? "Arquivado" : "Arquivar"}
             </DeskButton>
           </div>
         )}

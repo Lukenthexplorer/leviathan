@@ -20,6 +20,7 @@ export interface EventDef {
 export interface ChapterSetup {
   playerName: string;
   party: string;
+  form?: "m" | "f";
 }
 
 /**

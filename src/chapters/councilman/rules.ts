@@ -22,11 +22,11 @@ export function pressRule(state: GameState): Effect[] {
     item: {
       id: `scandal_${entry.id}`,
       kind: "newspaper",
-      title: `EXCLUSIVE: ${(entry.headline ?? entry.label).toUpperCase()}`,
+      title: `EXCLUSIVO: ${(entry.headline ?? entry.label).toUpperCase()}`,
       body:
-        `Documents obtained by the Correio show that in ${monthYear(entry.turn)} councillor {{player}} was involved in what sources ` +
-        `describe as "${lowerFirst(entry.label)}". ${entry.threads > 2 ? "Several people" : "At least one person"} close to the councillor ` +
-        `confirmed the story. The councillor's office did not respond. — Helena Vaz`,
+        `Documentos obtidos pelo Correio mostram que, em ${monthYear(entry.turn)}, {{g:o vereador/a vereadora}} {{player}} se envolveu no que ` +
+        `fontes descrevem como "${lowerFirst(entry.label)}". ${entry.threads > 2 ? "Várias pessoas próximas" : "Pelo menos uma pessoa próxima"} ` +
+        `{{g:ao vereador/à vereadora}} confirmaram a história. O gabinete não respondeu. — Helena Vaz`,
       turn: state.turn,
     },
   });
@@ -43,18 +43,18 @@ export function confessionRule(state: GameState): Effect[] {
     { type: "flag", key: "confess", set: 2 },
     { type: "flag", key: "investigation", set: 0 },
     ...hidden.map((d): Effect => ({ type: "expose", id: d.id })),
-    ...Object.keys(state.groups).map((group): Effect => ({ type: "opinion", group, delta: hit, label: "Confessed wrongdoing" })),
+    ...Object.keys(state.groups).map((group): Effect => ({ type: "opinion", group, delta: hit, label: "Confessou irregularidades" })),
     { type: "integrity", delta: I.confessionIntegrity },
-    { type: "log", text: "Confessed to the press" },
+    { type: "log", text: "Confessou à imprensa" },
     {
       type: "deskItem",
       item: {
         id: "news_confession",
         kind: "newspaper",
-        title: "COUNCILLOR {{PLAYER}} CONFESSES",
+        title: "{{g:VEREADOR/VEREADORA}} {{PLAYER}} CONFESSA",
         body:
-          `In an extraordinary interview with this newspaper, councillor {{player}} admitted to ${hidden.map((d) => lowerFirst(d.label)).join("; ")}. ` +
-          `"I made mistakes. I want to be judged on what comes next," the councillor said. Porto Ferro is not used to this. Nobody knows quite what to make of it.`,
+          `Numa entrevista extraordinária a este jornal, {{g:o vereador/a vereadora}} {{player}} admitiu: ${hidden.map((d) => lowerFirst(d.label)).join("; ")}. ` +
+          `"Eu errei. Quero ser julgad{{g:o/a}} pelo que vem daqui pra frente." Porto Ferro não está acostumada com isso. Ninguém sabe bem o que pensar.`,
         turn: state.turn,
       },
     },

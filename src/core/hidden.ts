@@ -22,7 +22,7 @@ export function expectationsPressure(state: GameState): Effect[] {
   if (over <= 0) return effects;
   const hit = -over * E.disappointmentPerPoint;
   for (const group of Object.keys(state.groups)) {
-    effects.push({ type: "opinion", group, delta: hit, label: "Promises not kept" });
+    effects.push({ type: "opinion", group, delta: hit, label: "Promessas não cumpridas" });
   }
   effects.push({ type: "flag", key: "weeks_over_expectations", add: 1 });
   return effects;
@@ -57,10 +57,10 @@ export function investigationStep(state: GameState, journalistId: string, bossId
     { type: "flag", key: "scandals", add: 1 },
     { type: "expose", id: target.id },
     { type: "relation", character: bossId, delta: target.threads * I.scandalBossRelationPerThread },
-    { type: "log", text: `Exposed by the press: ${target.label}` },
+    { type: "log", text: `Exposto pela imprensa: ${target.label}` },
   ];
   for (const group of Object.keys(state.groups)) {
-    effects.push({ type: "opinion", group, delta: target.threads * I.scandalOpinionPerThread, label: `Scandal: ${target.label}` });
+    effects.push({ type: "opinion", group, delta: target.threads * I.scandalOpinionPerThread, label: `Escândalo: ${target.label}` });
   }
   return effects;
 }

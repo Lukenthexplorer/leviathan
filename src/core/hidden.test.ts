@@ -54,6 +54,6 @@ describe("investigation", () => {
     expect(s.hidden.dossier[0]!.exposed).toBe(true);
     expect(s.flags.investigation).toBe(0);
     expect(s.flags.scandals).toBe(1);
-    expect(s.groups.workers!.memories[0]!.label).toBe("Scandal: Dirty money");
+    expect(s.groups.workers!.memories[0]!.label).toBe("Escândalo: Dirty money");
   });
 });

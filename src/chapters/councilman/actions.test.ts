@@ -55,14 +55,14 @@ describe("laws", () => {
 
     const r = step(s, [{ kind: "proposeLaw", law: "hillside_sanitation" }]);
     expect(r.state.laws.hillside_sanitation).toBe("passed");
-    expect(r.report.consequences[0]!.label).toBe("Sanitation for Morro da Esperança passes");
+    expect(r.report.consequences[0]!.label).toBe("Câmara aprova: Saneamento para o Morro da Esperança");
 
     s = wait(r.state, 3);
     expect(s.neighbourhoods.morro_esperanca!.markers).not.toContain("construction");
     s = wait(s, 1); // 4 weeks after the vote: works begin
     expect(s.neighbourhoods.morro_esperanca!.markers).toContain("construction");
     const works = s.history.find((h) => h.cause.id === "hillside_sanitation" && h.turn > 1);
-    expect(works?.cause.label).toBe("Proposed the Sanitation for Morro da Esperança");
+    expect(works?.cause.label).toBe("Propôs o projeto Saneamento para o Morro da Esperança");
   });
 
   it("a bill the party dislikes, without allies, is voted down", () => {
@@ -94,7 +94,7 @@ describe("books", () => {
   it("take `weeksToRead` presses of Next week (counting the first), then unlock", () => {
     let s = start();
     expect(lawAvailable(s, "public_works_jobs")).toBe(false);
-    expect(() => step(s, [{ kind: "proposeLaw", law: "public_works_jobs" }])).toThrow("cannot be proposed");
+    expect(() => step(s, [{ kind: "proposeLaw", law: "public_works_jobs" }])).toThrow("não pode ser proposto");
 
     s = step(s, [{ kind: "read", book: "keynes" }]).state;
     s = wait(s, BOOKS.keynes.weeksToRead - 2);
@@ -140,10 +140,10 @@ describe("meetings", () => {
 
     s = step(s, [{ kind: "meeting", with: "donor" }]).state;
     const paper = s.inbox.find((i) => i.from === "donor")!;
-    expect(paper.title).toBe("Lunch with Augusto Teixeira");
+    expect(paper.title).toBe("Almoço com Augusto Teixeira");
 
     // Can't ask again while his paper is still on the desk...
-    expect(() => step(s, [{ kind: "meeting", with: "donor" }])).toThrow("Answer donor");
+    expect(() => step(s, [{ kind: "meeting", with: "donor" }])).toThrow("Responda o último papel de Augusto Teixeira");
 
     // ...but answering it and asking again in the same week is fine.
     s = step(s, [
@@ -153,7 +153,7 @@ describe("meetings", () => {
     // Taking the cash doesn't hide it: a plan lands on the desk (see schemes.test.ts).
     expect(s.hidden.dossier).toEqual([]);
     expect(s.inbox.some((i) => i.scheme === "teixeira_donation")).toBe(true);
-    expect(s.inbox.find((i) => i.from === "donor" && i.choices)!.title).toBe("Teixeira calls in a favour");
+    expect(s.inbox.find((i) => i.from === "donor" && i.choices)!.title).toBe("Teixeira cobra um favor");
   });
 
   it("an honest refusal leads to small talk, not the favour", () => {

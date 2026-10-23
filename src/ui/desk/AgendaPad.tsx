@@ -17,7 +17,7 @@ export function AgendaPad({ state }: { state: GameState }) {
 
   return (
     <div className="agenda">
-      <div className="agenda-title">This week</div>
+      <div className="agenda-title">Esta semana</div>
       <ol className="agenda-lines">
         {agenda.map((d) => (
           <AgendaLine key={JSON.stringify(d)} text={describeDecision(state, d)} onRemove={() => removeLine(d)} />
@@ -28,7 +28,7 @@ export function AgendaPad({ state }: { state: GameState }) {
           </li>
         ))}
       </ol>
-      {answers > 0 && <div className="agenda-answers">{answers} paper{answers > 1 ? "s" : ""} answered</div>}
+      {answers > 0 && <div className="agenda-answers">{answers} {answers > 1 ? "papéis respondidos" : "papel respondido"}</div>}
       {notice && <div className="agenda-notice">{notice}</div>}
     </div>
   );
@@ -64,7 +64,7 @@ function AgendaLine({ text, onRemove }: { text: string; onRemove: () => void }) 
   return (
     <li className="agenda-line">
       <span ref={span} />
-      <button className="agenda-x" onClick={onRemove} aria-label="Remove">
+      <button className="agenda-x" onClick={onRemove} aria-label="Remover">
         ×
       </button>
     </li>

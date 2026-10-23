@@ -10,35 +10,35 @@ import { Sheet } from "./Sheet";
  */
 export function WeekReport({ report, state, onClose }: { report: TurnReport; state: GameState; onClose: () => void }) {
   const closeRef = useRef<(() => void) | null>(null);
-  const exposed = state.history.filter((h) => h.turn === state.turn && h.text.startsWith("Exposed"));
+
   const newPapers = state.inbox.filter((i) => i.turn >= report.fromTurn).length;
 
   return (
-    <Sheet title={`Monday briefing · ${weekDate(report.toTurn)}`} onClose={onClose} closeRef={closeRef} sound="paper_slide">
+    <Sheet title={`Resumo de segunda · ${weekDate(report.toTurn)}`} onClose={onClose} closeRef={closeRef} sound="paper_slide">
       <div className="briefing">
-        {exposed.map((h) => (
-          <div key={h.text} className="briefing-scandal">
-            {h.text}
+        {report.exposed.map((d) => (
+          <div key={d.id} className="briefing-scandal">
+            Veio à tona: {d.label}
           </div>
         ))}
-        {report.consequences.length === 0 && exposed.length === 0 && <p className="briefing-quiet">A quiet week in Porto Ferro.</p>}
+        {report.consequences.length === 0 && report.exposed.length === 0 && <p className="briefing-quiet">Uma semana tranquila em Porto Ferro.</p>}
         <ul className="briefing-list">
           {report.consequences.map((c, i) => (
             <li key={i}>
               <div className="briefing-what">{c.label}</div>
               <div className="briefing-why">
-                Traced back to: {c.cause.label} (week {c.cause.turn})
+                Origem: {c.cause.label} (semana {c.cause.turn})
               </div>
             </li>
           ))}
         </ul>
         {newPapers > 0 && (
           <p className="briefing-new">
-            {newPapers} new paper{newPapers > 1 ? "s" : ""} on your desk.
+            {newPapers} {newPapers > 1 ? "papéis novos" : "papel novo"} na sua mesa.
           </p>
         )}
         <DeskButton variant="primary" onClick={() => closeRef.current?.()}>
-          Back to work
+          Ao trabalho
         </DeskButton>
       </div>
     </Sheet>

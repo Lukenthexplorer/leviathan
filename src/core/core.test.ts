@@ -105,6 +105,14 @@ describe("advanceTurn", () => {
     expect(() => advanceTurn(makeState(), tooMany, chapter)).toThrow("Too many actions");
   });
 
+  it("reports which secrets came out this week", () => {
+    const s = makeState({ hidden: { integrity: 75, expectations: 0, dossier: [{ id: "x", label: "X", threads: 1, turn: 1, exposed: false }] } });
+    const chapterExposing = { ...chapter, weeklyRules: () => [{ type: "expose" as const, id: "x" }] };
+    const r1 = advanceTurn(s, [], chapterExposing);
+    expect(r1.report.exposed.map((d) => d.id)).toEqual(["x"]);
+    expect(advanceTurn(r1.state, [], chapterExposing).report.exposed).toEqual([]); // already out: not news any more
+  });
+
   it("checks endings", () => {
     const s = makeState({ hidden: { integrity: 5, expectations: 0, dossier: [] } });
     const r = advanceTurn(s, [{ kind: "acceptDonation" }], chapter);

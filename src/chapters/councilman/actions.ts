@@ -41,9 +41,9 @@ export function resolvePost(d: { style: PostStyle; group: GroupId }): Resolved {
 
   if (d.style === "informative") {
     return {
-      cause: { kind: "post", id: `post_informative_${d.group}`, label: `Posted an explainer on ${topic}` },
+      cause: { kind: "post", id: `post_informative_${d.group}`, label: `Postou uma explicação sobre ${topic}` },
       effects: [
-        { type: "opinion", group: d.group, delta: S.informativeTarget, label: `Explained ${topic} plainly` },
+        { type: "opinion", group: d.group, delta: S.informativeTarget, label: `Explicou ${topic} com clareza` },
         { type: "flag", key: "posts_informative" },
       ],
     };
@@ -54,12 +54,12 @@ export function resolvePost(d: { style: PostStyle; group: GroupId }): Resolved {
     type: "opinion",
     group: g,
     delta: S.populistOthers,
-    label: "Viral post",
+    label: "Post viral",
   }));
   return {
-    cause: { kind: "post", id: `post_populist_${d.group}`, label: `Promised ${group.name.toLowerCase()} the world on ${topic}` },
+    cause: { kind: "post", id: `post_populist_${d.group}`, label: `Prometeu mundos e fundos aos ${group.name.toLowerCase()} sobre ${topic}` },
     effects: [
-      { type: "opinion", group: d.group, delta: S.populistTarget, label: `Promised action on ${topic}` },
+      { type: "opinion", group: d.group, delta: S.populistTarget, label: `Prometeu ação sobre ${topic}` },
       ...others,
       { type: "expectations", delta: S.populistExpectations },
       { type: "flag", key: "posts_populist" },
@@ -100,7 +100,7 @@ export function lawVoteScore(state: GameState, id: LawId): { score: number; pass
 export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
   const law = LAWS[id];
   if (!law) throw new Error(`Unknown law "${id}"`);
-  if (!lawAvailable(state, id)) throw new Error(`Law "${id}" cannot be proposed now`);
+  if (!lawAvailable(state, id)) throw new Error(`"${law.title}" não pode ser proposto agora`);
 
   const party = PARTIES[state.party as PartyId];
   const topics: readonly string[] = law.topics;
@@ -122,21 +122,21 @@ export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
         ...law.onPass,
         { type: "deliver", amount: law.delivers },
         { type: "flag", key: "laws_passed" },
-        { type: "log", text: `Council passes the ${law.title}` },
+        { type: "log", text: `Câmara aprova: ${law.title}` },
         ...followUps,
       ]
     : [
         { type: "law", id, status: "rejected" },
         { type: "flag", key: "laws_rejected" },
-        { type: "log", text: `Council rejects the ${law.title}` },
+        { type: "log", text: `Câmara rejeita: ${law.title}` },
       ];
 
   return {
-    cause: { kind: "law", id, label: `Proposed the ${law.title}` },
+    cause: { kind: "law", id, label: `Propôs o projeto ${law.title}` },
     effects: [
       { type: "law", id, status: "proposed" },
       { type: "relation", character: "party_boss", delta: bossReaction },
-      { type: "schedule", inTurns: L.weeksToVote, label: passes ? `${law.title} passes` : `${law.title} is voted down`, effects: outcome },
+      { type: "schedule", inTurns: L.weeksToVote, label: passes ? `Câmara aprova: ${law.title}` : `Câmara rejeita: ${law.title}`, effects: outcome },
     ],
   };
 }
@@ -155,11 +155,11 @@ export function resolveNeighbourhood(state: GameState, id: NeighbourhoodId): Res
     type: "opinion",
     group,
     delta: Math.round(share * N.residentOpinion * boost * 10) / 10,
-    label: `Showed up in ${nb.name}`,
+    label: `Apareceu em ${nb.name}`,
   }));
 
   return {
-    cause: { kind: "neighbourhood", id, label: `Worked the streets of ${nb.name}` },
+    cause: { kind: "neighbourhood", id, label: `Percorreu as ruas de ${nb.name}` },
     effects: [
       { type: "neighbourhood", id, base: N.baseGain, mood: N.moodGain },
       ...residents,
@@ -197,10 +197,10 @@ export function resolveMeeting(state: GameState, who: CharacterId): Resolved {
 export function resolveRead(state: GameState, id: BookId): Resolved {
   const book = BOOKS[id];
   if (!book) throw new Error(`Unknown book "${id}"`);
-  if (state.books.finished.includes(id)) throw new Error(`Already read "${id}"`);
-  if (state.books.reading?.id === id) throw new Error(`Already reading "${id}"`);
+  if (state.books.finished.includes(id)) throw new Error(`Você já leu ${book.title}`);
+  if (state.books.reading?.id === id) throw new Error(`Você já está lendo ${book.title}`);
   return {
-    cause: { kind: "book", id, label: `Started reading ${book.title}` },
+    cause: { kind: "book", id, label: `Começou a ler ${book.title}` },
     effects: [{ type: "startBook", id }],
   };
 }
@@ -213,7 +213,7 @@ export function readingRule(state: GameState): Effect[] {
   if (reading.progress + 1 < book.weeksToRead) return [{ type: "readProgress", amount: 1 }];
   return [
     { type: "finishBook", id: reading.id },
-    { type: "log", text: `Finished reading ${book.title}` },
+    { type: "log", text: `Terminou de ler ${book.title}` },
     {
       type: "deskItem",
       item: {
@@ -235,8 +235,8 @@ export type SchemePicks = Record<string, string>;
 export function pickedOptions(state: GameState, def: SchemeDef, picks: SchemePicks): SchemeOption[] {
   return def.slots.map((slot) => {
     const opt = slot.options.find((o) => o.id === picks[slot.id]);
-    if (!opt) throw new Error(`The plan needs an answer to "${slot.question}"`);
-    if (opt.requires && !evaluate(state, opt.requires)) throw new Error(`"${opt.label}" is not an option for you right now`);
+    if (!opt) throw new Error(`O plano precisa de uma resposta para "${slot.question}"`);
+    if (opt.requires && !evaluate(state, opt.requires)) throw new Error(`"${opt.label}" não é uma opção para você agora`);
     return opt;
   });
 }
@@ -253,7 +253,7 @@ export function resolveScheme(state: GameState, d: { itemId: string; scheme: Sch
 
   if (!d.picks) {
     return {
-      cause: { kind: "scheme", id: d.scheme, label: `Walked away from ${def.title.toLowerCase()}` },
+      cause: { kind: "scheme", id: d.scheme, label: `Desistiu: ${def.title}` },
       effects: [{ type: "removeDeskItem", id: d.itemId }, ...def.abort.effects],
     };
   }
@@ -261,7 +261,7 @@ export function resolveScheme(state: GameState, d: { itemId: string; scheme: Sch
   const options = pickedOptions(state, def, d.picks);
   const label = def.dossierLabel.replace(/\{(\w+)\}/g, (_, slot: string) => options[def.slots.findIndex((s) => s.id === slot)]?.phrase ?? "");
   return {
-    cause: { kind: "scheme", id: d.scheme, label: `Planned ${def.title.toLowerCase()}` },
+    cause: { kind: "scheme", id: d.scheme, label: `Planejou: ${def.title}` },
     effects: [
       { type: "removeDeskItem", id: d.itemId },
       ...def.effects,

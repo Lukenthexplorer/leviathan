@@ -78,6 +78,7 @@ export function advanceTurn(
       opinionChanges,
       consequences: fired.map((f) => ({ label: f.label, cause: f.cause })),
       newDeskItems,
+      exposed: state.hidden.dossier.filter((d) => d.exposed && !prev.hidden.dossier.some((p) => p.id === d.id && p.exposed)),
       ending: state.ending,
     },
   };

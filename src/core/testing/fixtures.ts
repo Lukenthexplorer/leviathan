@@ -11,7 +11,7 @@ export function makeState(overrides: Partial<GameState> = {}): GameState {
     chapterId: "test",
     turn: 1,
     party: "labour",
-    player: { name: "Test", funds: 10 },
+    player: { name: "Test", form: "m", funds: 10 },
     groups: {
       workers: { baseline: 10, memories: [] },
       students: { baseline: 0, memories: [] },

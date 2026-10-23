@@ -46,7 +46,7 @@ describe("councilman chapter", () => {
 
   it("enforces one post per week and the agenda limit", () => {
     const post = { kind: "post", style: "informative", group: "workers" } as const;
-    expect(() => advanceTurn(start(), [post, post], chapter)).toThrow("one post");
+    expect(() => advanceTurn(start(), [post, post], chapter)).toThrow("Só um post");
   });
 
   it("populism: fast popularity now, a crash later", () => {

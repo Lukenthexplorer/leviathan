@@ -7,13 +7,13 @@ import { lockReason } from "../../text";
 import { Sheet } from "../Sheet";
 import { ActionRow } from "./ActionRow";
 
-const STATUS_LABEL = { proposed: "In the plenary", passed: "Passed", rejected: "Voted down" } as const;
+const STATUS_LABEL = { proposed: "Em votação", passed: "Aprovado", rejected: "Rejeitado" } as const;
 
 /** The bills folder, with a whip count: you know the votes before you commit. */
 export function BillsPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
   return (
-    <Sheet title="Bills folder" onClose={onClose} wide>
-      <p className="panel-intro">Propose a bill and the Câmara votes at the end of the week. Count your votes first.</p>
+    <Sheet title="Projetos de lei" onClose={onClose} wide>
+      <p className="panel-intro">Proponha um projeto e a Câmara vota no fim da semana. Conte os votos antes.</p>
       {LAW_IDS.map((id) => {
         const law: LawDef = LAWS[id];
         const status = state.laws[id] ?? "draft";
@@ -25,7 +25,7 @@ export function BillsPanel({ state, onClose }: { state: GameState; onClose: () =
             key={id}
             title={law.title}
             decision={{ kind: "proposeLaw", law: id }}
-            cta="Propose"
+            cta="Propor"
             disabled={!available}
             disabledReason={status !== "draft" ? STATUS_LABEL[status] : lockReason(law.requires)}
             aside={
@@ -34,7 +34,7 @@ export function BillsPanel({ state, onClose }: { state: GameState; onClose: () =
                   <div className="whip-num">
                     {score}/{needed}
                   </div>
-                  <div className="whip-label">{score >= needed ? "Likely to pass" : "Short of votes"}</div>
+                  <div className="whip-label">{score >= needed ? "Deve passar" : "Faltam votos"}</div>
                 </div>
               ) : null
             }

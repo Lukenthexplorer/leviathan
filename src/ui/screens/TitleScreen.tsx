@@ -21,7 +21,7 @@ export function TitleScreen() {
     <div className="title-screen" ref={root}>
       <h1 className="title-word">LEVIATHAN</h1>
       <p className="title-quote">
-        “For by Art is created that great LEVIATHAN called a COMMON-WEALTH, or STATE.”
+        “Pois é pela arte que é criado aquele grande LEVIATÃ a que se chama REPÚBLICA ou ESTADO.”
         <br />
         <span>Thomas Hobbes, 1651</span>
       </p>
@@ -33,7 +33,7 @@ export function TitleScreen() {
             goto("party");
           }}
         >
-          Begin your career
+          Começar sua carreira
         </DeskButton>
       </div>
     </div>

@@ -6,8 +6,8 @@ import { flag, funds, integrity, opinion, relation } from "../helpers";
  * the state, never chance. Variants change a character's words and face
  * according to hidden variables: this is how hidden morality leaks out.
  *
- * Templates ({{worst:students}}, {{date:post_populist}}...) let newspapers
- * name the player's own earlier decision as the cause. See core/text.ts.
+ * Templates ({{worst:students}}, {{date:post_populist}}, {{g:o/a}}...) let
+ * newspapers name the player's own earlier decision. See core/text.ts.
  */
 export const EVENTS: EventDef[] = [
   // =============================================================== the Mentor
@@ -19,13 +19,13 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "mentor",
       expression: "neutral",
-      title: "A note from Otávio",
+      title: "Um bilhete do Otávio",
       body:
-        "Kid, a word of advice. You're making friends with the wrong people: voters. Voters forget. " +
-        "The party remembers. Come and see me when you're ready to learn how things are really done.",
+        "Garot{{g:o/a}}, um conselho. Você está fazendo amizade com as pessoas erradas: os eleitores. Eleitor esquece. " +
+        "O partido lembra. Venha me ver quando estiver pront{{g:o/a}} para aprender como as coisas são feitas de verdade.",
       choices: [
-        { id: "thanks", label: "Thank him for the advice", effects: [relation("mentor", 4)] },
-        { id: "nomination", label: "Ask what it takes to get the nomination", effects: [relation("mentor", 2), flag("mentor_explained")] },
+        { id: "thanks", label: "Agradecer o conselho", effects: [relation("mentor", 4)] },
+        { id: "nomination", label: "Perguntar o que é preciso para ganhar a indicação", effects: [relation("mentor", 2), flag("mentor_explained")] },
       ],
     },
     variants: [
@@ -33,8 +33,8 @@ export const EVENTS: EventDef[] = [
         when: { ref: "integrity", op: "<", value: 55 },
         expression: "pleased",
         body:
-          "Kid! Teixeira tells me you're a reasonable person. I always knew you had it in you. " +
-          "Stick with me and the nomination is a formality. We take care of our own.",
+          "Garot{{g:o/a}}! O Teixeira me disse que você é uma pessoa razoável. Eu sempre soube. " +
+          "Fica comigo e a indicação é mera formalidade. A gente cuida dos nossos.",
       },
     ],
   },
@@ -46,28 +46,28 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "mentor",
       expression: "pleased",
-      title: "Otávio's nephew",
+      title: "O sobrinho do Otávio",
       body:
-        "My sister's boy, Juninho, needs a job. Nothing heavy. A position in your office, a salary, " +
-        "he doesn't even need to come in on Fridays. Or Mondays. You'd be doing an old friend a great kindness.",
+        "O filho da minha irmã, o Juninho, precisa de um emprego. Nada pesado. Um cargo no seu gabinete, um salário, " +
+        "nem precisa aparecer às sextas. Nem às segundas. Seria uma gentileza enorme com um velho amigo.",
       choices: [
         {
           id: "hire",
-          label: "Put Juninho on the payroll",
+          label: "Colocar o Juninho na folha",
           effects: [
             relation("mentor", 15),
             integrity(-8),
             flag("hired_nephew"),
-            { type: "dossier", id: "nephew_payroll", label: "Otávio's nephew on the office payroll", threads: 2 },
+            { type: "dossier", id: "nephew_payroll", label: "Sobrinho do Otávio como funcionário fantasma", threads: 2 },
           ],
         },
         {
           id: "see_through",
-          label: "\"I know exactly what this is, Otávio.\"",
+          label: "\"Eu sei exatamente o que é isso, Otávio.\"",
           requires: { bookFinished: "machiavelli" },
           effects: [relation("mentor", -5), relation("party_boss", 5), flag("mentor_respects")],
         },
-        { id: "refuse", label: "Refuse, as kindly as you can", effects: [relation("mentor", -15), integrity(2)] },
+        { id: "refuse", label: "Recusar, com toda a gentileza possível", effects: [relation("mentor", -15), integrity(2)] },
       ],
     },
   },
@@ -78,10 +78,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "mentor_drifts",
       kind: "report",
-      title: "Corridor gossip",
+      title: "Fofoca de corredor",
       body:
-        "Your aide heard it at the coffee machine: Otávio Brandão has been telling anyone who'll listen " +
-        "that Renata Saldanha is \"the future of the party\". The party boss was in the room.",
+        "Seu assessor ouviu na máquina de café: Otávio Brandão anda dizendo para quem quiser ouvir " +
+        "que Renata Saldanha é \"o futuro do partido\". A chefia do partido estava na sala.",
     },
   },
 
@@ -96,20 +96,20 @@ export const EVENTS: EventDef[] = [
       kind: "phone",
       from: "rival",
       expression: "pleased",
-      title: "Renata is on the radio",
+      title: "A Renata está no rádio",
       body:
-        "Your aide turns up the radio. Renata Saldanha is explaining, warmly and at length, " +
-        "how she fought for the bill you wrote. The host calls her \"the councillor who gets things done\".",
+        "Seu assessor aumenta o rádio. Renata Saldanha explica, com carinho e em detalhes, " +
+        "como lutou pelo projeto que você escreveu. O apresentador a chama de \"a vereadora que faz acontecer\".",
       choices: [
         {
           id: "confront",
-          label: "Call the station and set the record straight",
-          effects: [relation("rival", -15), opinion("students", 2, "Defended own work"), relation("party_boss", -3)],
+          label: "Ligar para a rádio e esclarecer a história",
+          effects: [relation("rival", -15), opinion("students", 2, "Defendeu o próprio trabalho"), relation("party_boss", -3)],
         },
-        { id: "let_go", label: "Let it go. There will be other bills.", effects: [relation("rival", 5), flag("let_rival_credit")] },
+        { id: "let_go", label: "Deixar pra lá. Vão ter outros projetos.", effects: [relation("rival", 5), flag("let_rival_credit")] },
         {
           id: "leak",
-          label: "Leak what you know about her campaign money",
+          label: "Vazar o que você sabe sobre o dinheiro de campanha dela",
           requires: { ref: "flag:rival_dirt", op: ">=", value: 1 },
           effects: [relation("rival", -25), integrity(-5), relation("journalist", 10), flag("leaked_rival")],
         },
@@ -124,13 +124,13 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "rival",
       expression: "neutral",
-      title: "A proposal from Renata",
+      title: "Uma proposta da Renata",
       body:
-        "\"Let's be adults. Only one of us gets the nomination this time. Back me, and when I'm mayor " +
-        "you'll be the president of this council. Next time, it's your turn. I keep my word.\"",
+        "\"Vamos ser adultos. Só um de nós leva a indicação desta vez. Me apoia, e quando eu for prefeita " +
+        "você preside esta Câmara. Na próxima, é a sua vez. Eu cumpro minha palavra.\"",
       choices: [
-        { id: "accept", label: "Shake her hand", effects: [relation("rival", 15), relation("party_boss", -6), flag("backed_rival")] },
-        { id: "decline", label: "\"May the best candidate win.\"", effects: [relation("rival", -12)] },
+        { id: "accept", label: "Apertar a mão dela", effects: [relation("rival", 15), relation("party_boss", -6), flag("backed_rival")] },
+        { id: "decline", label: "\"Que vença a melhor candidatura.\"", effects: [relation("rival", -12)] },
       ],
     },
   },
@@ -143,13 +143,13 @@ export const EVENTS: EventDef[] = [
       kind: "phone",
       from: "journalist",
       expression: "suspicious",
-      title: "Helena Vaz is on the line",
+      title: "Helena Vaz na linha",
       body:
-        "\"Councillor. Someone left an envelope at the newspaper this morning. No name. " +
-        "Very interesting papers about your finances. Would you like to comment before I start making calls?\"",
+        "\"{{g:Vereador/Vereadora}}. Alguém deixou um envelope no jornal hoje de manhã. Sem nome. " +
+        "Papéis muito interessantes sobre as suas finanças. Quer comentar antes de eu começar a fazer ligações?\"",
       choices: [
-        { id: "no_comment", label: "\"No comment.\"", effects: [relation("journalist", -5)] },
-        { id: "who", label: "\"Ask Renata Saldanha where she got them.\"", effects: [relation("journalist", -2), relation("rival", -10)] },
+        { id: "no_comment", label: "\"Sem comentários.\"", effects: [relation("journalist", -5)] },
+        { id: "who", label: "\"Pergunta pra Renata Saldanha onde ela conseguiu isso.\"", effects: [relation("journalist", -2), relation("rival", -10)] },
       ],
     },
   },
@@ -163,20 +163,20 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "journalist",
       expression: "neutral",
-      title: "Interview request: Correio de Porto Ferro",
+      title: "Pedido de entrevista: Correio de Porto Ferro",
       body:
-        "Councillor, the Correio is profiling the new members of the Câmara. Who you are, what you believe, " +
-        "who paid for your campaign. The usual. Thirty minutes of your time? — Helena Vaz",
+        "{{g:Vereador/Vereadora}}, o Correio está fazendo perfis dos novos membros da Câmara. Quem você é, no que acredita, " +
+        "quem pagou sua campanha. O de sempre. Trinta minutos do seu tempo? — Helena Vaz",
       choices: [
         {
           id: "grant",
-          label: "Grant the interview",
-          effects: [relation("journalist", 10), opinion("students", 2, "A thoughtful interview"), opinion("retirees", 2, "A thoughtful interview")],
+          label: "Dar a entrevista",
+          effects: [relation("journalist", 10), opinion("students", 2, "Uma entrevista inteligente"), opinion("retirees", 2, "Uma entrevista inteligente")],
         },
-        { id: "decline", label: "Too busy, sorry", effects: [relation("journalist", -8)] },
+        { id: "decline", label: "Sem tempo, desculpe", effects: [relation("journalist", -8)] },
         {
           id: "off_record",
-          label: "Off the record: point her at Renata's donors",
+          label: "Em off: apontar ela para os financiadores da Renata",
           requires: { ref: "flag:rival_dirt", op: ">=", value: 1 },
           effects: [relation("journalist", 12), relation("rival", -15), flag("leaked_rival")],
         },
@@ -187,8 +187,8 @@ export const EVENTS: EventDef[] = [
         when: { ref: "unexposedThreads", op: ">=", value: 1 },
         expression: "suspicious",
         body:
-          "Councillor, the Correio is profiling the new members of the Câmara. I'm particularly interested in " +
-          "your campaign finances. Construction money, mostly, I hear. Thirty minutes? I'd hate to write it without your side. — H. Vaz",
+          "{{g:Vereador/Vereadora}}, o Correio está fazendo perfis dos novos membros da Câmara. Tenho interesse especial nas " +
+          "suas finanças de campanha. Dinheiro de empreiteira, principalmente, pelo que ouvi. Trinta minutos? Eu detestaria escrever sem ouvir o seu lado. — H. Vaz",
       },
     ],
   },
@@ -200,14 +200,14 @@ export const EVENTS: EventDef[] = [
       kind: "phone",
       from: "journalist",
       expression: "suspicious",
-      title: "Helena Vaz, again",
+      title: "Helena Vaz, de novo",
       body:
-        "\"I'm following some money, councillor. It keeps walking past your office. " +
-        "I'll publish when I can prove it. You could save us both some time.\"",
+        "\"Estou seguindo um dinheiro, {{g:vereador/vereadora}}. Ele vive passando pela porta do seu gabinete. " +
+        "Vou publicar quando conseguir provar. Você podia poupar o tempo de nós duas.\"",
       choices: [
-        { id: "deny", label: "Deny everything", effects: [relation("journalist", -10), flag("lied_to_press")] },
-        { id: "confess", label: "Come clean. Tell her everything.", effects: [relation("journalist", 15), flag("confess")] },
-        { id: "threaten", label: "Mention your lawyers. And her editor's debts.", effects: [relation("journalist", -25), integrity(-5), flag("threatened_press")] },
+        { id: "deny", label: "Negar tudo", effects: [relation("journalist", -10), flag("lied_to_press")] },
+        { id: "confess", label: "Abrir o jogo. Contar tudo.", effects: [relation("journalist", 15), flag("confess")] },
+        { id: "threaten", label: "Mencionar seus advogados. E as dívidas do editor dela.", effects: [relation("journalist", -25), integrity(-5), flag("threatened_press")] },
       ],
     },
   },
@@ -227,11 +227,11 @@ export const EVENTS: EventDef[] = [
       kind: "phone",
       from: "journalist",
       expression: "pleased",
-      title: "A tip from Helena",
+      title: "Uma dica da Helena",
       body:
-        "\"You're one of the few in that building I haven't got a file on. So, a favour between honest people: " +
-        "look at who paid for Renata Saldanha's leaflets. Teixeira Construções. You didn't hear it from me.\"",
-      choices: [{ id: "thanks", label: "\"I owe you one, Helena.\"", effects: [relation("journalist", 5)] }],
+        "\"Você é das poucas pessoas naquele prédio sobre quem eu não tenho uma pasta. Então, um favor entre gente honesta: " +
+        "veja quem pagou os panfletos da Renata Saldanha. Teixeira Construções. Você não ouviu isso de mim.\"",
+      choices: [{ id: "thanks", label: "\"Te devo uma, Helena.\"", effects: [relation("journalist", 5)] }],
     },
   },
 
@@ -244,13 +244,13 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "party_boss",
       expression: "angry",
-      title: "Last warning",
+      title: "Último aviso",
       body:
-        "The party gave you a seat. The party can give it to somebody else. " +
-        "Next time you embarrass us, you'll read about your expulsion in the Correio.",
+        "O partido te deu uma cadeira. O partido pode dar essa cadeira para outra pessoa. " +
+        "Da próxima vez que você nos envergonhar, vai ler sobre a sua expulsão no Correio.",
       choices: [
-        { id: "apologise", label: "Apologise and promise to vote the line", effects: [relation("party_boss", 15), flag("party_line"), integrity(-2)] },
-        { id: "firm", label: "Stand your ground", effects: [relation("party_boss", -8), opinion("students", 3, "Stood up to the party machine")] },
+        { id: "apologise", label: "Pedir desculpas e prometer votar com a bancada", effects: [relation("party_boss", 15), flag("party_line"), integrity(-2)] },
+        { id: "firm", label: "Manter sua posição", effects: [relation("party_boss", -8), opinion("students", 3, "Enfrentou a máquina do partido")] },
       ],
     },
   },
@@ -262,11 +262,11 @@ export const EVENTS: EventDef[] = [
       kind: "letter",
       from: "party_boss",
       expression: "pleased",
-      title: "Invitation: party fundraising dinner",
-      body: "Black tie. Three hundred guests, all of them with cheque books. Your table is near the front. That means something.",
+      title: "Convite: jantar de arrecadação do partido",
+      body: "Traje a rigor. Trezentos convidados, todos com talão de cheque. Sua mesa fica perto da frente. Isso significa alguma coisa.",
       choices: [
-        { id: "attend", label: "Attend and work the room", effects: [funds(12), relation("party_boss", 4)] },
-        { id: "skip", label: "Send your apologies", effects: [relation("party_boss", -3)] },
+        { id: "attend", label: "Ir e circular pelo salão", effects: [funds(12), relation("party_boss", 4)] },
+        { id: "skip", label: "Mandar suas desculpas", effects: [relation("party_boss", -3)] },
       ],
     },
   },
@@ -279,23 +279,23 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "mentor_leak",
       kind: "report",
-      title: "Seen at Bar Brasil",
+      title: "Visto no Bar Brasil",
       body:
-        "Your aide saw Otávio Brandão having a long lunch with Helena Vaz yesterday. He was doing most of the talking. " +
-        "He knows exactly how Teixeira's money reached you.",
+        "Seu assessor viu Otávio Brandão num almoço comprido com Helena Vaz ontem. Era ele quem mais falava. " +
+        "Ele sabe exatamente como o dinheiro do Teixeira chegou até você.",
     },
   },
   {
     id: "church_scandal",
     trigger: { all: [{ ref: "flag:laundered_church", op: ">=", value: 1 }, { ref: "exposed:teixeira_cash", op: "==", value: 1 }] },
-    onFire: [{ type: "neighbourhood", id: "sao_bento", mood: -15, addMarker: "protest" }, opinion("religious", -15, "Used a soup kitchen to launder money")],
+    onFire: [{ type: "neighbourhood", id: "sao_bento", mood: -15, addMarker: "protest" }, opinion("religious", -15, "Usou um sopão para lavar dinheiro")],
     item: {
       id: "church_scandal",
       kind: "newspaper",
-      title: "SOUP KITCHEN USED TO LAUNDER CAMPAIGN MONEY",
+      title: "SOPÃO DE IGREJA FOI USADO PARA LAVAR DINHEIRO DE CAMPANHA",
       body:
-        "Pastor Gilmar Rocha wept as he told the Correio that his charity had been \"used like a laundromat\" by councillor {{player}}. " +
-        "Worshippers in São Bento gathered outside the cathedral last night. \"We fed the hungry with stolen money,\" said one volunteer.",
+        "O Pastor Gilmar Rocha chorou ao contar ao Correio que sua obra social foi \"usada como lavanderia\" por {{g:o vereador/a vereadora}} {{player}}. " +
+        "Fiéis se reuniram em frente à catedral de São Bento ontem à noite. \"Demos de comer aos famintos com dinheiro roubado\", disse uma voluntária.",
     },
   },
 
@@ -310,11 +310,11 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_students",
       kind: "newspaper",
-      title: "STUDENTS MARCH ON THE CÂMARA",
+      title: "ESTUDANTES MARCHAM ATÉ A CÂMARA",
       body:
-        "Thousands of students marched from Cidade Universitária to the steps of the City Council yesterday, " +
-        "chanting the name of councillor {{player}}. Organisers named {{worst:students}} as the last straw. " +
-        "\"We remember,\" read one banner.",
+        "Milhares de estudantes marcharam ontem da Cidade Universitária até as escadarias da Câmara Municipal, " +
+        "gritando o nome {{g:do vereador/da vereadora}} {{player}}. Os organizadores citaram como a gota d'água: {{worst:students}}. " +
+        "\"A gente lembra\", dizia uma faixa.",
     },
   },
   {
@@ -324,10 +324,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_periphery",
       kind: "newspaper",
-      title: "BURNING TYRES BLOCK AVENIDA: THE HILL IS ANGRY",
+      title: "PNEUS QUEIMADOS FECHAM A AVENIDA: O MORRO ESTÁ REVOLTADO",
       body:
-        "Residents of Morro da Esperança blocked the main avenue for six hours. Community leaders told the Correio " +
-        "the anger goes back to {{worst:periphery}}. \"They only come up the hill to take photographs.\"",
+        "Moradores do Morro da Esperança bloquearam a avenida principal por seis horas. Lideranças comunitárias disseram ao Correio " +
+        "que a revolta vem de: {{worst:periphery}}. \"Eles só sobem o morro para tirar foto.\"",
     },
   },
   {
@@ -337,10 +337,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_business",
       kind: "newspaper",
-      title: "COMMERCIAL ASSOCIATION CLOSES ITS DOORS TO {{PLAYER}}",
+      title: "ASSOCIAÇÃO COMERCIAL FECHA AS PORTAS PARA {{PLAYER}}",
       body:
-        "Porto Ferro's Commercial Association has voted to refuse all meetings with councillor {{player}}. " +
-        "Its president cited {{worst:business}}: \"Every shop on Rua Direita has paid for that decision.\"",
+        "A Associação Comercial de Porto Ferro votou por recusar qualquer reunião com {{g:o vereador/a vereadora}} {{player}}. " +
+        "O presidente da entidade citou: {{worst:business}}. \"Toda loja da Rua Direita pagou por essa decisão.\"",
     },
   },
   {
@@ -349,10 +349,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_religious",
       kind: "newspaper",
-      title: "FROM THE PULPIT, A WARNING ABOUT THE COUNCILLOR",
+      title: "DO PÚLPITO, UM ALERTA SOBRE {{g:O VEREADOR/A VEREADORA}}",
       body:
-        "On Sunday, pastors in four churches asked their congregations to \"pray for the conscience\" of councillor {{player}}. " +
-        "Several mentioned {{worst:religious}}.",
+        "No domingo, pastores de quatro igrejas pediram às congregações que \"orassem pela consciência\" {{g:do vereador/da vereadora}} {{player}}. " +
+        "Vários mencionaram: {{worst:religious}}.",
     },
   },
   {
@@ -361,10 +361,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_retirees",
       kind: "newspaper",
-      title: "LETTERS: \"I VOTED FOR THIS COUNCILLOR. NEVER AGAIN.\"",
+      title: "CARTAS DOS LEITORES: \"VOTEI. NUNCA MAIS.\"",
       body:
-        "This week the Correio received 143 letters from pensioners about councillor {{player}}, most of them about " +
-        "{{worst:retirees}}. We publish a selection on page 6. None are kind.",
+        "Nesta semana o Correio recebeu 143 cartas de aposentados sobre {{g:o vereador/a vereadora}} {{player}}, a maioria sobre: " +
+        "{{worst:retirees}}. Publicamos uma seleção na página 6. Nenhuma é gentil.",
     },
   },
   {
@@ -374,10 +374,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "crisis_workers",
       kind: "newspaper",
-      title: "STEELWORKERS' UNION: {{PLAYER}} IS 'NOT WELCOME' IN VILA OPERÁRIA",
+      title: "SINDICATO DOS METALÚRGICOS: {{PLAYER}} 'NÃO É BEM-VIND{{g:O/A}}' NA VILA OPERÁRIA",
       body:
-        "The union assembly voted unanimously to declare councillor {{player}} unwelcome at the factory gates, " +
-        "citing {{worst:workers}}.",
+        "A assembleia do sindicato votou por unanimidade declarar {{g:o vereador/a vereadora}} {{player}} indesejad{{g:o/a}} nos portões da fábrica, " +
+        "citando: {{worst:workers}}.",
     },
   },
   {
@@ -386,10 +386,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "promises_crash",
       kind: "newspaper",
-      title: "THE COUNCILLOR WHO PROMISED TOO MUCH",
+      title: "{{g:O VEREADOR/A VEREADORA}} QUE PROMETEU DEMAIS",
       body:
-        "Since {{date:post_populist}}, councillor {{player}} has posted {{flag:posts_populist}} viral videos full of promises. " +
-        "The Correio went looking for the results. We found very few. Readers who once shared the videos are now sharing something else: their disappointment.",
+        "Desde {{date:post_populist}}, {{g:o vereador/a vereadora}} {{player}} publicou {{flag:posts_populist}} vídeos virais cheios de promessas. " +
+        "O Correio foi atrás dos resultados. Achou muito pouco. Os leitores que compartilhavam os vídeos agora compartilham outra coisa: a decepção.",
     },
   },
   {
@@ -399,10 +399,10 @@ export const EVENTS: EventDef[] = [
     item: {
       id: "rising_star",
       kind: "newspaper",
-      title: "A RISING STAR IN THE CÂMARA?",
+      title: "UMA ESTRELA EM ASCENSÃO NA CÂMARA?",
       body:
-        "Barely months into the job, councillor {{player}} is the name on everyone's lips in Porto Ferro. " +
-        "Party insiders, speaking anonymously, did not rule out bigger ambitions.",
+        "Com poucos meses de mandato, {{g:o vereador/a vereadora}} {{player}} é o nome na boca de Porto Ferro. " +
+        "Fontes do partido, em off, não descartaram ambições maiores.",
     },
   },
 ];
