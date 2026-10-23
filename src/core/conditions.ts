@@ -8,6 +8,8 @@ export function readRef(state: GameState, ref: NumRef): number {
       return state.turn;
     case "funds":
       return state.player.funds;
+    case "capital":
+      return state.player.capital;
     case "integrity":
       return state.hidden.integrity;
     case "expectations":

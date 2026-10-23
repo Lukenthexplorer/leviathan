@@ -10,7 +10,7 @@ import { expectationsPressure } from "../../core/hidden";
 import type { Effect, GameState } from "../../core/types";
 import { goalsMet } from "./goals";
 import { LAW_IDS } from "../../content/councilman/laws";
-import { readingRule, resolveCouncilmanDecision } from "./actions";
+import { capitalRule, readingRule, resolveCouncilmanDecision } from "./actions";
 import { confessionRule, pressRule } from "./rules";
 
 const C = BALANCE.councilman;
@@ -23,11 +23,11 @@ function createInitialState({ playerName, party, form = "m" }: ChapterSetup): Ga
   if (!p) throw new Error(`Unknown party "${party}"`);
 
   return {
-    version: 1,
+    version: 2,
     chapterId: "councilman",
     turn: 1,
     party,
-    player: { name: playerName, form, funds: C.startingFunds },
+    player: { name: playerName, form, funds: C.startingFunds, capital: BALANCE.capital.start },
     groups: Object.fromEntries(GROUP_IDS.map((g) => [g, { baseline: p.startingOpinions[g], memories: [] }])),
     hidden: {
       integrity: BALANCE.hidden.integrityStart,
@@ -135,6 +135,7 @@ export const councilmanChapter: ChapterDefinition = {
   weeklyRules(state) {
     return [
       ...readingRule(state),
+      ...capitalRule(state),
       ...nominationRule(state),
       ...expectationsPressure(state),
       // Confession first: once everything is out, there's nothing left to dig.

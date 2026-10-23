@@ -12,6 +12,7 @@ export const LAWS = {
     summary: "Congela a tarifa de ônibus por dois anos. As empresas de ônibus vão querer compensação.",
     topics: ["transport", "wages"],
     councilSupport: 45,
+    cost: 5,
     onPass: [
       opinion("students", 8, "Congelou a passagem"),
       opinion("workers", 6, "Congelou a passagem"),
@@ -43,6 +44,7 @@ export const LAWS = {
     summary: "Leva esgoto e água tratada morro acima. Caro, lento, e ninguém no Centro vai perceber.",
     topics: ["sanitation", "housing", "construction"],
     councilSupport: 40,
+    cost: 6,
     onPass: [opinion("periphery", 10, "Lutou pelo saneamento do morro"), opinion("business", -3, "Mais gasto público")],
     followUps: [
       {
@@ -75,6 +77,7 @@ export const LAWS = {
     summary: "Mais guardas municipais nas ruas à noite, com poder de revista.",
     topics: ["safety"],
     councilSupport: 60,
+    cost: 4,
     onPass: [
       opinion("retirees", 8, "Mais policiamento à noite"),
       opinion("business", 6, "Mais policiamento à noite"),
@@ -105,6 +108,7 @@ export const LAWS = {
     summary: "Bolsas para teatro, música e coletivos estudantis na Cidade Universitária.",
     topics: ["culture", "education"],
     councilSupport: 45,
+    cost: 4,
     onPass: [opinion("students", 10, "Financiou a cultura estudantil"), opinion("religious", -4, "Dinheiro público para arte \"degenerada\"")],
     followUps: [
       {
@@ -121,6 +125,7 @@ export const LAWS = {
     summary: "Desconto municipal em remédios para aposentados. Popular, e nada barato.",
     topics: ["health", "pensions"],
     councilSupport: 55,
+    cost: 5,
     onPass: [opinion("retirees", 10, "Remédio mais barato"), opinion("religious", 2, "Cuidado com os idosos")],
     followUps: [
       {
@@ -146,6 +151,7 @@ export const LAWS = {
     summary: "Isenta templos e seus projetos sociais do imposto predial municipal.",
     topics: ["family", "charity"],
     councilSupport: 55,
+    cost: 4,
     onPass: [opinion("religious", 12, "Isentou as igrejas de imposto"), opinion("students", -5, "Isenção de imposto para igrejas")],
     delivers: 6,
   },
@@ -155,6 +161,7 @@ export const LAWS = {
     summary: "Reduz o imposto sobre serviços para pequenos negócios do Centro, contra as lojas fechadas.",
     topics: ["taxes", "deregulation"],
     councilSupport: 50,
+    cost: 5,
     requires: { bookFinished: "hayek" },
     onPass: [
       opinion("business", 12, "Cortou impostos das empresas"),
@@ -176,6 +183,7 @@ export const LAWS = {
     summary: "Contrata desempregados para consertar ruas e praças. Gastar agora, crescer depois.",
     topics: ["jobs", "construction", "wages"],
     councilSupport: 45,
+    cost: 7,
     requires: { bookFinished: "keynes" },
     onPass: [opinion("workers", 10, "Criou frentes de trabalho"), opinion("periphery", 6, "Criou frentes de trabalho")],
     followUps: [
@@ -201,6 +209,116 @@ export const LAWS = {
       },
     ],
     delivers: 15,
+  },
+
+  street_lighting: {
+    title: "Luz nos Bairros",
+    summary: "Postes e lâmpadas novas nas ruas escuras dos bairros mais pobres.",
+    topics: ["safety", "construction"],
+    councilSupport: 55,
+    cost: 4,
+    onPass: [
+      opinion("periphery", 6, "Iluminou as ruas do bairro"),
+      opinion("retirees", 4, "Ruas mais seguras à noite"),
+      opinion("religious", 2, "Ruas mais seguras à noite"),
+    ],
+    followUps: [
+      {
+        inTurns: 4,
+        label: "Postes novos acendem no Morro da Esperança",
+        effects: [{ type: "neighbourhood", id: "morro_esperanca", mood: 6 }],
+      },
+    ],
+    delivers: 8,
+  },
+
+  student_pass: {
+    title: "Passe Livre Estudantil",
+    summary: "Ônibus de graça para estudantes da rede pública. Alguém vai pagar a conta.",
+    topics: ["transport", "education"],
+    councilSupport: 40,
+    cost: 6,
+    onPass: [opinion("students", 12, "Aprovou o passe livre"), opinion("business", -5, "Mais um custo para as empresas")],
+    followUps: [
+      {
+        inTurns: 8,
+        label: "Empresas de ônibus aumentam a passagem para compensar o passe livre",
+        effects: [
+          opinion("workers", -5, "Passagem mais cara por causa do passe livre"),
+          opinion("periphery", -3, "Passagem mais cara por causa do passe livre"),
+          newspaper(
+            "news_student_pass_fare",
+            "PASSAGEM SOBE: TRABALHADOR PAGA O PASSE LIVRE",
+            "As empresas de ônibus reajustaram a tarifa em 12%, citando o passe livre estudantil aprovado em {{date:student_pass}}. " +
+              "\"O estudante não paga, quem paga sou eu\", disse uma diarista no ponto da Vila Operária.",
+          ),
+        ],
+      },
+    ],
+    delivers: 10,
+  },
+
+  square_renovation: {
+    title: "Reforma da Praça da Matriz",
+    summary: "Bancos novos, coreto restaurado e jardim na praça em frente à catedral de São Bento.",
+    topics: ["construction", "family"],
+    councilSupport: 55,
+    cost: 4,
+    onPass: [opinion("religious", 5, "Reformou a praça da catedral"), opinion("retirees", 5, "Reformou a praça da catedral")],
+    followUps: [
+      { inTurns: 3, label: "Tapumes cercam a Praça da Matriz", effects: [{ type: "neighbourhood", id: "sao_bento", addMarker: "construction" }] },
+      {
+        inTurns: 10,
+        label: "Praça da Matriz reinaugurada com banda e quermesse",
+        effects: [{ type: "neighbourhood", id: "sao_bento", mood: 10, removeMarker: "construction", addMarker: "rally" }],
+      },
+    ],
+    delivers: 6,
+  },
+
+  street_market: {
+    title: "Regularização das Feiras Livres",
+    summary: "Licença, horário e ponto fixo para feirantes. Ordem para uns, perda do ponto para outros.",
+    topics: ["regulation"],
+    councilSupport: 50,
+    cost: 3,
+    onPass: [
+      opinion("business", 4, "Organizou as feiras"),
+      opinion("workers", 2, "Feiras mais organizadas"),
+      opinion("periphery", -3, "Camelôs perderam o ponto"),
+    ],
+    delivers: 4,
+  },
+
+  contract_transparency: {
+    title: "Transparência nos Contratos",
+    summary: "Todo contrato da prefeitura publicado no Diário Oficial, com valor, empresa e aditivos. Muita gente não vai gostar.",
+    topics: ["transparency", "regulation"],
+    councilSupport: 30,
+    cost: 7,
+    onPass: [
+      opinion("students", 6, "Abriu os contratos da prefeitura"),
+      opinion("retirees", 3, "Abriu os contratos da prefeitura"),
+      { type: "relation", character: "donor", delta: -20 },
+      { type: "relation", character: "journalist", delta: 12 },
+      { type: "integrity", delta: 5 },
+    ],
+    followUps: [
+      {
+        inTurns: 6,
+        label: "Correio encontra contratos superfaturados no Diário Oficial",
+        effects: [
+          newspaper(
+            "news_transparency",
+            "DIÁRIO OFICIAL REVELA: OBRAS DA CIDADE CUSTAM O DOBRO",
+            "Graças à lei de transparência aprovada em {{date:contract_transparency}}, o Correio comparou preços de 40 contratos. " +
+              "Asfalto, merenda, uniforme: quase tudo custa o dobro do mercado. Uma empreiteira aparece em 11 deles.",
+          ),
+          { type: "relation", character: "donor", delta: -10 },
+        ],
+      },
+    ],
+    delivers: 6,
   },
 } as const satisfies Record<string, LawDef>;
 

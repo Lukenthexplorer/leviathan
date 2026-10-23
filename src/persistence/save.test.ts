@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { councilmanChapter as chapter } from "../chapters/councilman/chapter";
+import { BALANCE } from "../content/balance";
 import { advanceTurn } from "../core/advanceTurn";
 import { MIGRATIONS, SAVE_VERSION, clearSave, loadGame, saveGame, saveSummary } from "./save";
 
@@ -52,18 +53,32 @@ describe("save / load", () => {
     expect(loadGame(storage)).toBeNull();
   });
 
-  it("upgrades old saves through migrations", () => {
+  it("chains migrations step by step, and refuses a version with no path", () => {
     const storage = fakeStorage();
-    const old = midGame();
-    storage.setItem("leviathan.save", JSON.stringify({ version: SAVE_VERSION - 1, savedAt: "", state: old }));
-    expect(loadGame(storage)).toBeNull(); // no migration for that version: refuse rather than guess
+    const { capital: _c, ...noCapital } = midGame().player;
+    const v0 = { ...midGame(), version: 0, player: noCapital };
+    storage.setItem("leviathan.save", JSON.stringify({ version: 0, savedAt: "", state: v0 }));
+    expect(loadGame(storage)).toBeNull(); // no 0 -> 1 migration: refuse rather than guess
 
-    MIGRATIONS[SAVE_VERSION - 1] = (st) => ({ ...st, flags: { ...st.flags, migrated: 1 } });
+    MIGRATIONS[0] = (st) => ({ ...st, flags: { ...st.flags, migrated_from_0: 1 } });
     try {
-      expect(loadGame(storage)!.flags.migrated).toBe(1);
+      const loaded = loadGame(storage)!;
+      expect(loaded.flags.migrated_from_0).toBe(1); // 0 -> 1 ran
+      expect(loaded.player.capital).toBe(BALANCE.capital.start); // then 1 -> 2 ran
     } finally {
-      delete MIGRATIONS[SAVE_VERSION - 1];
+      delete MIGRATIONS[0];
     }
+  });
+
+  it("v1 saves (before political capital) are upgraded, not lost", () => {
+    const storage = fakeStorage();
+    const v2 = midGame();
+    const { capital: _dropped, ...oldPlayer } = v2.player;
+    const v1 = { ...v2, version: 1, player: oldPlayer };
+    storage.setItem("leviathan.save", JSON.stringify({ version: 1, savedAt: "", state: v1 }));
+    const loaded = loadGame(storage)!;
+    expect(loaded.player.capital).toBe(BALANCE.capital.start);
+    expect(loaded.player.funds).toBe(v2.player.funds);
   });
 
   it("works without any storage (private mode) and clears cleanly", () => {

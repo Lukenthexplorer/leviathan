@@ -59,6 +59,7 @@ export const PARTIES = {
       bio: "Já serviu a seis governos de quatro ideologias diferentes. Nunca esquece um favor.",
     },
     favouredTopics: ["construction", "charity"],
-    opposedTopics: [],
+    // The big tent has no ideology, but it does have contracts.
+    opposedTopics: ["transparency"],
   },
 } as const satisfies Record<PartyId, PartyDef>;

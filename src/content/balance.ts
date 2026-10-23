@@ -61,20 +61,41 @@ export const BALANCE = {
     maxPerWeek: 1,
   },
 
+  /** Political capital: the currency of getting laws through the Câmara. */
+  capital: {
+    start: 6,
+    max: 20,
+    /** Weekly income: the mandate itself... */
+    weeklyBase: 1,
+    /** ...plus this per group that supports you (opinion >= supportThreshold), rounded down to whole points... */
+    perSupportingGroup: 0.5,
+    supportThreshold: 20,
+    /** ...plus this if the party boss trusts you (relation >= bossTrustAt). */
+    bossTrustBonus: 1,
+    bossTrustAt: 30,
+    /** A passed law adds prestige; a defeat in plenary burns your name. */
+    lawPassedPrestige: 2,
+    lawRejectedLoss: -2,
+  },
+
   laws: {
     /** A bill passes when its vote score reaches this. */
     passThreshold: 50,
-    favouredTopicBonus: 8,
+    favouredTopicBonus: 6,
     opposedTopicPenalty: -12,
     /** Each point of party boss relation adds this many votes. */
-    bossRelationWeight: 0.2,
+    bossRelationWeight: 0.15,
+    /** Lobbying ("articular"): each level costs capital and buys votes in the corridors. */
+    lobbyCostPerLevel: 3,
+    lobbyVotesPerLevel: 8,
+    maxLobbyLevel: 2,
     /** Per "council_favours" flag (corridor deals). */
     councilFavourBonus: 8,
     rivalAllyBonus: 5,
     /** Vote happens this many Next-week presses after proposing (1 = at the end of this week). */
     weeksToVote: 1,
     /** Party boss reaction when you propose a bill on a topic they like / dislike. */
-    bossFavouredReaction: 5,
+    bossFavouredReaction: 3,
     bossOpposedReaction: -8,
   },
 

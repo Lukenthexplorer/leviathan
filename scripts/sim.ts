@@ -6,7 +6,8 @@
  *   npm run sim -- populist 30    # one strategy, 30 weeks
  *   npm run sim -- dirty 40 liberal
  */
-import { lawAvailable, type SchemePicks } from "../src/chapters/councilman/actions";
+import { lawAvailable, lawCost, lawVoteScore, type SchemePicks } from "../src/chapters/councilman/actions";
+import { BALANCE } from "../src/content/balance";
 import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter";
 import { councilmanGoals, goalsMet } from "../src/chapters/councilman/goals";
 import { LAWS, LAW_IDS } from "../src/content/councilman/laws";
@@ -38,7 +39,16 @@ function answerDesk(s: GameState, prefers: string[], plan: SchemePicks | null = 
   });
 }
 
-const firstLaw = (s: GameState) => LAW_IDS.find((l) => lawAvailable(s, l));
+/** The first bill this strategy can afford, lobbying just enough to pass (or null if nothing affordable). */
+function affordableLaw(s: GameState, filter: (l: (typeof LAW_IDS)[number]) => boolean = () => true): Decision | null {
+  for (const law of LAW_IDS.filter((l) => lawAvailable(s, l) && filter(l))) {
+    for (let lobby = 0; lobby <= BALANCE.laws.maxLobbyLevel; lobby++) {
+      if (s.player.capital < lawCost(law, lobby)) break;
+      if (lawVoteScore(s, law, lobby).passes) return { kind: "proposeLaw", law, lobby };
+    }
+  }
+  return null;
+}
 
 const rotate = (s: GameState) => GROUP_IDS[s.turn % GROUP_IDS.length]!;
 
@@ -56,11 +66,11 @@ const STRATEGIES: Record<string, Strategy> = {
     describe: "Honest builder: reads Keynes, proposes a bill a week, works the hill, refuses dirty money",
     prefers: ["honest", "refuse", "independent", "keynes_jobs", "own_way", "decline", "ally"],
     decide: (s) => {
-      const law = firstLaw(s);
+      const law = affordableLaw(s);
       const streets = ["morro_esperanca", "vila_operaria", "sao_bento"] as const;
       const d: Decision[] = [{ kind: "neighbourhood", id: streets[s.turn % streets.length]! }];
       if (s.turn === 1) d.push({ kind: "read", book: "keynes" });
-      else if (law) d.push({ kind: "proposeLaw", law });
+      else if (law) d.push(law);
       else d.push({ kind: "meeting", with: "party_boss" });
       d.push(s.turn % 2 === 0 ? { kind: "fundraise" } : { kind: "media", style: "informative", group: rotate(s) });
       return d;
@@ -78,12 +88,12 @@ const STRATEGIES: Record<string, Strategy> = {
         (LAWS[l].onPass as readonly { type: string; group?: string; delta?: number }[]).every(
           (e) => e.type !== "opinion" || !allies.includes(e.group as never) || (e.delta ?? 0) > 0,
         ) && (LAWS[l].onPass as readonly { group?: string }[]).some((e) => allies.includes(e.group as never));
-      const law = LAW_IDS.find((l) => lawAvailable(s, l) && helps(l));
+      const law = affordableLaw(s, helps);
       const home = NEIGHBOURHOOD_IDS.filter((n) => Object.keys(NEIGHBOURHOODS[n].residents).some((g) => allies.includes(g as never)));
       const d: Decision[] = [];
       if (s.turn === 1) d.push({ kind: "meeting", with: "party_boss" });
-      else if (law) d.push({ kind: "proposeLaw", law });
-      else d.push({ kind: "neighbourhood", id: home[(s.turn + 1) % home.length]! });
+      else if (law) d.push(law);
+      else d.push({ kind: "meeting", with: "party_boss" });
       d.push({ kind: "neighbourhood", id: home[s.turn % home.length]! });
       d.push(s.turn % 3 === 0 ? { kind: "fundraise" } : { kind: "media", style: "informative", group: allies[s.turn % 3]! });
       return d;
@@ -94,11 +104,11 @@ const STRATEGIES: Record<string, Strategy> = {
     prefers: ["cash", "vote_for", "learn", "loyal", "promise", "ally"],
     plan: { intermediary: "brother_in_law", payment: "invoices", knows: "chief_of_staff" },
     decide: (s) => {
-      const law = firstLaw(s);
+      const law = affordableLaw(s);
       const d: Decision[] = [{ kind: "media", style: "populist", group: rotate(s) }];
       if (s.turn === 1) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "mentor" });
       else if (s.turn === 3) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "party_boss" });
-      else if (law) d.push({ kind: "proposeLaw", law });
+      else if (law) d.push(law);
       return d;
     },
   },
@@ -152,7 +162,7 @@ for (const name of names) {
   console.log(s.ending ? `>>> ENDING: ${s.ending} in week ${s.turn}` : `>>> Still standing after ${weeks} weeks`);
   console.log(`    goals: ${councilmanGoals(s).map((g) => `${g.met ? "✓" : "✗"} ${g.label} (${g.progress})`).join(" | ")}`);
   console.log(
-    `    funds ${s.player.funds}k | boss ${s.characters.party_boss!.relation} | laws passed ${s.flags.laws_passed ?? 0}, ` +
+    `    capital ${s.player.capital} | lobbied ${s.flags.lobbied_laws ?? 0} | funds ${s.player.funds}k | boss ${s.characters.party_boss!.relation} | laws passed ${s.flags.laws_passed ?? 0}, ` +
       `rejected ${s.flags.laws_rejected ?? 0} | books ${s.books.finished.join(", ") || "none"} | dossier threads ${s.hidden.dossier.reduce((a, d) => a + d.threads, 0)}`,
   );
 }

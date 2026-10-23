@@ -2,7 +2,7 @@ import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
-import type { DeskItem } from "../../core/types";
+import type { DeskItem, GameState } from "../../core/types";
 import { BLOTTER, DESK_ART } from "../assets";
 import { audio } from "../audio/audio";
 import { musicTension } from "../audio/tension";
@@ -23,6 +23,9 @@ import { MediaPanel } from "../desk/panels/MediaPanel";
 import { MapThumb } from "../map/MapThumb";
 import { MapView } from "../map/MapView";
 import { agendaOf, answerFor, useGame } from "../store";
+import { capitalIncome, lawCost } from "../../chapters/councilman/actions";
+import { BALANCE } from "../../content/balance";
+import type { LawId } from "../../content/councilman/laws";
 
 type Panel = "bills" | "media" | "streets" | "rolodex" | "library";
 
@@ -139,6 +142,7 @@ export function DeskScreen() {
         </div>
         <Calendar turn={state.turn} />
         <OpinionStrip state={state} />
+        <CapitalGauge state={state} />
         <div className="chest" title="Dinheiro de campanha, em milhares">
           <div className="chest-label">Caixa de campanha</div>
           <div className="chest-value">{state.player.funds}k</div>
@@ -191,6 +195,29 @@ export function DeskScreen() {
 
       <div className="curtain" ref={curtain}>
         <div className="curtain-text" ref={curtainText} />
+      </div>
+    </div>
+  );
+}
+
+/** Political capital: what you have, what this week's agenda will spend, and where the income comes from. */
+function CapitalGauge({ state }: { state: GameState }) {
+  const pending = useGame((s) => s.pending);
+  const spending = pending.reduce((sum, d) => (d.kind === "proposeLaw" ? sum + lawCost(d.law as LawId, (d.lobby as number) ?? 0) : sum), 0);
+  const income = capitalIncome(state);
+  const why = [
+    `+${BALANCE.capital.weeklyBase} pelo mandato`,
+    income.supporters ? `+${Math.floor(income.supporters * BALANCE.capital.perSupportingGroup)} por ${income.supporters} grupo(s) a favor` : "",
+    income.bossTrust ? `+${BALANCE.capital.bossTrustBonus} pela confiança da cúpula` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  return (
+    <div className="chest capital" title={`Por semana: +${income.total} (${why}). Gasto para propor e articular leis.`}>
+      <div className="chest-label">Capital político</div>
+      <div className="chest-value">
+        {state.player.capital}
+        {spending > 0 && <small> −{spending}</small>}
       </div>
     </div>
   );

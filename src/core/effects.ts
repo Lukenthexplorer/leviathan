@@ -21,6 +21,9 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
     case "funds":
       state.player.funds = Math.max(0, state.player.funds + effect.delta);
       return;
+    case "capital":
+      state.player.capital = clamp(state.player.capital + effect.delta, 0, BALANCE.capital.max);
+      return;
     case "integrity":
       state.hidden.integrity = clamp(state.hidden.integrity + effect.delta, H.integrityMin, H.integrityMax);
       return;

@@ -654,3 +654,10 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .goals-note { font-family: var(--type); font-size: 0.72rem; color: var(--ink-soft); margin-top: 4px; }
 .goals-ask { margin-top: 8px; }
 .goals-ask .desk-btn { width: 100%; font-size: 0.9rem; padding: 9px 10px; }
+
+/* political capital & bills */
+.chest.capital .chest-value small { font-size: 0.9rem; color: #e08a6a; margin-left: 4px; }
+.law-cost { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); border: 1px solid #0003; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+.law-row { grid-template-columns: 1fr auto auto; }
+.law-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 190px; }
+.law-actions .desk-btn { font-size: 0.8rem; padding: 7px 10px; }

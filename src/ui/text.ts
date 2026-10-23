@@ -26,7 +26,7 @@ export function describeDecision(state: GameState, d: Decision): string {
     case "media":
       return mediaChannel(state, c.style).agenda.replace("{group}", GROUPS[c.group].name.toLowerCase());
     case "proposeLaw":
-      return `Propor: ${LAWS[c.law].title}`;
+      return `${c.lobby ? "Articular" : "Propor"}: ${LAWS[c.law].title}`;
     case "neighbourhood":
       return `Percorrer ${NEIGHBOURHOODS[c.id].name}`;
     case "meeting":

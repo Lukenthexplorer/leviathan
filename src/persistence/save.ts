@@ -1,4 +1,5 @@
 import { CHAPTERS } from "../chapters";
+import { BALANCE } from "../content/balance";
 import type { GameState } from "../core/types";
 
 /**
@@ -9,7 +10,7 @@ import type { GameState } from "../core/types";
  */
 
 /** Bump when GameState's shape changes, and add a migration below. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 const KEY = "leviathan.save";
 
 export interface SaveFile {
@@ -28,10 +29,13 @@ export interface SaveSummary {
 
 /**
  * Migrations upgrade old saves step by step: migrations[1] turns a version-1
- * save into version 2, and so on. Empty for now; the first chapter change that
- * alters GameState adds one here instead of breaking everyone's saves.
+ * save into version 2, and so on. A save is never thrown away because the
+ * game grew: it is upgraded.
  */
-export const MIGRATIONS: Record<number, (state: GameState) => GameState> = {};
+export const MIGRATIONS: Record<number, (state: GameState) => GameState> = {
+  // v2 added political capital. Old careers start with the default amount.
+  1: (state) => ({ ...state, version: 2, player: { ...state.player, capital: state.player.capital ?? BALANCE.capital.start } }),
+};
 
 type KeyValueStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 

@@ -41,6 +41,8 @@ export interface PlayerState {
   form: "m" | "f";
   /** Campaign money, in thousands. */
   funds: number;
+  /** Political capital: earned by being trusted and popular, spent to push laws through. */
+  capital: number;
 }
 
 /**
@@ -120,6 +122,7 @@ export interface HistoryEntry {
 export type Effect =
   | { type: "opinion"; group: string; delta: number; label: string }
   | { type: "funds"; delta: number }
+  | { type: "capital"; delta: number }
   | { type: "integrity"; delta: number }
   | { type: "expectations"; delta: number }
   | { type: "dossier"; id: string; label: string; threads: number; headline?: string }
@@ -156,6 +159,7 @@ export interface ScheduledEffect {
 export type NumRef =
   | "turn"
   | "funds"
+  | "capital"
   | "integrity"
   | "expectations"
   | "dossierThreads"

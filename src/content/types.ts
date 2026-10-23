@@ -49,6 +49,8 @@ export interface LawDef {
   topics: string[];
   /** Base council votes in favour (0..100); 50+ passes after modifiers. */
   councilSupport: number;
+  /** Political capital it costs to put this bill to a vote. */
+  cost: number;
   /** Law can only be proposed when this holds (e.g. a book unlocks it). */
   requires?: Condition;
   /** Applied when the law passes. */

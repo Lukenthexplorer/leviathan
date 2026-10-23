@@ -11,6 +11,7 @@ import type { CharacterId } from "../../content/councilman/characters";
 import { channelFor } from "../../content/media";
 import { yearOf } from "../../core/calendar";
 import { evaluate } from "../../core/conditions";
+import { opinionOf } from "../../core/groups";
 import { pickVariant } from "../../core/text";
 import type { Cause, ChapterDecision, Effect, GameState } from "../../core/types";
 
@@ -25,7 +26,8 @@ export type MediaStyle = "informative" | "populist";
 export type CouncilmanDecision =
   /** Speak to a group through the media of the era: explain calmly, or promise everything. */
   | { kind: "media"; style: MediaStyle; group: GroupId }
-  | { kind: "proposeLaw"; law: LawId }
+  /** `lobby` 0..maxLobbyLevel: extra capital spent buying votes in the corridors. */
+  | { kind: "proposeLaw"; law: LawId; lobby?: number }
   | { kind: "neighbourhood"; id: NeighbourhoodId }
   | { kind: "meeting"; with: CharacterId }
   | { kind: "read"; book: BookId }
@@ -87,11 +89,16 @@ export function lawAvailable(state: GameState, id: LawId): boolean {
   return status === "draft" && (!("requires" in law) || evaluate(state, law.requires));
 }
 
+/** Capital needed to propose a bill at a given lobbying level. */
+export function lawCost(id: LawId, lobby = 0): number {
+  return LAWS[id].cost + lobby * L.lobbyCostPerLevel;
+}
+
 /**
- * Deterministic whip count: how many votes the bill gets. Exported so the UI
- * can show the player "likely to pass" before they commit.
+ * Deterministic whip count: how many votes the bill gets (with optional
+ * lobbying). Exported so the UI can show "likely to pass" before committing.
  */
-export function lawVoteScore(state: GameState, id: LawId): { score: number; passes: boolean } {
+export function lawVoteScore(state: GameState, id: LawId, lobby = 0): { score: number; passes: boolean } {
   const law = LAWS[id];
   const party = PARTIES[state.party as PartyId];
   const topics: readonly string[] = law.topics;
@@ -103,14 +110,18 @@ export function lawVoteScore(state: GameState, id: LawId): { score: number; pass
     opp * L.opposedTopicPenalty +
     (state.characters.party_boss?.relation ?? 0) * L.bossRelationWeight +
     (state.flags.council_favours ?? 0) * L.councilFavourBonus +
-    (state.flags.rival_ally ? L.rivalAllyBonus : 0);
+    (state.flags.rival_ally ? L.rivalAllyBonus : 0) +
+    lobby * L.lobbyVotesPerLevel;
   return { score: Math.round(score), passes: score >= L.passThreshold };
 }
 
-export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
+export function resolveProposeLaw(state: GameState, id: LawId, lobby = 0): Resolved {
   const law = LAWS[id];
   if (!law) throw new Error(`Unknown law "${id}"`);
   if (!lawAvailable(state, id)) throw new Error(`"${law.title}" não pode ser proposto agora`);
+  if (lobby < 0 || lobby > L.maxLobbyLevel) throw new Error(`Invalid lobby level ${lobby}`);
+  const cost = lawCost(id, lobby);
+  if (state.player.capital < cost) throw new Error(`Capital político insuficiente: "${law.title}" custa ${cost}`);
 
   const party = PARTIES[state.party as PartyId];
   const topics: readonly string[] = law.topics;
@@ -118,7 +129,7 @@ export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
     topics.filter((t) => (party.favouredTopics as readonly string[]).includes(t)).length * L.bossFavouredReaction +
     topics.filter((t) => (party.opposedTopics as readonly string[]).includes(t)).length * L.bossOpposedReaction;
 
-  const { passes } = lawVoteScore(state, id);
+  const { passes } = lawVoteScore(state, id, lobby);
   const followUps: Effect[] = ("followUps" in law ? law.followUps : []).map((f) => ({
     type: "schedule",
     inTurns: f.inTurns,
@@ -131,12 +142,14 @@ export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
         { type: "law", id, status: "passed" },
         ...law.onPass,
         { type: "deliver", amount: law.delivers },
+        { type: "capital", delta: C.lawPassedPrestige },
         { type: "flag", key: "laws_passed" },
         { type: "log", text: `Câmara aprova: ${law.title}` },
         ...followUps,
       ]
     : [
         { type: "law", id, status: "rejected" },
+        { type: "capital", delta: C.lawRejectedLoss },
         { type: "flag", key: "laws_rejected" },
         { type: "log", text: `Câmara rejeita: ${law.title}` },
       ];
@@ -144,11 +157,31 @@ export function resolveProposeLaw(state: GameState, id: LawId): Resolved {
   return {
     cause: { kind: "law", id, label: `Propôs o projeto ${law.title}` },
     effects: [
+      { type: "capital", delta: -cost },
+      ...(lobby > 0 ? [{ type: "flag", key: "lobbied_laws" } as Effect] : []),
       { type: "law", id, status: "proposed" },
       { type: "relation", character: "party_boss", delta: bossReaction },
       { type: "schedule", inTurns: L.weeksToVote, label: passes ? `Câmara aprova: ${law.title}` : `Câmara rejeita: ${law.title}`, effects: outcome },
     ],
   };
+}
+
+// ------------------------------------------------------------------ political capital
+
+const C = BALANCE.capital;
+
+/** What next week's capital income would be, and why. The desk shows the breakdown. */
+export function capitalIncome(state: GameState): { total: number; supporters: number; bossTrust: boolean } {
+  const supporters = Object.keys(state.groups).filter((g) => opinionOf(state, g) >= C.supportThreshold).length;
+  const bossTrust = (state.characters.party_boss?.relation ?? 0) >= C.bossTrustAt;
+  // Whole points only: half a point of capital means nothing to a player.
+  const total = C.weeklyBase + Math.floor(supporters * C.perSupportingGroup) + (bossTrust ? C.bossTrustBonus : 0);
+  return { total, supporters, bossTrust };
+}
+
+/** Weekly: the mandate, your supporters and the party's trust turn into political capital. */
+export function capitalRule(state: GameState): Effect[] {
+  return [{ type: "capital", delta: capitalIncome(state).total }];
 }
 
 // ------------------------------------------------------------------ neighbourhood work
@@ -312,7 +345,7 @@ export function resolveCouncilmanDecision(state: GameState, decision: ChapterDec
     case "media":
       return resolveMedia(state, d);
     case "proposeLaw":
-      return resolveProposeLaw(state, d.law);
+      return resolveProposeLaw(state, d.law, d.lobby ?? 0);
     case "neighbourhood":
       return resolveNeighbourhood(state, d.id);
     case "meeting":
