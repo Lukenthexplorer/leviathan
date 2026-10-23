@@ -10,7 +10,7 @@ import type { GameState } from "../core/types";
  */
 
 /** Bump when GameState's shape changes, and add a migration below. */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 const KEY = "leviathan.save";
 
 export interface SaveFile {
@@ -35,6 +35,8 @@ export interface SaveSummary {
 export const MIGRATIONS: Record<number, (state: GameState) => GameState> = {
   // v2 added political capital. Old careers start with the default amount.
   1: (state) => ({ ...state, version: 2, player: { ...state.player, capital: state.player.capital ?? BALANCE.capital.start } }),
+  // v3 added the campaign and the election. Saves past the decision week get the decision paper on their next week.
+  2: (state) => ({ ...state, version: 3, campaign: state.campaign ?? null, election: state.election ?? null }),
 };
 
 type KeyValueStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;

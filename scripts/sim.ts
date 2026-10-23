@@ -9,7 +9,7 @@
 import { lawAvailable, lawCost, lawVoteScore, type SchemePicks } from "../src/chapters/councilman/actions";
 import { BALANCE } from "../src/content/balance";
 import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter";
-import { councilmanGoals, goalsMet } from "../src/chapters/councilman/goals";
+import { pathStatus } from "../src/chapters/councilman/campaign";
 import { LAWS, LAW_IDS } from "../src/content/councilman/laws";
 import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS } from "../src/content/councilman/neighbourhoods";
 import { GROUP_IDS } from "../src/content/councilman/groups";
@@ -34,7 +34,9 @@ function answerDesk(s: GameState, prefers: string[], plan: SchemePicks | null = 
     if (i.scheme) return { kind: "scheme", itemId: i.id, scheme: i.scheme, picks: plan };
     if (!i.choices?.length) return { kind: "dismiss", itemId: i.id };
     const open = i.choices.filter((c) => !c.requires || evaluate(s, c.requires));
-    const pick = prefers.find((p) => open.some((c) => c.id === p)) ?? open.at(-1)!.id;
+    // Path decision: the most ambitious open path, unless the strategy prefers otherwise.
+    const pathPrefs = i.id === "path_decision" ? ["mayor", "deputy", "council"] : [];
+    const pick = [...prefers, ...pathPrefs].find((p) => open.some((c) => c.id === p)) ?? open.at(-1)!.id;
     return { kind: "choose", itemId: i.id, choiceId: pick };
   });
 }
@@ -48,6 +50,24 @@ function affordableLaw(s: GameState, filter: (l: (typeof LAW_IDS)[number]) => bo
     }
   }
   return null;
+}
+
+/** A simple campaign: rally where your roots are deepest, canvassers where they're next, a paid ad if money allows. */
+function campaignWeek(s: GameState): Decision[] {
+  const byRoots = [...NEIGHBOURHOOD_IDS].sort((a, b) => s.neighbourhoods[b]!.base - s.neighbourhoods[a]!.base);
+  const d: Decision[] = [];
+  let funds = s.player.funds;
+  const spend = (cost: number, dec: Decision) => {
+    if (funds >= cost && d.length < 3) {
+      funds -= cost;
+      d.push(dec);
+    }
+  };
+  spend(BALANCE.campaign.rallyCost, { kind: "rally", nb: byRoots[s.turn % 2]! });
+  spend(BALANCE.campaign.cabosCost, { kind: "cabos", nb: byRoots[(s.turn + 1) % 3]! });
+  spend(BALANCE.campaign.paidMediaCost, { kind: "media", style: "informative", group: GROUP_IDS[s.turn % GROUP_IDS.length]!, paid: true });
+  if (d.length < 3) d.push({ kind: "fundraise" });
+  return d;
 }
 
 const rotate = (s: GameState) => GROUP_IDS[s.turn % GROUP_IDS.length]!;
@@ -143,9 +163,8 @@ for (const name of names) {
   console.log(`week | ${GROUP_IDS.map((g) => pad(g.slice(0, 5), 5)).join(" ")} |   avg | expec | integ | invest | notes`);
 
   for (let i = 0; i < weeks && !s.ending; i++) {
-    const decisions = [...answerDesk(s, strat.prefers ?? [], strat.plan), ...strat.decide(s)];
-    // Every strategy asks for the nomination as soon as it can (it doesn't use a slot check here: replace the last action).
-    if (goalsMet(s) && s.turn >= 26) decisions.splice(decisions.length - 1, 1, { kind: "seekNomination" });
+    // During the campaign every strategy answers attacks with facts and campaigns where its roots are.
+    const decisions = [...answerDesk(s, ["facts", ...(strat.prefers ?? [])], strat.plan), ...(s.campaign ? campaignWeek(s) : strat.decide(s))];
     const { state, report } = advanceTurn(s, decisions, chapter);
     s = state;
     const ops = allOpinions(s);
@@ -160,7 +179,10 @@ for (const name of names) {
     );
   }
   console.log(s.ending ? `>>> ENDING: ${s.ending} in week ${s.turn}` : `>>> Still standing after ${weeks} weeks`);
-  console.log(`    goals: ${councilmanGoals(s).map((g) => `${g.met ? "✓" : "✗"} ${g.label} (${g.progress})`).join(" | ")}`);
+  console.log(
+    `    path: ${s.campaign?.path ?? "-"} | open: ${pathStatus(s).filter((p) => p.open).map((p) => p.path).join(", ")}` +
+      ` | presence: ${Object.entries(s.campaign?.presence ?? {}).map(([u, v]) => `${u.slice(0, 5)} ${Math.round(v)}`).join(" ")}`,
+  );
   console.log(
     `    capital ${s.player.capital} | lobbied ${s.flags.lobbied_laws ?? 0} | funds ${s.player.funds}k | boss ${s.characters.party_boss!.relation} | laws passed ${s.flags.laws_passed ?? 0}, ` +
       `rejected ${s.flags.laws_rejected ?? 0} | books ${s.books.finished.join(", ") || "none"} | dossier threads ${s.hidden.dossier.reduce((a, d) => a + d.threads, 0)}`,

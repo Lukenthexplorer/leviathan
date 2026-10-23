@@ -25,6 +25,8 @@ export function makeState(overrides: Partial<GameState> = {}): GameState {
     inbox: [],
     history: [],
     firedEvents: [],
+    campaign: null,
+    election: null,
     flags: {},
     ending: null,
     ...overrides,

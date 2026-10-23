@@ -64,6 +64,17 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
       if (entry && !entry.exposed) entry.threads += effect.add;
       return;
     }
+    case "choosePath":
+      state.campaign = { path: effect.path, presence: {}, cabos: {}, endorsements: [], attacks: [], opponentDamage: {}, polls: [] };
+      return;
+    case "presence":
+    case "cabos":
+    case "endorse":
+    case "attack":
+    case "attackStatus":
+    case "opponentHit":
+      applyCampaignEffect(state, effect);
+      return;
     case "removeDeskItem":
       state.inbox = state.inbox.filter((i) => i.id !== effect.id);
       return;
@@ -113,4 +124,32 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
 
 export function applyEffects(state: GameState, effects: readonly Effect[], cause: Cause): void {
   for (const e of effects) applyEffect(state, e, cause);
+}
+
+/** Campaign effects only mean something once a campaign exists; before that they're ignored. */
+function applyCampaignEffect(state: GameState, effect: Effect): void {
+  const c = state.campaign;
+  if (!c) return;
+  switch (effect.type) {
+    case "presence":
+      c.presence[effect.unit] = Math.max(0, (c.presence[effect.unit] ?? 0) + effect.delta);
+      return;
+    case "cabos":
+      c.cabos[effect.unit] = (c.cabos[effect.unit] ?? 0) + effect.add;
+      return;
+    case "endorse":
+      if (!c.endorsements.includes(effect.who)) c.endorsements.push(effect.who);
+      return;
+    case "attack":
+      c.attacks.push(effect.attack);
+      return;
+    case "attackStatus": {
+      const a = c.attacks.find((x) => x.key === effect.key);
+      if (a) a.status = effect.status;
+      return;
+    }
+    case "opponentHit":
+      c.opponentDamage[effect.candidate] = (c.opponentDamage[effect.candidate] ?? 0) + effect.delta;
+      return;
+  }
 }

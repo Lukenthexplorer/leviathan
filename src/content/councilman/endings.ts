@@ -12,29 +12,14 @@ export interface EndingDef {
 }
 
 export const ENDINGS: Record<string, EndingDef> = {
-  candidacy: {
-    tone: "victory",
-    kicker: "Convenção do partido",
-    headline: "{{PLAYER}} VAI DISPUTAR A PREFEITURA",
-    lede:
-      "Num ginásio lotado, sob bandeiras e fogos, o partido aclamou {{g:o vereador/a vereadora}} {{player}} como {{g:seu candidato/sua candidata}} à Prefeitura de Porto Ferro. " +
-      "Há pouco tempo, {{g:ele/ela}} tinha entrado na Câmara com a última vaga. A partir de agora, a cidade inteira vai olhar.",
-  },
-  kingmaker: {
+  // Temporary until the vote count exists (v2 step 4): the chapter stops on election day.
+  election_day: {
     tone: "bittersweet",
-    kicker: "Convenção do partido",
-    headline: "RENATA SALDANHA É A CANDIDATA; {{PLAYER}} FICA COM A CÂMARA",
+    kicker: "Eleições 1989",
+    headline: "PORTO FERRO VAI ÀS URNAS",
     lede:
-      "Cumprindo o acordo, {{g:o vereador/a vereadora}} {{player}} subiu ao palco para levantar o braço de Renata Saldanha. " +
-      "Em troca, a presidência da Câmara. Nos bastidores, já se pergunta quem vai cobrar quem daqui a quatro anos.",
-  },
-  passed_over: {
-    tone: "bittersweet",
-    kicker: "Convenção do partido",
-    headline: "PARTIDO ESCOLHE OUTRO NOME; {{PLAYER}} FICA PARA A PRÓXIMA",
-    lede:
-      "A convenção passou sem que o nome {{g:do vereador/da vereadora}} {{player}} fosse lembrado. Para ser candidat{{g:o/a}}, era preciso ter ao mesmo tempo a cúpula, o dinheiro e o povo. " +
-      "Na política, quatro anos são uma eternidade. Ou um instante.",
+      "Oito semanas de campanha acabaram. Santinhos no chão, carros de som calados, urnas lacradas a caminho do ginásio. " +
+      "Amanhã a cidade conta os votos, e {{player}} vai saber se tudo o que fez nesses meses valeu.",
   },
   arrested: {
     tone: "defeat",

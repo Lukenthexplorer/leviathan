@@ -738,3 +738,15 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
   background: #e8d9a866; border-left: 2px solid var(--brass);
 }
 .law-hint span { font-style: normal; font-family: var(--type); font-size: 0.72rem; color: #8a6a2c; }
+
+/* campaign */
+.paper-card.kind-attack { background: linear-gradient(170deg, #e8c9b8, #c99a84); }
+.paper-card.kind-attack .paper-card-kind { color: var(--red); font-weight: bold; }
+.goals li.danger { opacity: 1; color: var(--red); }
+.campaign-card { background: #f3dfb0; border-top: 4px solid var(--red); }
+.panel-section { font-family: var(--display); font-size: 1.15rem; margin: 20px 0 4px; border-bottom: 2px solid var(--ink); padding-bottom: 2px; }
+.street-row { display: grid; grid-template-columns: 210px 1fr; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #0003; }
+.street-name strong { display: block; font-family: var(--display); }
+.street-name small { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); }
+.street-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.street-actions .desk-btn { font-size: 0.75rem; padding: 5px 9px; }

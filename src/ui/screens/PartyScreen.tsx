@@ -62,9 +62,9 @@ export function PartyScreen() {
       <h1 className="screen-heading">Porto Ferro, janeiro de 1989</h1>
       <p className="screen-sub">Você conquistou a última vaga na Câmara Municipal. Toda carreira precisa de um partido. Escolha o seu.</p>
       <p className="screen-goal">
-        <strong>Seu objetivo:</strong> em {BALANCE.councilman.conventionWeek} semanas, ser {form === "f" ? "a candidata" : "o candidato"} do partido à
-        prefeitura. Para isso, chegue à convenção com a confiança da cúpula, {BALANCE.councilman.fundsNeeded} mil de campanha e{" "}
-        {BALANCE.councilman.groupsNeeded} grupos da cidade a seu favor. O partido que você escolher muda quem já está do seu lado.
+        <strong>Seu objetivo:</strong> sobreviver ao mandato e vencer a próxima eleição. Na semana {BALANCE.campaign.decisionWeek} você escolhe
+        qual disputar: a reeleição, a prefeitura (se o partido indicar) ou uma vaga de deputado estadual. Depois, oito semanas de campanha e o
+        voto. O partido que você escolher muda quem já está do seu lado.
       </p>
       <div className="party-folders">
         {PARTY_IDS.map((id) => (

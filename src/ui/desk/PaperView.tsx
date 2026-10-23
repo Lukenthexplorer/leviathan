@@ -75,9 +75,9 @@ function Document({ item, state, onClose }: { item: DeskItem; state: GameState; 
           <div className="doc-choices">
             {item.choices.map((c) => {
               const locked = !!c.requires && !evaluate(state, c.requires);
-              // Show locked options only when a book unlocks them (it teaches "read to learn").
-              // Other secrets stay secret until the player has earned them.
-              if (locked && !(c.requires && "bookFinished" in c.requires)) return null;
+              // Show locked options only when a book unlocks them (it teaches "read to learn") or when
+              // the content explains why (a closed path). Other secrets stay secret until earned.
+              if (locked && !c.lockedText && !(c.requires && "bookFinished" in c.requires)) return null;
               return (
                 <button
                   key={c.id}
@@ -87,7 +87,7 @@ function Document({ item, state, onClose }: { item: DeskItem; state: GameState; 
                   onClick={() => choose(c)}
                 >
                   <span>{c.label}</span>
-                  {locked && <em className="doc-lock">{lockReason(c.requires)}</em>}
+                  {locked && <em className="doc-lock">{c.lockedText ?? lockReason(c.requires)}</em>}
                   {!locked && revealHint(state, c.hint) && (
                     <em className="doc-hint">Você percebe ({revealHint(state, c.hint)!.book}): {c.hint!.text}</em>
                   )}

@@ -1,4 +1,5 @@
 import { mediaChannel } from "../../../chapters/councilman/actions";
+import { BALANCE } from "../../../content/balance";
 import { GROUPS, GROUP_IDS } from "../../../content/councilman/groups";
 import { yearOf } from "../../../core/calendar";
 import type { GameState } from "../../../core/types";
@@ -31,6 +32,15 @@ export function MediaPanel({ state, onClose }: { state: GameState; onClose: () =
             <ActionRow title={loud.name} decision={{ kind: "media", style: "populist", group: g }} cta="Agendar">
               {fill(loud.description)}
             </ActionRow>
+            {state.campaign && (
+              <ActionRow
+                title="Espaço pago na campanha"
+                decision={{ kind: "media", style: "informative", group: g, paid: true }}
+                cta={`Comprar · ${BALANCE.campaign.paidMediaCost} mil`}
+              >
+                Um anúncio explicando suas propostas para {GROUPS[g].the}. Chega em mais bairros que uma entrevista.
+              </ActionRow>
+            )}
           </div>
         );
       })}

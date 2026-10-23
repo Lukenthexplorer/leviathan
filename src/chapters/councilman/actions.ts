@@ -7,6 +7,18 @@ import { NEIGHBOURHOODS, type NeighbourhoodId } from "../../content/councilman/n
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import { SCHEMES, type SchemeId } from "../../content/councilman/schemes";
 import { PROJECTS, type ProjectId } from "../../content/councilman/projects";
+import type { EndorserId } from "../../content/councilman/endorsers";
+import type { RegionId } from "../../content/councilman/regions";
+import {
+  mediaPresence,
+  resolveBuyVotes,
+  resolveCabos,
+  resolveEndorsement,
+  resolveInteriorTrip,
+  resolveRally,
+  resolveRecordAd,
+  resolveSoundTruck,
+} from "./campaign";
 import type { LawDef, ProjectDef, SchemeDef, SchemeOption } from "../../content/types";
 import type { CharacterId } from "../../content/councilman/characters";
 import { channelFor } from "../../content/media";
@@ -26,7 +38,7 @@ export type MediaStyle = "informative" | "populist";
 
 export type CouncilmanDecision =
   /** Speak to a group through the media of the era: explain calmly, or promise everything. */
-  | { kind: "media"; style: MediaStyle; group: GroupId }
+  | { kind: "media"; style: MediaStyle; group: GroupId; paid?: boolean }
   /** `lobby` 0..maxLobbyLevel: extra capital spent buying votes in the corridors. */
   | { kind: "proposeLaw"; law: LawId; lobby?: number }
   | { kind: "neighbourhood"; id: NeighbourhoodId }
@@ -35,7 +47,14 @@ export type CouncilmanDecision =
   | { kind: "fundraise" }
   /** Pay for a visible fix in a neighbourhood ("Ajuda do gabinete"). */
   | { kind: "project"; project: ProjectId; nb: NeighbourhoodId }
-  | { kind: "seekNomination" }
+  // campaign (weeks 33-40)
+  | { kind: "rally"; nb: NeighbourhoodId }
+  | { kind: "soundTruck"; nb: NeighbourhoodId }
+  | { kind: "cabos"; nb: NeighbourhoodId; cash?: boolean }
+  | { kind: "endorsement"; who: EndorserId }
+  | { kind: "interiorTrip"; region: RegionId }
+  | { kind: "recordAd"; law: LawId }
+  | { kind: "buyVotes"; nb: NeighbourhoodId }
   /** Answer a scheme paper with a plan (picks per slot), or null to walk away. */
   | { kind: "scheme"; itemId: string; scheme: SchemeId; picks: Record<string, string> | null };
 
@@ -48,7 +67,13 @@ const M = BALANCE.media;
 /** The channel this style uses in the current year: radio in 1989, social media from 2016. */
 export const mediaChannel = (state: GameState, style: MediaStyle) => channelFor(yearOf(state.turn), style);
 
-export function resolveMedia(state: GameState, d: { style: MediaStyle; group: GroupId }): Resolved {
+export function resolveMedia(state: GameState, d: { style: MediaStyle; group: GroupId; paid?: boolean }): Resolved {
+  if (d.paid && !state.campaign) throw new Error("Espaço pago só durante a campanha");
+  if (d.paid && state.player.funds < BALANCE.campaign.paidMediaCost) throw new Error("Dinheiro insuficiente para o espaço pago");
+  const campaign: Effect[] = [
+    ...(d.paid ? [{ type: "funds", delta: -BALANCE.campaign.paidMediaCost } as Effect] : []),
+    ...mediaPresence(state, d.group, d.paid ?? false),
+  ];
   const group = GROUPS[d.group];
   const topic = group.concerns[0]!;
   const channel = mediaChannel(state, d.style);
@@ -60,6 +85,7 @@ export function resolveMedia(state: GameState, d: { style: MediaStyle; group: Gr
       effects: [
         { type: "opinion", group: d.group, delta: M.informativeTarget, label: `Explicou ${topic} com clareza` },
         { type: "flag", key: "media_informative" },
+        ...campaign,
       ],
     };
   }
@@ -78,6 +104,7 @@ export function resolveMedia(state: GameState, d: { style: MediaStyle; group: Gr
       ...others,
       { type: "expectations", delta: M.populistExpectations },
       { type: "flag", key: "media_populist" },
+      ...campaign,
     ],
   };
 }
@@ -336,11 +363,23 @@ export function projectCooldown(state: GameState, nb: NeighbourhoodId): number {
  * "@here" -> the neighbourhood, "@residents" -> its resident groups by share,
  * "{nb}"/"{NB}"/"{nbid}" in text -> its name / name in capitals / id.
  */
+/** "{nb}" / "{NB}" / "{nbid}" -> the neighbourhood's name / name in capitals / id. */
+export function placeText(t: string, nb: NeighbourhoodId): string {
+  const name = NEIGHBOURHOODS[nb].name;
+  return t.replaceAll("{nbid}", nb).replaceAll("{NB}", name.toUpperCase()).replaceAll("{nb}", name);
+}
+
 export function localize(effects: readonly Effect[], nb: NeighbourhoodId): Effect[] {
   const def = NEIGHBOURHOODS[nb];
-  const text = (t: string) => t.replaceAll("{nbid}", nb).replaceAll("{NB}", def.name.toUpperCase()).replaceAll("{nb}", def.name);
+  const text = (t: string) => placeText(t, nb);
   return effects.flatMap((e): Effect[] => {
     switch (e.type) {
+      case "presence":
+      case "cabos":
+        return [{ ...e, unit: e.unit === "@here" ? nb : e.unit }];
+      case "dossier":
+      case "thread":
+        return [{ ...e, id: text(e.id) }];
       case "neighbourhood":
         return [{ ...e, id: e.id === "@here" ? nb : e.id }];
       case "opinion":
@@ -404,13 +443,6 @@ export function resolveFundraise(state: GameState): Resolved {
   };
 }
 
-export function resolveSeekNomination(): Resolved {
-  return {
-    cause: { kind: "system", id: "seek_nomination", label: "Pediu a indicação do partido à prefeitura" },
-    effects: [{ type: "flag", key: "sought_nomination", set: 1 }],
-  };
-}
-
 // ------------------------------------------------------------------ conspiracy
 
 export type SchemePicks = Record<string, string>;
@@ -443,15 +475,18 @@ export function resolveScheme(state: GameState, d: { itemId: string; scheme: Sch
   }
 
   const options = pickedOptions(state, def, d.picks);
-  const label = def.dossierLabel.replace(/\{(\w+)\}/g, (_, slot: string) => options[def.slots.findIndex((s) => s.id === slot)]?.phrase ?? "");
+  // Place-bound schemes (vote buying in one neighbourhood) are localized like projects.
+  const place = state.inbox.find((i) => i.id === d.itemId)?.place as NeighbourhoodId | undefined;
+  const here = (t: string) => (place ? placeText(t, place) : t);
+  const label = here(def.dossierLabel).replace(/\{(\w+)\}/g, (_, slot: string) => options[def.slots.findIndex((s) => s.id === slot)]?.phrase ?? "");
+  const effects: Effect[] = [
+    ...def.effects,
+    ...options.flatMap((o) => o.effects ?? []),
+    { type: "dossier", id: here(def.dossierId), label, headline: here(def.headline), threads: schemeThreads(def, d.picks) },
+  ];
   return {
-    cause: { kind: "scheme", id: d.scheme, label: `Planejou: ${def.title}` },
-    effects: [
-      { type: "removeDeskItem", id: d.itemId },
-      ...def.effects,
-      ...options.flatMap((o) => o.effects ?? []),
-      { type: "dossier", id: def.dossierId, label, headline: def.headline, threads: schemeThreads(def, d.picks) },
-    ],
+    cause: { kind: "scheme", id: here(def.dossierId), label: `Planejou: ${here(def.title)}` },
+    effects: [{ type: "removeDeskItem", id: d.itemId }, ...(place ? localize(effects, place) : effects)],
   };
 }
 
@@ -476,8 +511,20 @@ export function resolveCouncilmanDecision(state: GameState, decision: ChapterDec
       return resolveFundraise(state);
     case "project":
       return resolveProject(state, d.project, d.nb);
-    case "seekNomination":
-      return resolveSeekNomination();
+    case "rally":
+      return resolveRally(state, d.nb);
+    case "soundTruck":
+      return resolveSoundTruck(state, d.nb);
+    case "cabos":
+      return resolveCabos(state, d.nb, d.cash ?? false);
+    case "endorsement":
+      return resolveEndorsement(state, d.who);
+    case "interiorTrip":
+      return resolveInteriorTrip(state, d.region);
+    case "recordAd":
+      return resolveRecordAd(state, d.law);
+    case "buyVotes":
+      return resolveBuyVotes(state, d.nb);
   }
   throw new Error(`Unknown councilman decision "${decision.kind}"`);
 }

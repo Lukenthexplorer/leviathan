@@ -165,3 +165,41 @@ export interface ProjectDef {
   effects: Effect[];
   followUps?: { inTurns: number; label: string; effects: Effect[] }[];
 }
+
+/** An opponent in a race. Their strength per unit feeds the vote model (step 4). */
+export interface CandidateDef {
+  name: string;
+  /** Party or label shown on TV ("PRN", "independente"...). */
+  party: string;
+  bio: string;
+  /** Portrait file prefix (placeholder until art exists). */
+  portrait: string;
+  /** Base strength per electoral unit (neighbourhood or region id), 0..100. */
+  profile: Record<string, number>;
+  /** How they attack in the campaign: the tone of their accusations. */
+  attackVerb: string;
+}
+
+/** Someone whose public support moves votes: Dona Lurdes, a pastor, the union... */
+export interface EndorserDef {
+  name: string;
+  /** The group whose votes they carry. */
+  group: string;
+  /** Where their word counts most. */
+  units: string[];
+  requires: Condition;
+  /** Shown when they can't be asked yet, in words. */
+  lockedText: string;
+  /** What they want in return: said out loud, and it raises expectations. */
+  promise: string;
+}
+
+/** A region of the state, for the deputy race. */
+export interface RegionDef {
+  name: string;
+  description: string;
+  /** Registered voters, in thousands. */
+  voters: number;
+  /** Share of each group living there (0..1). */
+  residents: Record<string, number>;
+}

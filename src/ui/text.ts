@@ -5,6 +5,8 @@ import { GROUPS } from "../content/councilman/groups";
 import { LAWS } from "../content/councilman/laws";
 import { NEIGHBOURHOODS } from "../content/councilman/neighbourhoods";
 import { PROJECTS } from "../content/councilman/projects";
+import { ENDORSERS } from "../content/councilman/endorsers";
+import { REGIONS } from "../content/councilman/regions";
 import { PARTIES, type PartyId } from "../content/councilman/parties";
 import type { Condition, Decision, GameState } from "../core/types";
 import { portrait, type Expression } from "./assets";
@@ -47,8 +49,20 @@ export function describeDecision(state: GameState, d: Decision): string {
       return "Fazer uma vaquinha de campanha";
     case "project":
       return `${PROJECTS[c.project].title} em ${NEIGHBOURHOODS[c.nb].name}`;
-    case "seekNomination":
-      return "Pedir a indicação do partido";
+    case "rally":
+      return `Comício em ${NEIGHBOURHOODS[c.nb].name}`;
+    case "soundTruck":
+      return `Carro de som em ${NEIGHBOURHOODS[c.nb].name}`;
+    case "cabos":
+      return `Cabos eleitorais em ${NEIGHBOURHOODS[c.nb].name}${c.cash ? " (em dinheiro)" : ""}`;
+    case "endorsement":
+      return `Pedir o apoio de ${ENDORSERS[c.who].name}`;
+    case "interiorTrip":
+      return `Viagem por ${REGIONS[c.region].name}`;
+    case "recordAd":
+      return `Propaganda: ${LAWS[c.law].title}`;
+    case "buyVotes":
+      return `Resolver ${NEIGHBOURHOODS[c.nb].name}`;
   }
   return d.kind;
 }
@@ -88,4 +102,5 @@ export const KIND_LABEL: Record<string, string> = {
   report: "relatório",
   phone: "telefonema",
   scheme: "esquema · confidencial",
+  attack: "ataque da campanha adversária",
 };

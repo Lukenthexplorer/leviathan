@@ -11,7 +11,7 @@ import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
 import { DeskClock } from "../desk/DeskClock";
-import { GoalsCard } from "../desk/GoalsCard";
+import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { OpinionStrip } from "../desk/OpinionStrip";
 import { PaperView } from "../desk/PaperView";
@@ -20,6 +20,7 @@ import { BillsPanel } from "../desk/panels/BillsPanel";
 import { LibraryPanel } from "../desk/panels/LibraryPanel";
 import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
+import { CampaignPanel } from "../desk/panels/CampaignPanel";
 import { MediaPanel } from "../desk/panels/MediaPanel";
 import { MapThumb } from "../map/MapThumb";
 // The map pulls in PixiJS (~500 KB). Lazy-loading it means the desk opens
@@ -30,7 +31,7 @@ import { capitalIncome, lawCost } from "../../chapters/councilman/actions";
 import { BALANCE } from "../../content/balance";
 import type { LawId } from "../../content/councilman/laws";
 
-type Panel = "bills" | "media" | "streets" | "rolodex" | "library";
+type Panel = "bills" | "campaign" | "media" | "streets" | "rolodex" | "library";
 
 /** Desk drawers, each illustrated with final art. */
 const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
@@ -41,7 +42,9 @@ const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
   { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
 ];
 
-const PANELS = { bills: BillsPanel, media: MediaPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
+const CAMPAIGN_TOOL = { id: "campaign" as Panel, label: "Campanha", hint: "Ruas, apoios, palanque", icon: DESK_ART.campaign_folder };
+
+const PANELS = { bills: BillsPanel, campaign: CampaignPanel, media: MediaPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
 
 /** The main screen: the councillor's desk. */
 export function DeskScreen() {
@@ -159,12 +162,13 @@ export function DeskScreen() {
       <main className="desk-middle">
         <div className="desk-left">
           <AgendaPad state={state} />
-          <GoalsCard state={state} />
+          <PathsCard state={state} />
           <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
         </div>
         <InboxStack state={state} onOpen={setOpenItem} />
         <nav className="tools">
-          {TOOLS.map((t) => (
+          {/* In the campaign the Câmara is in recess: the bills folder gives way to the campaign folder. */}
+          {(state.campaign ? [CAMPAIGN_TOOL, ...TOOLS.filter((t) => t.id !== "bills")] : TOOLS).map((t) => (
             <Tool key={t.id} label={t.label} hint={t.hint} icon={t.icon} onClick={() => setPanel(t.id)} />
           ))}
         </nav>

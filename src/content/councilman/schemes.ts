@@ -1,4 +1,5 @@
 import { dirtyFunds, flag, funds, integrity, log, newspaper, opinion, relation } from "../helpers";
+import { BALANCE } from "../balance";
 import type { SchemeDef } from "../types";
 
 /**
@@ -158,6 +159,107 @@ export const SCHEMES = {
       label: "Desistir. Dizer ao Teixeira que fique com o dinheiro.",
       effects: [relation("donor", -20), integrity(3), flag("backed_out_of_scheme"), opinion("business", -2, "Esnobou um grande financiador")],
     },
+  },
+  vote_buying: {
+    title: "Compra de votos em {nb}",
+    briefing:
+      "Faltam semanas para a eleição e {nb} ainda está dividido. Dá para resolver do jeito antigo: chegar antes do adversário com o que " +
+      "as pessoas precisam, e um nome para lembrar no dia. Quem entrega, o quê, e quem fica sabendo.",
+    dossierId: "vote_buying_{nbid}",
+    dossierLabel: "Compra de votos em {nb}, {who}, {what}",
+    headline: "VOTO COMPRADO EM {NB}",
+    effects: [
+      { type: "funds", delta: -BALANCE.campaign.voteBuyingCost },
+      { type: "presence", unit: "@here", delta: BALANCE.campaign.voteBuyingPresence },
+      integrity(-12),
+      flag("bought_votes"),
+      log("Comprou votos em {nb}"),
+    ],
+    slots: [
+      {
+        id: "who",
+        question: "Quem entrega?",
+        options: [
+          {
+            id: "cabos",
+            label: "Os cabos eleitorais",
+            description: "Gente sua, que já bate de porta em porta. Sabem quem precisa do quê.",
+            weakness: "Cabo eleitoral muda de lado na próxima eleição, e leva as histórias junto.",
+            threads: 2,
+            phrase: "entregue por cabos eleitorais",
+          },
+          {
+            id: "leader",
+            label: "Uma liderança do bairro",
+            description: "Alguém respeitado, que distribui como se fosse ajuda da associação.",
+            weakness: "Se a liderança se arrepender, o bairro inteiro fica sabendo.",
+            threads: 1,
+            phrase: "distribuída por uma liderança comunitária",
+          },
+          {
+            id: "church",
+            label: "Uma igreja da região",
+            description: "A ajuda chega depois do culto, com uma palavra sobre em quem confiar.",
+            weakness: "Misturar fé e voto comprado é o tipo de coisa que pastor nenhum perdoa em público.",
+            threads: 2,
+            phrase: "distribuída depois dos cultos",
+          },
+        ],
+      },
+      {
+        id: "what",
+        question: "O que se entrega?",
+        options: [
+          {
+            id: "cash",
+            label: "Dinheiro vivo",
+            description: "Uma nota no bolso, um aperto de mão.",
+            weakness: "Quem recebe dinheiro sabe exatamente o que vendeu.",
+            threads: 2,
+            phrase: "em dinheiro vivo",
+          },
+          {
+            id: "food",
+            label: "Cestas básicas",
+            description: "Arroz, feijão, óleo. Ninguém recusa comida.",
+            weakness: "Cesta tem que ser comprada, transportada e guardada. Muita gente vê.",
+            threads: 1,
+            phrase: "em cestas básicas",
+          },
+          {
+            id: "materials",
+            label: "Material de construção",
+            description: "Tijolo, cimento e telha para quem está levantando a casa.",
+            weakness: "O caminhão da loja de material tem placa, e a nota fiscal tem nome.",
+            threads: 2,
+            phrase: "em material de construção",
+          },
+        ],
+      },
+      {
+        id: "knows",
+        question: "Quem fica sabendo?",
+        options: [
+          {
+            id: "alone",
+            label: "Só você e quem entrega",
+            description: "O mínimo de gente possível.",
+            weakness: "Quem entrega vai lembrar que dependeu dele.",
+            threads: 1,
+            phrase: "com o mínimo de testemunhas",
+          },
+          {
+            id: "campaign",
+            label: "A coordenação da campanha",
+            description: "Melhor organizado, com planilha e logística.",
+            weakness: "Planilha é prova. E coordenador de campanha também lê jornal.",
+            threads: 2,
+            phrase: "organizada pela coordenação da campanha",
+          },
+        ],
+      },
+    ],
+    abort: { label: "Desistir. Ganhar ou perder com o que já tem.", effects: [integrity(2)] },
   },
 } as const satisfies Record<string, SchemeDef>;
 

@@ -151,25 +151,72 @@ export const BALANCE = {
 
   councilman: {
     startingFunds: 5,
-    /** The party convention picks its mayoral candidate in this week (~9 months in). */
-    conventionWeek: 40,
-    /** The party only hears candidacies from this week on: the corrupt sprint has to survive until here. */
-    nominationOpensWeek: 26,
-    /** A warning lands on the desk this many weeks before the convention. */
-    conventionWarningWeeks: 4,
-    /** Goal 1: the party boss must trust you (relation >= this, "Confiança"). */
-    nominationRelation: 40,
-    /** Goal 2: campaign money, in thousands. */
-    fundsNeeded: 60,
-    /** Goal 3: this many groups must have at least this opinion of you. */
-    groupsNeeded: 3,
-    groupSupportThreshold: 20,
     /** Game over when total exposed dossier threads reach this. */
     arrestAtExposedThreads: 8,
     /** Game over when the party boss's relation drops to this. */
     expelledAtBossRelation: -60,
     /** Game over when the average group opinion drops to this. */
     lostSupportAtAverageOpinion: -40,
+  },
+
+  /** End of term: which race the player can run. */
+  paths: {
+    /** Mayor: the party's nomination. */
+    mayorBossRelation: 40,
+    /** State deputy: the party puts you on its slate. */
+    deputyBossRelation: 20,
+    /** Re-election is always open; this many of the party's council candidates get a seat. */
+    councilSeatsForParty: 2,
+    /** A group "is with you" at this opinion (used in words on the Caminhos card). */
+    groupSupportThreshold: 20,
+    /** Backing Renata: she gives you the council presidency (capital) and her endorsement. */
+    kingmakerCapital: 5,
+  },
+
+  /** The campaign: weeks 33-40. */
+  campaign: {
+    warningWeek: 28,
+    decisionWeek: 32,
+    startWeek: 33,
+    /** Election day is at the end of this week. */
+    endWeek: 40,
+    rallyCost: 8,
+    /** Rallies at a renovated community centre are cheaper (the hall is yours). */
+    rallyCostAtCentre: 4,
+    rallyPresence: 12,
+    /** Below these roots, nobody comes to the square. */
+    rallyMinBase: 15,
+    emptyRallyPresence: 2,
+    soundTruckCost: 3,
+    soundTruckPresence: 5,
+    soundTruckExpectations: 3,
+    cabosCost: 6,
+    /** Paid in cash, no receipt: cheaper, and a thread in the dossier. */
+    cabosCashCost: 4,
+    cabosWeeklyPresence: 3,
+    paidMediaCost: 5,
+    /** Presence a media appearance adds where the targeted group lives (x2 if paid). */
+    mediaPresence: 4,
+    interiorTripCost: 10,
+    interiorTripPresence: 15,
+    /** Time away: every Porto Ferro neighbourhood loses this much presence. */
+    interiorTripHomeLoss: 2,
+    /** Each week, presence fades by this fraction (people forget rallies). */
+    presenceDecay: 0.05,
+    /** Each week an attack stays open or ignored, it costs this much presence in its units. */
+    attackPressure: 3,
+    factsPresence: 4,
+    counterOpponentHit: 6,
+    counterBacklash: -3,
+    endorsementCapital: 2,
+    endorsementExpectations: 6,
+    endorsementPresence: 10,
+    recordAdPresence: 6,
+    /** If spending exceeds clean income by this ratio during the campaign, the press notices. */
+    spendSuspicionRatio: 1.5,
+    spendSuspicionInvestigation: 10,
+    voteBuyingCost: 25,
+    voteBuyingPresence: 30,
   },
 } as const;
 

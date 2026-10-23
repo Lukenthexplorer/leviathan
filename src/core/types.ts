@@ -30,6 +30,10 @@ export interface GameState {
   history: HistoryEntry[];
   /** Ids of one-shot events that already fired. */
   firedEvents: string[];
+  /** The campaign, once the player has chosen a path. Null while governing. */
+  campaign: CampaignState | null;
+  /** Computed once on election day; the TV only replays it. */
+  election: ElectionResult | null;
   /** Free-form counters for content ("media_populist": 3, "met_donor": 1). */
   flags: Record<string, number>;
   ending: string | null;
@@ -97,6 +101,48 @@ export type MapMarker = "protest" | "construction" | "rally" | "police";
 
 export type LawStatus = "draft" | "proposed" | "passed" | "rejected";
 
+// ------------------------------------------------------------------ campaign & election
+
+/** Which race the player runs. Chapters define what each means. */
+export type PathId = "council" | "mayor" | "deputy";
+
+export interface CampaignState {
+  path: PathId;
+  /** Campaign presence per electoral unit (neighbourhood or region): rallies, trucks, trips. */
+  presence: Record<string, number>;
+  /** Paid canvassers per unit: presence that grows every week they work. */
+  cabos: Record<string, number>;
+  /** Who publicly backs the player (endorser ids). */
+  endorsements: string[];
+  /** Opponents' attacks on the player's record. Open or ignored attacks keep costing presence. */
+  attacks: Attack[];
+  /** Damage the player did to each opponent (counter-attacks). */
+  opponentDamage: Record<string, number>;
+  /** Weekly polls (from the vote model, one week behind). */
+  polls: { turn: number; shares: Record<string, number> }[];
+}
+
+export interface Attack {
+  /** Which record item was used ("dossier:teixeira_cash", "law:bus_fare_freeze"...): never used twice. */
+  key: string;
+  from: string;
+  /** Units (neighbourhoods/regions) where it hurts. */
+  units: string[];
+  status: "open" | "answered" | "ignored";
+  turn: number;
+}
+
+export interface ElectionResult {
+  path: PathId;
+  candidates: { id: string; name: string; party: string; portrait: string }[];
+  /** Fixed reporting order: the drama lives here. */
+  batches: { unitId: string; label: string; votes: Record<string, number>; cumulativePct: number }[];
+  final: Record<string, number>;
+  winner: string;
+  /** Top reasons per unit, for the election-night narrator. */
+  causes: { unitId: string; text: string; cause: Cause }[];
+}
+
 // ------------------------------------------------------------------ causes
 
 /** Why something happened. Attached to every effect so the game can explain itself. */
@@ -135,6 +181,14 @@ export type Effect =
   /** A weak link breaks later: more loose threads on an existing dossier entry. */
   | { type: "thread"; id: string; add: number }
   | { type: "removeDeskItem"; id: string }
+  // campaign
+  | { type: "choosePath"; path: PathId }
+  | { type: "presence"; unit: string; delta: number }
+  | { type: "cabos"; unit: string; add: number }
+  | { type: "endorse"; who: string }
+  | { type: "attack"; attack: Attack }
+  | { type: "attackStatus"; key: string; status: Attack["status"] }
+  | { type: "opponentHit"; candidate: string; delta: number }
   | { type: "relation"; character: string; delta: number }
   | { type: "neighbourhood"; id: string; mood?: number; base?: number; addMarker?: MapMarker; removeMarker?: MapMarker }
   | { type: "flag"; key: string; add?: number; set?: number }
@@ -208,11 +262,13 @@ export interface DeskChoice {
   hint?: Hint;
   /** Choice is only offered when this holds (e.g. a book unlocks an argument). */
   requires?: Condition;
+  /** If set, a locked choice is shown greyed out with this reason instead of being hidden. */
+  lockedText?: string;
 }
 
 export interface DeskItem {
   id: string;
-  kind: "letter" | "event" | "newspaper" | "report" | "phone" | "scheme";
+  kind: "letter" | "event" | "newspaper" | "report" | "phone" | "scheme" | "attack";
   from?: string;
   title: string;
   body: string;
@@ -221,6 +277,8 @@ export interface DeskItem {
   cause?: Cause;
   /** For kind "scheme": which scheme this paper asks the player to plan. Must be answered, can't be filed. */
   scheme?: string;
+  /** For place-bound papers (a vote-buying plan in one neighbourhood): where. */
+  place?: string;
   /** Portrait expression of `from`. Characters' faces carry the hidden morality. */
   expression?: "neutral" | "pleased" | "angry" | "suspicious";
   turn: number;

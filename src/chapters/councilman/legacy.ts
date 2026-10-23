@@ -7,7 +7,6 @@ import { monthYear, weekDate } from "../../core/calendar";
 import { allOpinions } from "../../core/groups";
 import { fillTemplate, lowerFirst } from "../../core/text";
 import type { GameState } from "../../core/types";
-import { councilmanGoals } from "./goals";
 
 export interface LegacySection {
   title: string;
@@ -39,7 +38,7 @@ function verdictFor(integrity: number): string {
  * the state and its history, so every ending reads differently.
  */
 export function writeLegacy(state: GameState): Legacy {
-  const ending = ENDINGS[state.ending ?? ""] ?? ENDINGS.passed_over!;
+  const ending = ENDINGS[state.ending ?? ""] ?? ENDINGS.election_day!;
   const t = (text: string) => fillTemplate(state, text);
   const party = PARTIES[state.party as PartyId];
 
@@ -73,14 +72,6 @@ export function writeLegacy(state: GameState): Legacy {
   const exposed = state.hidden.dossier.filter((d) => d.exposed);
   const buried = state.hidden.dossier.filter((d) => !d.exposed);
   const sections: LegacySection[] = [];
-  // A defeat at the convention must say WHY. Nothing is random; nothing should feel random either.
-  const missing = councilmanGoals(state).filter((g) => !g.met);
-  if (state.ending === "passed_over" && missing.length) {
-    sections.push({
-      title: "O que faltou",
-      paragraphs: missing.map((g) => `${g.label}: ${lowerFirst(g.progress)}.`),
-    });
-  }
   sections.push(
     { title: "A carreira", paragraphs: career },
     { title: "O povo", paragraphs: people },

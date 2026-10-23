@@ -45,6 +45,7 @@ export const DESK_ART = {
   radio: "assets/desk/radio.png", // final art
   city_skyline: "assets/desk/city_skyline.png", // final art
   book_stack: "assets/desk/book_stack.png", // final art
+  campaign_folder: "assets/desk/campaign_folder.svg", // placeholder: santinhos and a flag
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 
