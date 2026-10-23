@@ -3,13 +3,15 @@
  * Real assets later replace these files one-for-one: same id, same folder.
  * Run: npm run gen:placeholders
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..", "public", "assets");
 
 function write(rel: string, data: string | Buffer) {
   const file = join(ROOT, rel);
+  // Never put a placeholder next to final art (e.g. mentor_neutral.png exists -> skip the .svg).
+  if (rel.endsWith(".svg") && existsSync(file.replace(/\.svg$/, ".png"))) return;
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, data);
 }

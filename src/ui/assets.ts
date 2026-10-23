@@ -38,12 +38,23 @@ export const DESK_ART = {
   stamp_rejected: "assets/desk/stamp_rejected.svg",
   newspaper_frame: "assets/desk/newspaper_frame.svg",
   phone: "assets/desk/phone.svg",
-  coffee_cup: "assets/desk/coffee_cup.svg",
+  coffee_cup: "assets/desk/coffee_cup.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 
 export type Expression = "neutral" | "pleased" | "angry" | "suspicious";
 
+/**
+ * Final portraits made so far (originals live in art/source/). A character
+ * with final art never shows a placeholder again: missing expressions fall
+ * back to their neutral portrait, so a face never flips between styles.
+ */
+const FINAL_PORTRAITS: Record<string, Partial<Record<Expression, string>>> = {
+  mentor: { neutral: "assets/portraits/mentor_neutral.png" },
+};
+
 export function portrait(subject: string, expression: Expression = "neutral"): string {
+  const final = FINAL_PORTRAITS[subject];
+  if (final) return final[expression] ?? final.neutral!;
   return `assets/portraits/${subject}_${expression}.svg`;
 }

@@ -231,7 +231,7 @@ h1, h2, h3 { margin: 0; }
 .paper-card.kind-phone { background: linear-gradient(170deg, #f1d9c4, #d7b99c); }
 .paper-card.answered { filter: saturate(0.6) brightness(0.92); }
 .paper-card-kind { font-family: var(--type); font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
-.paper-card-portrait { float: right; width: 44px; height: 55px; object-fit: cover; margin: 0 0 6px 6px; border: 2px solid #fff8; }
+.paper-card-portrait { float: right; width: 48px; height: 60px; object-fit: contain; margin: 0 0 6px 6px; filter: drop-shadow(0 3px 4px #0007); rotate: 3deg; }
 .paper-card-title { font-family: var(--display); font-size: 1.02rem; margin: 6px 0; line-height: 1.25; }
 .paper-card-from { font-size: 0.78rem; font-style: italic; opacity: 0.75; }
 .paper-card-ink {
@@ -253,7 +253,7 @@ h1, h2, h3 { margin: 0; }
 
 /* idle: coffee */
 .coffee { position: relative; width: 90px; margin: 18px auto 0; }
-.coffee img { width: 100%; border-radius: 50%; }
+.coffee img { width: 100%; filter: drop-shadow(0 10px 12px #000a); }
 .steam {
   position: absolute; left: 40%; top: -30px; width: 14px; height: 40px;
   border-radius: 50%; background: #ffffff22; filter: blur(6px);
@@ -287,7 +287,7 @@ h1, h2, h3 { margin: 0; }
 /* opened document */
 .document { position: relative; min-height: 260px; }
 .doc-from { display: flex; gap: 14px; align-items: center; margin-bottom: 14px; }
-.doc-from img { width: 72px; height: 90px; object-fit: cover; border: 3px solid #fff9; box-shadow: 0 4px 10px #0006; }
+.doc-from img { width: 96px; height: 128px; object-fit: contain; filter: drop-shadow(0 6px 8px #0008); rotate: -2deg; }
 .doc-from-name { font-family: var(--display); font-size: 1.15rem; }
 .doc-from-role { font-size: 0.85rem; font-style: italic; color: var(--ink-soft); }
 .doc-title { font-family: var(--display); font-size: 1.5rem; margin-bottom: 12px; }
@@ -355,7 +355,7 @@ h1, h2, h3 { margin: 0; }
 .social-group .action-title { font-family: var(--serif); font-size: 0.95rem; }
 .nb-stats, .relation, .book-weeks { font-family: var(--type); font-size: 0.8rem; text-align: right; min-width: 110px; }
 .person { display: flex; gap: 10px; align-items: center; }
-.person img { width: 44px; height: 55px; object-fit: cover; border: 2px solid #fff8; }
+.person img { width: 48px; height: 64px; object-fit: contain; filter: drop-shadow(0 3px 4px #0007); }
 .person small { display: block; font-family: var(--serif); font-size: 0.78rem; font-style: italic; color: var(--ink-soft); }
 .book-author { font-family: var(--serif); font-size: 0.8rem; font-style: italic; color: var(--ink-soft); }
 
