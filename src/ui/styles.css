@@ -767,8 +767,18 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .night-dark { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, #0a0f1acc, #000 75%); opacity: 0; pointer-events: none; }
 
 /* At scale 1 the screen fills the viewport and the cabinet runs off the edges; the intro starts it small. */
-/* Centered with `translate` (not transform), so GSAP's scale on transform never fights the centering. */
-.tv { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 112vw; height: 118vh; will-change: transform; }
+/*
+ * Centered by plain geometry (half the viewport minus half the TV), with no
+ * translate/transform involved: GSAP owns `transform` for the zoom, and mixing
+ * the two centered differently across browsers.
+ */
+.tv {
+  position: absolute;
+  width: 112vw; height: 118vh;
+  left: calc(50vw - 56vw); top: calc(50vh - 59vh);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
 .tv-cabinet {
   position: absolute; inset: 0;
   padding: 9vh 6vw 9vh 6vw;

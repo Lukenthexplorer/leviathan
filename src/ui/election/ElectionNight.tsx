@@ -153,7 +153,7 @@ export function ElectionNight() {
                   </div>
                   <div className="bc-progress">
                     <div className="bc-progress-label">
-                      {round.title.toUpperCase()} · APURAÇÃO · {totalPct.toFixed(0)}% DAS URNAS
+                      {broadcast.rounds.length > 1 ? `${round.title.toUpperCase()} · ` : ""}APURAÇÃO · {totalPct.toFixed(0)}% DAS URNAS
                     </div>
                     <div className="bc-progress-track">
                       <div className="bc-progress-fill" style={{ width: `${totalPct}%` }} />
