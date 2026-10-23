@@ -1,17 +1,17 @@
 import { forwardRef } from "react";
 import type { GameState } from "../../core/types";
+import { DESK_ART } from "../assets";
 import { useHoverLift } from "../feel/useHoverLift";
-import { DISTRICTS, MAP_SIZE, SEA } from "./layout";
 import { mapModel } from "./model";
 
-const hex = (n: number) => `#${n.toString(16).padStart(6, "0")}`;
-const pts = (p: [number, number][]) => p.map(([x, y]) => `${x},${y}`).join(" ");
-
-/** The folded city plan lying on the desk: a live miniature (SVG) of the Pixi map. */
+/**
+ * The folded city map lying on the desk. It's an illustration, so it can't
+ * recolour itself like the big map: instead it pulses red and shows a pin
+ * count when neighbourhoods are in crisis. Click it to zoom into the living map.
+ */
 export const MapThumb = forwardRef<HTMLButtonElement, { state: GameState; onOpen: () => void }>(function MapThumb({ state, onOpen }, outer) {
   const [ref, hover] = useHoverLift<HTMLButtonElement>();
-  const model = mapModel(state);
-  const unrest = model.districts.some((d) => d.markers.includes("protest"));
+  const crises = mapModel(state).districts.filter((d) => d.markers.includes("protest") || d.mood <= -40).length;
   return (
     <button
       ref={(el) => {
@@ -20,18 +20,17 @@ export const MapThumb = forwardRef<HTMLButtonElement, { state: GameState; onOpen
         else if (outer) outer.current = el;
       }}
       {...hover}
-      className={`map-thumb ${unrest ? "unrest" : ""}`}
+      className={`map-thumb ${crises ? "unrest" : ""}`}
       onClick={onOpen}
       aria-label="Abrir o mapa da cidade"
+      title="Mapa da cidade"
     >
-      <svg viewBox={`0 0 ${MAP_SIZE.width} ${MAP_SIZE.height}`} preserveAspectRatio="xMidYMid slice">
-        <rect width={MAP_SIZE.width} height={MAP_SIZE.height} fill="#e3d6b6" />
-        <polygon points={pts(SEA)} fill="#8fa6a8" />
-        {model.districts.map((d) => (
-          <polygon key={d.id} points={pts(DISTRICTS[d.id]!.polygon)} fill={hex(d.tint)} stroke="#2a1d14" strokeWidth={4} strokeOpacity={0.5} />
-        ))}
-      </svg>
-      <span className="map-thumb-label">Planta de Porto Ferro</span>
+      <img src={DESK_ART.city_map_folded} alt="" />
+      {crises > 0 && (
+        <span className="map-thumb-alert" aria-label={`${crises} bairros em crise`}>
+          {crises}
+        </span>
+      )}
     </button>
   );
 });
