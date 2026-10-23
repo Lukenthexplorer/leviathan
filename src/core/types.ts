@@ -119,6 +119,7 @@ export type Effect =
   | { type: "integrity"; delta: number }
   | { type: "expectations"; delta: number }
   | { type: "dossier"; id: string; label: string; threads: number }
+  | { type: "expose"; id: string }
   | { type: "relation"; character: string; delta: number }
   | { type: "neighbourhood"; id: string; mood?: number; base?: number; addMarker?: MapMarker; removeMarker?: MapMarker }
   | { type: "flag"; key: string; add?: number; set?: number }
@@ -149,6 +150,8 @@ export type NumRef =
   | "expectations"
   | "dossierThreads"
   | "unexposedThreads"
+  | "exposedThreads"
+  | "averageOpinion"
   | `opinion:${string}`
   | `relation:${string}`
   | `flag:${string}`

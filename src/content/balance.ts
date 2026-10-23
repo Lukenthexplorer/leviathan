@@ -25,6 +25,38 @@ export const BALANCE = {
     expectationsMax: 100,
   },
 
+  expectations: {
+    /** The public tolerates this much unfulfilled promise before turning on you. */
+    tolerance: 30,
+    /** Each week, every point above tolerance costs this much opinion with every group. */
+    disappointmentPerPoint: 0.1,
+    /** Promises are slowly forgotten even if never delivered. */
+    forgetPerWeek: 1.5,
+  },
+
+  investigation: {
+    /** Investigation progress per unexposed dossier thread, per week. */
+    progressPerThread: 2,
+    /** Below this integrity the journalist smells something, even without threads. */
+    suspicionIntegrity: 50,
+    progressPerSuspicionPoint: 0.1,
+    /** Hostile journalist digs faster: +1% speed per point of negative relation. */
+    hostilityMultiplierPerPoint: 0.01,
+    /** Progress needed to publish an exposé. */
+    exposeAt: 100,
+    /** Scandal damage per thread of the exposed entry. */
+    scandalOpinionPerThread: -6,
+    scandalBossRelationPerThread: -5,
+  },
+
+  social: {
+    informativeTarget: 4,
+    populistTarget: 10,
+    populistOthers: 3,
+    populistExpectations: 8,
+    maxPostsPerWeek: 1,
+  },
+
   relation: {
     min: -100,
     max: 100,
@@ -40,6 +72,16 @@ export const BALANCE = {
   turn: {
     /** How many desk actions the player can take each week. */
     agendaSlots: 3,
+  },
+
+  councilman: {
+    startingFunds: 5,
+    /** Game over when total exposed dossier threads reach this. */
+    arrestAtExposedThreads: 8,
+    /** Game over when the party boss's relation drops to this. */
+    expelledAtBossRelation: -60,
+    /** Game over when the average group opinion drops to this. */
+    lostSupportAtAverageOpinion: -40,
   },
 } as const;
 

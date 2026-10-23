@@ -1,4 +1,4 @@
-import { opinionOf } from "./groups";
+import { allOpinions, opinionOf } from "./groups";
 import type { Comparison, Condition, GameState, NumRef } from "./types";
 
 /** Resolve a NumRef like "opinion:students" to a number in the current state. */
@@ -16,6 +16,12 @@ export function readRef(state: GameState, ref: NumRef): number {
       return state.hidden.dossier.reduce((s, d) => s + d.threads, 0);
     case "unexposedThreads":
       return state.hidden.dossier.filter((d) => !d.exposed).reduce((s, d) => s + d.threads, 0);
+    case "exposedThreads":
+      return state.hidden.dossier.filter((d) => d.exposed).reduce((s, d) => s + d.threads, 0);
+    case "averageOpinion": {
+      const ops = Object.values(allOpinions(state));
+      return ops.length ? ops.reduce((a, b) => a + b, 0) / ops.length : 0;
+    }
   }
 
   const [prefix, key = ""] = ref.split(":") as [string, string?];

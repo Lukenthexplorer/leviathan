@@ -33,6 +33,12 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
     case "dossier":
       state.hidden.dossier.push({ id: effect.id, label: effect.label, threads: effect.threads, turn: state.turn, exposed: false });
       return;
+    case "expose": {
+      const entry = state.hidden.dossier.find((d) => d.id === effect.id);
+      if (!entry) throw new Error(`Cannot expose unknown dossier entry "${effect.id}"`);
+      entry.exposed = true;
+      return;
+    }
     case "relation": {
       const c = state.characters[effect.character];
       if (!c) throw new Error(`Effect targets unknown character "${effect.character}"`);
