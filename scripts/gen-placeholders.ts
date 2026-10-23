@@ -44,8 +44,6 @@ for (const who of PORTRAIT_SUBJECTS) {
 
 const DESK_ART: Record<string, [number, number, string]> = {
   paper_blank: [600, 800, "#d8ccb0"],
-  stamp_approved: [300, 300, "#2f5a34"],
-  stamp_rejected: [300, 300, "#7a2620"],
   newspaper_frame: [900, 1200, "#cfc6b2"],
   phone: [300, 240, "#1e1e1e"],
   coffee_cup: [200, 200, "#4b3022"],

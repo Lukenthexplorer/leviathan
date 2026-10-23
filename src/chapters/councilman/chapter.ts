@@ -51,8 +51,13 @@ function createInitialState({ playerName, party, form = "m" }: ChapterSetup): Ga
           `Parabéns pela eleição, ${playerName}. Você entrou com a última vaga, então não deixe isso subir à cabeça.\n\n` +
           `É assim que funciona. Toda semana você consegue fazer três coisas: um projeto de lei, uma reunião, uma caminhada nos bairros, ` +
           `uma entrevista na rádio, um capítulo de um bom livro. Os papéis vão se acumular nesta mesa; responda, eles não se respondem sozinhos.\n\n` +
-          `Daqui a dois anos o partido escolhe quem vai disputar a prefeitura. Conquiste a cúpula, encha o caixa de campanha e ` +
-          `ponha o povo do seu lado. Três coisas. Parece simples.\n\nNunca é.\n\n— Otávio`,
+          `Agora, o que importa. Na semana ${C.conventionWeek}, a convenção do ${p.short} escolhe quem disputa a prefeitura. ` +
+          `Para a escolha cair em você, precisa chegar lá com as três coisas ao mesmo tempo:\n\n` +
+          `• A cúpula do partido confiando em você (${p.boss.name} decide)\n` +
+          `• ${C.fundsNeeded} mil no caixa de campanha\n` +
+          `• Pelo menos ${C.groupsNeeded} grupos da cidade do seu lado\n\n` +
+          `Falta uma, e o partido escolhe outro. A partir da semana ${C.nominationOpensWeek} dá para pedir a indicação antes da convenção. ` +
+          `Deixei um bilhete na sua mesa, "Rumo à prefeitura", para você não esquecer.\n\nParece simples. Nunca é.\n\n— Otávio`,
         turn: 1,
       },
     ],

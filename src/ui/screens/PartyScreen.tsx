@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { useLayoutEffect, useRef, useState } from "react";
+import { BALANCE } from "../../content/balance";
 import { GROUPS, GROUP_IDS } from "../../content/councilman/groups";
 import { PARTIES, PARTY_IDS, type PartyId } from "../../content/councilman/parties";
 import { audio } from "../audio/audio";
@@ -60,6 +61,11 @@ export function PartyScreen() {
     <div className="party-screen" ref={root}>
       <h1 className="screen-heading">Porto Ferro, janeiro de 1989</h1>
       <p className="screen-sub">Você conquistou a última vaga na Câmara Municipal. Toda carreira precisa de um partido. Escolha o seu.</p>
+      <p className="screen-goal">
+        <strong>Seu objetivo:</strong> em {BALANCE.councilman.conventionWeek} semanas, ser {form === "f" ? "a candidata" : "o candidato"} do partido à
+        prefeitura. Para isso, chegue à convenção com a confiança da cúpula, {BALANCE.councilman.fundsNeeded} mil de campanha e{" "}
+        {BALANCE.councilman.groupsNeeded} grupos da cidade a seu favor. O partido que você escolher muda quem já está do seu lado.
+      </p>
       <div className="party-folders">
         {PARTY_IDS.map((id) => (
           <PartyFolder key={id} id={id} selected={chosen === id} onPick={() => (audio.sfx("paper_pickup"), setChosen(id))} />

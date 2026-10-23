@@ -18,3 +18,4 @@
 | 2026-10-23 | portraits/party_boss_statesman.png (bosses of NRL, POF, UCD) | (added by Lucas; model/settings to fill in) | "statesman", older party chief, sepia polaroid | – | Not used for Cida Ramos (PTP), who needs her own portrait |
 | 2026-10-23 | portraits/community_leader_neutral.png (Dona Lurdes) | (added by Lucas; model/settings to fill in) | elderly community leader, sepia polaroid | – | 800px web copy |
 | 2026-10-23 | desk/radio.png (Imprensa drawer) | (added by Lucas; model/settings to fill in) | worn 1980s portable radio | – | Transparent; cropped to content and resized to 520px |
+| 2026-10-23 | desk/stamp.png (the rubber stamp that comes down on papers) | (added by Lucas; model/settings to fill in) | vintage top-down wooden stamp | – | Transparent; cropped, 343x360 |

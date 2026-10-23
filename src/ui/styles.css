@@ -358,12 +358,11 @@ h1, h2, h3 { margin: 0; }
   transform: rotate(-7deg); opacity: 0; mix-blend-mode: multiply; pointer-events: none;
 }
 .doc-stamp {
-  position: absolute; right: 30px; bottom: -10px;
-  width: 110px; height: 110px;
-  background: url(/assets/desk/stamp_approved.svg) center / cover;
-  border-radius: 50%;
+  position: absolute; right: 24px; bottom: -14px;
+  width: 132px; height: 138px;
+  background: url(/assets/desk/stamp.png) center / contain no-repeat; /* final art: wooden rubber stamp, top-down */
   opacity: 0; pointer-events: none;
-  filter: drop-shadow(0 14px 10px #0009);
+  filter: drop-shadow(10px 16px 12px #000a);
 }
 
 /* week report */
@@ -694,3 +693,27 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .hand-second { width: 1px; height: 40%; margin-left: -0.5px; background: #9a2f25; animation: clock-spin 60s steps(60) infinite; }
 .clock-pin { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9a7438; }
 @keyframes clock-spin { to { transform: rotate(360deg); } }
+
+/* first-week onboarding: the goals card is pinned and glowing so nobody misses it */
+.screen-goal {
+  max-width: 760px; margin: -4px 0 14px; padding: 10px 16px;
+  font-size: 0.95rem; line-height: 1.6; color: var(--cream); text-align: center;
+  border-top: 1px solid #b08d5766; border-bottom: 1px solid #b08d5766;
+}
+.screen-goal strong { color: var(--brass-light); }
+.goals.intro { position: relative; animation: goals-glow 2.4s ease-in-out infinite; }
+@keyframes goals-glow {
+  0%, 100% { box-shadow: var(--desk-shadow); }
+  50% { box-shadow: var(--desk-shadow), 0 0 0 3px #d9b77c, 0 0 26px #d9b77c88; }
+}
+.goals-intro-note {
+  position: absolute; top: 14px; left: calc(100% + 14px); rotate: 5deg;
+  max-width: 150px; padding: 6px 10px;
+  font-family: var(--type); font-size: 0.72rem; line-height: 1.3;
+  background: #f7e27a; color: var(--ink); box-shadow: 3px 4px 6px #0007;
+}
+.goals-intro-note::before {
+  content: ""; position: absolute; top: -6px; left: 50%; translate: -50% 0;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff8a7a, #9e1a10); box-shadow: 0 2px 2px #0008;
+}

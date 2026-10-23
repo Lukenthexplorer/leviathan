@@ -18,7 +18,8 @@ export function GoalsCard({ state }: { state: GameState }) {
   const asked = pending.find((d) => d.kind === "seekNomination");
 
   return (
-    <div className="goals">
+    <div className={`goals ${state.turn === 1 ? "intro" : ""}`}>
+      {state.turn === 1 && <div className="goals-intro-note">Seu objetivo. Cumpra os três até a convenção.</div>}
       <div className="goals-title">Rumo à prefeitura</div>
       <ul>
         {goals.map((g) => (

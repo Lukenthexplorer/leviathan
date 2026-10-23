@@ -34,8 +34,7 @@ export type StemId = keyof typeof MUSIC_STEMS;
 export const DESK_ART = {
   desk_bg: "assets/desk.png", // final art: "Warm Light on Worn Mahogany"
   paper_blank: "assets/desk/paper_blank.svg",
-  stamp_approved: "assets/desk/stamp_approved.svg",
-  stamp_rejected: "assets/desk/stamp_rejected.svg",
+  stamp: "assets/desk/stamp.png", // final art (used by .doc-stamp in styles.css)
   newspaper_frame: "assets/desk/newspaper_frame.svg",
   phone: "assets/desk/phone.svg",
   coffee_cup: "assets/desk/coffee_cup.png", // final art
