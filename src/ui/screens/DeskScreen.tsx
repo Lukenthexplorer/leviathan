@@ -45,6 +45,14 @@ export function DeskScreen() {
   const pending = useGame((s) => s.pending);
   const nextWeek = useGame((s) => s.nextWeek);
   const clearReport = useGame((s) => s.clearReport);
+  const savedAt = useGame((s) => s.savedAt);
+  const savedMark = useRef<HTMLSpanElement>(null);
+
+  // A small "salvo" note fades in and out after each autosave.
+  useEffect(() => {
+    if (!savedAt || !savedMark.current) return;
+    gsap.fromTo(savedMark.current, { opacity: 0, y: 4 }, { opacity: 0.8, y: 0, duration: 0.4, yoyo: true, repeat: 1, repeatDelay: 1.6 });
+  }, [savedAt]);
 
   const [panel, setPanel] = useState<Panel | null>(null);
   const [openItem, setOpenItem] = useState<DeskItem | null>(null);
@@ -160,6 +168,9 @@ export function DeskScreen() {
       </div>
 
       <footer className="desk-bottom">
+        <span className="desk-saved" ref={savedMark}>
+          ✓ jogo salvo
+        </span>
         <div className="desk-status">
           {agendaCount === 0 && "Nada na agenda ainda. "}
           {waiting > 0 && `${waiting} ${waiting > 1 ? "papéis esperando" : "papel esperando"} resposta.`}

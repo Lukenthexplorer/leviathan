@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { chapterFor } from "../chapters";
 import { advanceTurn } from "../core/advanceTurn";
 import { isDeskAnswer, type Decision, type GameState, type TurnReport } from "../core/types";
+import { clearSave, loadGame, saveGame } from "../persistence/save";
 
 /**
  * The UI's only bridge to the simulation. It holds:
@@ -22,9 +23,13 @@ interface GameStore {
   report: TurnReport | null;
   /** Short message shown when an action is refused ("Só uma aparição na mídia por semana"). */
   notice: string | null;
+  /** When the game was last autosaved (drives the little "salvo" indicator). */
+  savedAt: number | null;
 
   goto(screen: Screen): void;
   newGame(party: string, playerName: string, form?: "m" | "f"): void;
+  /** Load the autosave. Returns false if there is none (or it's unreadable). */
+  continueGame(): boolean;
   /** Queue an action for this week. Returns false (and sets `notice`) if the rules refuse it. */
   queue(d: Decision): boolean;
   unqueue(d: Decision): void;
@@ -39,12 +44,20 @@ export const useGame = create<GameStore>((set, get) => ({
   pending: [],
   report: null,
   notice: null,
+  savedAt: null,
 
   goto: (screen) => set({ screen }),
 
   newGame(party, playerName, form = "m") {
     const state = chapterFor("councilman").createInitialState({ party, playerName, form });
-    set({ state, pending: [], report: null, notice: null, screen: "desk" });
+    set({ state, pending: [], report: null, notice: null, screen: "desk", savedAt: saveGame(state) ? Date.now() : null });
+  },
+
+  continueGame() {
+    const state = loadGame();
+    if (!state) return false;
+    set({ state, pending: [], report: null, notice: null, screen: state.ending ? "ending" : "desk", savedAt: null });
+    return true;
   },
 
   queue(d) {
@@ -72,7 +85,11 @@ export const useGame = create<GameStore>((set, get) => ({
     const { state, pending } = get();
     if (!state) return null;
     const { state: next, report } = advanceTurn(state, pending, chapterFor(state.chapterId));
-    set({ state: next, pending: [], report, screen: next.ending ? "ending" : "desk" });
+    // Autosave every week. A finished career is cleared: "Continue" never reopens an ending.
+    let savedAt: number | null = null;
+    if (next.ending) clearSave();
+    else if (saveGame(next)) savedAt = Date.now();
+    set({ state: next, pending: [], report, screen: next.ending ? "ending" : "desk", savedAt });
     return report;
   },
 
