@@ -23,7 +23,7 @@ export const MEDIA_CHANNELS: MediaChannelDef[] = [
     name: "Carro de som",
     description: "Um carro de som rodando o bairro com jingle, foguetório e promessas do tamanho do alto-falante.",
     agenda: "Carro de som para {group}",
-    cause: "Prometeu mundos e fundos aos {group} no carro de som",
+    cause: "Prometeu mundos e fundos para {group} no carro de som",
   },
   // ------------------------------------------------ 1995 – 2004: television
   {
@@ -42,7 +42,7 @@ export const MEDIA_CHANNELS: MediaChannelDef[] = [
     name: "Propaganda na TV",
     description: "Trinta segundos de trilha emocionante, crianças sorrindo e promessas sobre {topic}.",
     agenda: "Propaganda na TV para {group}",
-    cause: "Prometeu tudo aos {group} na propaganda da TV",
+    cause: "Prometeu tudo para {group} na propaganda da TV",
   },
   // ------------------------------------------------ 2005 – 2015: early internet
   {
@@ -61,7 +61,7 @@ export const MEDIA_CHANNELS: MediaChannelDef[] = [
     name: "Corrente de e-mail",
     description: "Uma corrente encaminhada mil vezes, em letras maiúsculas, prometendo resolver {topic}.",
     agenda: "Corrente de e-mail para {group}",
-    cause: "Espalhou promessas aos {group} numa corrente de e-mail",
+    cause: "Espalhou promessas para {group} numa corrente de e-mail",
   },
   // ------------------------------------------------ 2016+: social media
   {
@@ -80,7 +80,7 @@ export const MEDIA_CHANNELS: MediaChannelDef[] = [
     name: "Vídeo viral",
     description: "Um vídeo inflamado, cortes rápidos, promessas grandes sobre {topic}. Aplausos maiores.",
     agenda: "Vídeo viral para {group}",
-    cause: "Prometeu mundos e fundos aos {group} num vídeo viral",
+    cause: "Prometeu mundos e fundos para {group} num vídeo viral",
   },
 ];
 

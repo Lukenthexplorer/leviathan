@@ -22,6 +22,6 @@ describe("media by era", () => {
   it("the councillor's history says how they reached people, in period terms", () => {
     const s = councilmanChapter.createInitialState({ playerName: "A", party: "labour" });
     const after = advanceTurn(s, [{ kind: "media", style: "populist", group: "students" }], councilmanChapter).state;
-    expect(after.history.at(-1)!.text).toBe("Prometeu mundos e fundos aos estudantes no carro de som");
+    expect(after.history.at(-1)!.text).toBe("Prometeu mundos e fundos para os estudantes no carro de som");
   });
 });

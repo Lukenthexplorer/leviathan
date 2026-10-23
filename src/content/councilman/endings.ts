@@ -33,7 +33,7 @@ export const ENDINGS: Record<string, EndingDef> = {
     kicker: "Convenção do partido",
     headline: "PARTIDO ESCOLHE OUTRO NOME; {{PLAYER}} FICA PARA A PRÓXIMA",
     lede:
-      "A convenção passou sem que o nome {{g:do vereador/da vereadora}} {{player}} fosse lembrado. Faltou alguma coisa: a cúpula, o dinheiro ou o povo. " +
+      "A convenção passou sem que o nome {{g:do vereador/da vereadora}} {{player}} fosse lembrado. Para ser candidat{{g:o/a}}, era preciso ter ao mesmo tempo a cúpula, o dinheiro e o povo. " +
       "Na política, quatro anos são uma eternidade. Ou um instante.",
   },
   arrested: {

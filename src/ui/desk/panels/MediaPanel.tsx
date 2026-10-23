@@ -19,7 +19,7 @@ export function MediaPanel({ state, onClose }: { state: GameState; onClose: () =
         lembram de promessas.
       </p>
       {GROUP_IDS.map((g) => {
-        const fill = (t: string) => t.replace("{topic}", GROUPS[g].concerns[0]!).replace("{group}", GROUPS[g].name.toLowerCase());
+        const fill = (t: string) => t.replace("{topic}", GROUPS[g].concerns[0]!).replace("{group}", GROUPS[g].the);
         return (
           <div key={g} className="social-group">
             <div className="social-group-name">

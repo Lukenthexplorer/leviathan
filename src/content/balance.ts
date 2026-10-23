@@ -147,7 +147,7 @@ export const BALANCE = {
     /** A warning lands on the desk this many weeks before the convention. */
     conventionWarningWeeks: 4,
     /** Goal 1: the party boss must trust you (relation >= this, "Confiança"). */
-    nominationRelation: 50,
+    nominationRelation: 40,
     /** Goal 2: campaign money, in thousands. */
     fundsNeeded: 60,
     /** Goal 3: this many groups must have at least this opinion of you. */

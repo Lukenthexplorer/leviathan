@@ -290,6 +290,36 @@ export const LAWS = {
     delivers: 4,
   },
 
+  market_concession: {
+    title: "Concessão do Mercado Municipal",
+    summary: "Entrega a gestão do velho Mercado Municipal a uma empresa privada por 20 anos, em troca de reforma e aluguel.",
+    topics: ["privatisation", "deregulation"],
+    councilSupport: 45,
+    cost: 5,
+    onPass: [
+      opinion("business", 8, "Concedeu o Mercado Municipal"),
+      opinion("workers", -4, "Mercado entregue à iniciativa privada"),
+      opinion("periphery", -2, "Mercado entregue à iniciativa privada"),
+    ],
+    followUps: [
+      {
+        inTurns: 10,
+        label: "Mercado Municipal reabre reformado, e mais caro",
+        effects: [
+          { type: "neighbourhood", id: "centro", mood: 8 },
+          opinion("retirees", -3, "Mercado reformado, mas mais caro"),
+          newspaper(
+            "news_market",
+            "MERCADO REABRE LINDO; FREGUESES RECLAMAM DOS PREÇOS",
+            "Reformado pela concessionária desde {{date:market_concession}}, o Mercado Municipal ganhou piso novo, banheiros e estacionamento. " +
+              "Os antigos feirantes, porém, dizem que o aluguel dobrou. \"Ficou bonito pra quem pode\", resume Dona Neusa, há 30 anos na banca de temperos.",
+          ),
+        ],
+      },
+    ],
+    delivers: 6,
+  },
+
   contract_transparency: {
     title: "Transparência nos Contratos",
     summary: "Todo contrato da prefeitura publicado no Diário Oficial, com valor, empresa e aditivos. Muita gente não vai gostar.",

@@ -7,6 +7,8 @@ import type { Condition, DeskChoice, Effect } from "../core/types";
 
 export interface GroupDef {
   name: string;
+  /** With its article, for sentences: "os empresários", "a periferia". */
+  the: string;
   description: string;
   /** What this group cares about. Laws and posts are tagged with the same topics. */
   concerns: string[];
@@ -136,7 +138,7 @@ export interface MediaChannelDef {
   name: string;
   /** Shown in the panel; {topic} and {group} are filled in. */
   description: string;
-  /** Agenda line, e.g. "Entrevista na rádio para {group}". */
+  /** Agenda line, e.g. "Entrevista na rádio para {group}". {group} includes its article ("a periferia"). */
   agenda: string;
   /** History/cause label, e.g. "Deu entrevista na rádio sobre {topic}". */
   cause: string;

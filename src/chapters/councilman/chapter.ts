@@ -8,7 +8,7 @@ import { readRef } from "../../core/conditions";
 import { EVENTS } from "../../content/councilman/events";
 import { expectationsPressure } from "../../core/hidden";
 import type { Effect, GameState } from "../../core/types";
-import { goalsMet } from "./goals";
+import { councilmanGoals, goalsMet } from "./goals";
 import { LAW_IDS } from "../../content/councilman/laws";
 import { capitalRule, readingRule, resolveCouncilmanDecision } from "./actions";
 import { confessionRule, pressRule } from "./rules";
@@ -78,6 +78,35 @@ function checkEnding(state: GameState): CouncilmanEnding | null {
   return null;
 }
 
+/**
+ * Four weeks before the convention, the party boss writes saying exactly what's
+ * still missing. A defeat you were warned about is fair; a surprise is not.
+ */
+function conventionWarningRule(state: GameState): Effect[] {
+  if (state.turn !== C.conventionWeek - C.conventionWarningWeeks || state.flags.convention_warned) return [];
+  const missing = councilmanGoals(state).filter((g) => !g.met);
+  const body = missing.length
+    ? "A convenção escolhe o candidato à prefeitura daqui a quatro semanas. Seu nome está na mesa, mas falta:\n\n" +
+      missing.map((g) => `• ${g.label}: ${g.progress}`).join("\n") +
+      "\n\nQuatro semanas. Use bem."
+    : "A convenção escolhe o candidato à prefeitura daqui a quatro semanas. Você tem a cúpula, o dinheiro e o povo. Não estrague tudo agora.";
+  return [
+    { type: "flag", key: "convention_warned", set: 1 },
+    {
+      type: "deskItem",
+      item: {
+        id: "convention_warning",
+        kind: "letter",
+        from: "party_boss",
+        expression: missing.length ? "suspicious" : "pleased",
+        title: "Convenção em quatro semanas",
+        body,
+        turn: state.turn,
+      },
+    },
+  ];
+}
+
 /** Asked for the nomination but something slipped the same week: the party says "not yet". */
 function nominationRule(state: GameState): Effect[] {
   if (state.flags.sought_nomination !== 1 || goalsMet(state)) return [];
@@ -137,6 +166,7 @@ export const councilmanChapter: ChapterDefinition = {
       ...readingRule(state),
       ...capitalRule(state),
       ...nominationRule(state),
+      ...conventionWarningRule(state),
       ...expectationsPressure(state),
       // Confession first: once everything is out, there's nothing left to dig.
       ...(state.flags.confess === 1 ? confessionRule(state) : pressRule(state)),

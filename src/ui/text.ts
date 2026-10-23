@@ -31,7 +31,7 @@ export function describeDecision(state: GameState, d: Decision): string {
   const c = d as CouncilmanDecision;
   switch (c.kind) {
     case "media":
-      return mediaChannel(state, c.style).agenda.replace("{group}", GROUPS[c.group].name.toLowerCase());
+      return mediaChannel(state, c.style).agenda.replace("{group}", GROUPS[c.group].the);
     case "proposeLaw":
       return `${c.lobby ? "Articular" : "Propor"}: ${LAWS[c.law].title}`;
     case "neighbourhood":

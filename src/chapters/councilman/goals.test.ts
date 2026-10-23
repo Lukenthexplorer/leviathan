@@ -5,6 +5,7 @@ import type { Cause, Decision, GameState } from "../../core/types";
 import { fundraiseAmount } from "./actions";
 import { councilmanChapter as chapter } from "./chapter";
 import { councilmanGoals, goalsMet } from "./goals";
+import { writeLegacy } from "./legacy";
 
 const C = BALANCE.councilman;
 const cause: Cause = { kind: "system", id: "t", turn: 1, label: "t" };
@@ -20,7 +21,8 @@ function readyToRun(turn: number = C.nominationOpensWeek): GameState {
     s.groups[g]!.memories.push({ label: "x", impact: 40, turn, cause });
   }
   // Clear the desk: no events should interfere with these tests.
-  s.firedEvents = ["convention_warning", "mentor_checkin", "journalist_profile", "mentor_favour", "boss_fundraiser", "rising_star"];
+  s.flags.convention_warned = 1;
+  s.firedEvents = ["mentor_checkin", "journalist_profile", "mentor_favour", "boss_fundraiser", "rising_star"];
   s.inbox = [];
   return s;
 }
@@ -81,5 +83,24 @@ describe("running for mayor", () => {
     s.neighbourhoods.vila_operaria!.base = 80;
     expect(fundraiseAmount(s)).toBeGreaterThan(none);
     expect(step(s, [{ kind: "fundraise" }]).player.funds).toBe(s.player.funds + fundraiseAmount(s));
+  });
+});
+
+describe("never lose without knowing why", () => {
+  it("four weeks before the convention, the party says exactly what's missing", () => {
+    const s = chapter.createInitialState({ playerName: "Ana", party: "liberal", form: "f" });
+    s.turn = C.conventionWeek - C.conventionWarningWeeks - 1;
+    const letter = step(s).inbox.find((i) => i.id === "convention_warning")!;
+    expect(letter.body).toContain("Indicação do partido");
+    expect(letter.body).toContain("Dinheiro de campanha");
+  });
+
+  it("a councillor passed over at the convention reads what was missing", () => {
+    const s = readyToRun(C.conventionWeek - 1);
+    s.characters.party_boss!.relation = 0;
+    const end = step(s);
+    expect(end.ending).toBe("passed_over");
+    const missing = writeLegacy(end).sections.find((x) => x.title === "O que faltou")!;
+    expect(missing.paragraphs).toEqual(["Indicação do partido: a cúpula ainda não confia em você."]);
   });
 });

@@ -7,6 +7,7 @@ import { monthYear, weekDate } from "../../core/calendar";
 import { allOpinions } from "../../core/groups";
 import { fillTemplate, lowerFirst } from "../../core/text";
 import type { GameState } from "../../core/types";
+import { councilmanGoals } from "./goals";
 
 export interface LegacySection {
   title: string;
@@ -63,7 +64,7 @@ export function writeLegacy(state: GameState): Legacy {
   // Only name a grudge if the group actually holds one (a bad memory), not just a cold start.
   const grudge = (ops[worst] ?? 0) < 0 && state.groups[worst]?.memories.some((m) => m.impact < 0);
   const people = [
-    `Quem mais ${state.player.form === "f" ? "a" : "o"} apoiou foram os ${GROUPS[best].name.toLowerCase()}. Quem menos perdoou foram os ${GROUPS[worst].name.toLowerCase()}${
+    `Quem mais ${state.player.form === "f" ? "a" : "o"} apoiou: ${GROUPS[best].the}. Quem menos perdoou: ${GROUPS[worst].the}${
       grudge ? t(`, que nunca esqueceram: {{worst:${worst}}}`) : ""
     }.`,
   ];
@@ -71,10 +72,19 @@ export function writeLegacy(state: GameState): Legacy {
   // -- what came out, and what didn't
   const exposed = state.hidden.dossier.filter((d) => d.exposed);
   const buried = state.hidden.dossier.filter((d) => !d.exposed);
-  const sections: LegacySection[] = [
+  const sections: LegacySection[] = [];
+  // A defeat at the convention must say WHY. Nothing is random; nothing should feel random either.
+  const missing = councilmanGoals(state).filter((g) => !g.met);
+  if (state.ending === "passed_over" && missing.length) {
+    sections.push({
+      title: "O que faltou",
+      paragraphs: missing.map((g) => `${g.label}: ${lowerFirst(g.progress)}.`),
+    });
+  }
+  sections.push(
     { title: "A carreira", paragraphs: career },
     { title: "O povo", paragraphs: people },
-  ];
+  );
   if (exposed.length) {
     sections.push({
       title: "Os escândalos",

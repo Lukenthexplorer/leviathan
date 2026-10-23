@@ -49,7 +49,7 @@ export function resolveMedia(state: GameState, d: { style: MediaStyle; group: Gr
   const group = GROUPS[d.group];
   const topic = group.concerns[0]!;
   const channel = mediaChannel(state, d.style);
-  const fill = (t: string) => t.replace("{topic}", topic).replace("{group}", group.name.toLowerCase());
+  const fill = (t: string) => t.replace("{topic}", topic).replace("{group}", group.the);
 
   if (d.style === "informative") {
     return {

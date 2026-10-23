@@ -8,6 +8,18 @@ import { useHoverLift } from "../feel/useHoverLift";
 import { DeskButton } from "../desk/DeskButton";
 import { useGame } from "../store";
 
+const PARTICLES = new Set(["da", "de", "do", "das", "dos", "e"]);
+
+/** "joaquim aguiar da silva" -> "Joaquim Aguiar da Silva". Names appear in headlines; they deserve capitals. */
+export function properName(raw: string): string {
+  return raw
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w, i) => (i > 0 && PARTICLES.has(w.toLowerCase()) ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ");
+}
+
 /** Four party folders on the desk. Pick one, sign your name, get stamped in. */
 export function PartyScreen() {
   const newGame = useGame((s) => s.newGame);
@@ -40,7 +52,7 @@ export function PartyScreen() {
     setSigning(true);
     audio.sfx("pen_sign");
     gsap.delayedCall(0.5, () => {
-      stampDown(stamp.current!, ink.current!, root.current!).then(() => gsap.delayedCall(0.4, () => newGame(chosen, name.trim() || (form === "f" ? "Vereadora" : "Vereador"), form)));
+      stampDown(stamp.current!, ink.current!, root.current!).then(() => gsap.delayedCall(0.4, () => newGame(chosen, properName(name) || (form === "f" ? "Vereadora" : "Vereador"), form)));
     });
   }
 
