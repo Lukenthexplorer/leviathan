@@ -19,3 +19,13 @@ describe("asset manifest", () => {
     expect(missing(paths)).toEqual([]);
   });
 });
+
+describe("portrait fallback", () => {
+  it("uses the closest existing expression for characters with final art", () => {
+    expect(portrait("journalist", "suspicious")).toBe("assets/portraits/journalist_suspicious.png");
+    expect(portrait("journalist", "angry")).toBe("assets/portraits/journalist_suspicious.png");
+    expect(portrait("journalist", "pleased")).toBe("assets/portraits/journalist_neutral.png");
+    expect(portrait("mentor", "angry")).toBe("assets/portraits/mentor_neutral.png");
+    expect(portrait("rival", "angry")).toBe("assets/portraits/rival_angry.svg"); // still a placeholder
+  });
+});

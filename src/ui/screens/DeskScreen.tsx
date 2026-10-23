@@ -26,13 +26,13 @@ import { agendaOf, answerFor, useGame } from "../store";
 
 type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
 
-/** Desk drawers. `icon` is final art; tools without it show text only until their art exists. */
+/** Desk drawers, each illustrated with final art. */
 const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
   { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
   { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
-  { id: "streets", label: "Ruas", hint: "Construir uma base" },
+  { id: "streets", label: "Ruas", hint: "Construir uma base", icon: DESK_ART.city_skyline },
   { id: "social", label: "Celular", hint: "Postar nas redes", icon: DESK_ART.brick_phone },
-  { id: "library", label: "Estante", hint: "Ler e aprender" },
+  { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
 ];
 
 const PANELS = { bills: BillsPanel, social: SocialPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };

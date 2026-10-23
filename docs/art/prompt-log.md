@@ -8,3 +8,7 @@
 | 2026-10-22 | desk/rolodex.png (Contatos drawer) | (added by Lucas; model/settings to fill in) | vintage rotary card file | – | Background removed |
 | 2026-10-22 | desk/city_map_folded.png (desk map, opens the living map) | (added by Lucas; model/settings to fill in) | annotated folded city map with pins | – | Background removed. Has a river; the Pixi map doesn't yet |
 | 2026-10-22 | desk/brick_phone.png (Celular drawer) | (added by Lucas; model/settings to fill in) | vintage brick phone with extended antenna | – | Background removed |
+| 2026-10-22 | portraits/journalist_neutral.png (Helena Vaz) | (added by Lucas; model/settings to fill in) | Helena Vaz, investigative journalist, serious, sepia polaroid | – | Original 1086x1448, web copy 800px |
+| 2026-10-22 | portraits/journalist_suspicious.png (Helena Vaz) | (added by Lucas; model/settings to fill in) | Helena Vaz, skeptical, sepia polaroid | – | Generated from the neutral one as reference |
+| 2026-10-22 | desk/city_skyline.png (Ruas drawer) | (added by Lucas; model/settings to fill in) | warm umber city skyline | – | Background removed |
+| 2026-10-22 | desk/book_stack.png (Estante drawer) | (added by Lucas; model/settings to fill in) | worn stack of political and economic books | – | Background removed |

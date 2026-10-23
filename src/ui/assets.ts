@@ -43,6 +43,8 @@ export const DESK_ART = {
   rolodex: "assets/desk/rolodex.png", // final art
   city_map_folded: "assets/desk/city_map_folded.png", // final art
   brick_phone: "assets/desk/brick_phone.png", // final art
+  city_skyline: "assets/desk/city_skyline.png", // final art
+  book_stack: "assets/desk/book_stack.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 
@@ -50,15 +52,30 @@ export type Expression = "neutral" | "pleased" | "angry" | "suspicious";
 
 /**
  * Final portraits made so far (originals live in art/source/). A character
- * with final art never shows a placeholder again: missing expressions fall
- * back to their neutral portrait, so a face never flips between styles.
+ * with final art never shows a placeholder again: a missing expression falls
+ * back to the closest one that exists, so a face never flips between styles.
  */
 const FINAL_PORTRAITS: Record<string, Partial<Record<Expression, string>>> = {
   mentor: { neutral: "assets/portraits/mentor_neutral.png" },
+  journalist: {
+    neutral: "assets/portraits/journalist_neutral.png",
+    suspicious: "assets/portraits/journalist_suspicious.png",
+  },
+};
+
+/** Closest substitutes for each expression, in order. */
+const FALLBACK: Record<Expression, Expression[]> = {
+  neutral: [],
+  pleased: ["neutral"],
+  suspicious: ["neutral"],
+  angry: ["suspicious", "neutral"],
 };
 
 export function portrait(subject: string, expression: Expression = "neutral"): string {
   const final = FINAL_PORTRAITS[subject];
-  if (final) return final[expression] ?? final.neutral!;
+  if (final) {
+    for (const e of [expression, ...FALLBACK[expression]]) if (final[e]) return final[e];
+    return Object.values(final)[0]!;
+  }
   return `assets/portraits/${subject}_${expression}.svg`;
 }
