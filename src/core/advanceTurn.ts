@@ -14,7 +14,7 @@ import type { Cause, ChapterDecision, Decision, GameState, TurnReport } from "./
  * decisions always gives the same result, which is what makes it testable.
  *
  * Order of a week:
- *   1. validate and resolve the player's decisions (at the current turn)
+ *   1. answer papers on the desk, then validate and resolve new actions (at the current turn)
  *   2. the calendar moves forward one week
  *   3. delayed consequences that are now due fire
  *   4. weekly chapter rules (reading progress, drift, pressure...)
@@ -32,19 +32,19 @@ export function advanceTurn(
   const state = structuredClone(prev);
   const before = allOpinions(prev);
 
-  // 1. decisions
+  // 1. decisions: answer the papers on the desk first, then take new actions
+  for (const d of decisions) {
+    if (d.kind === "choose") resolveChoice(state, d.itemId as string, d.choiceId as string);
+  }
+
   const chapterDecisions = decisions.filter((d): d is ChapterDecision => d.kind !== "choose");
   chapter.validateDecisions?.(state, chapterDecisions);
 
-  for (const d of decisions) {
-    if (d.kind === "choose") {
-      resolveChoice(state, d.itemId as string, d.choiceId as string);
-    } else {
-      const { effects, cause } = chapter.resolveDecision(state, d);
-      const fullCause: Cause = { ...cause, turn: state.turn };
-      state.history.push({ turn: state.turn, cause: fullCause, text: cause.label });
-      applyEffects(state, effects, fullCause);
-    }
+  for (const d of chapterDecisions) {
+    const { effects, cause } = chapter.resolveDecision(state, d);
+    const fullCause: Cause = { ...cause, turn: state.turn };
+    state.history.push({ turn: state.turn, cause: fullCause, text: cause.label });
+    applyEffects(state, effects, fullCause);
   }
 
   // 2. time passes

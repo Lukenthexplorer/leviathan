@@ -7,7 +7,8 @@ import type { ChapterDefinition } from "../../core/chapter";
 import { readRef } from "../../core/conditions";
 import { expectationsPressure, investigationStep } from "../../core/hidden";
 import type { GameState } from "../../core/types";
-import { resolvePost, type CouncilmanDecision } from "./actions";
+import { LAW_IDS } from "../../content/councilman/laws";
+import { readingRule, resolveCouncilmanDecision } from "./actions";
 
 const C = BALANCE.councilman;
 
@@ -34,7 +35,7 @@ function createInitialState({ playerName, party }: { playerName: string; party: 
     neighbourhoods: Object.fromEntries(
       NEIGHBOURHOOD_IDS.map((n) => [n, { mood: NEIGHBOURHOODS[n].startingMood, base: 0, markers: [] }]),
     ),
-    laws: {},
+    laws: Object.fromEntries(LAW_IDS.map((l) => [l, "draft" as const])),
     books: { reading: null, finished: [] },
     queue: [],
     inbox: [],
@@ -56,26 +57,33 @@ export const councilmanChapter: ChapterDefinition = {
   id: "councilman",
   createInitialState,
 
-  validateDecisions(_state, decisions) {
+  validateDecisions(state, decisions) {
     if (decisions.length > BALANCE.turn.agendaSlots) {
       throw new Error(`Only ${BALANCE.turn.agendaSlots} actions per week`);
     }
-    if (decisions.filter((d) => d.kind === "post").length > BALANCE.social.maxPostsPerWeek) {
-      throw new Error("Only one post per week");
+    const count = (kind: string) => decisions.filter((d) => d.kind === kind).length;
+    if (count("post") > BALANCE.social.maxPostsPerWeek) throw new Error("Only one post per week");
+    if (count("read") > 1) throw new Error("You can only start one book per week");
+
+    const met = decisions.filter((d) => d.kind === "meeting").map((d) => d.with as string);
+    if (new Set(met).size !== met.length) throw new Error("Only one meeting per person per week");
+    for (const who of met) {
+      if (state.inbox.some((i) => i.from === who && i.kind === "letter")) {
+        throw new Error(`Answer ${who}'s last meeting before asking for another`);
+      }
     }
+    const laws = decisions.filter((d) => d.kind === "proposeLaw").map((d) => d.law);
+    if (new Set(laws).size !== laws.length) throw new Error("Each bill can only be proposed once");
   },
 
-  resolveDecision(_state, decision) {
-    const d = decision as CouncilmanDecision;
-    switch (d.kind) {
-      case "post":
-        return resolvePost(d);
-    }
-    throw new Error(`Unknown councilman decision "${decision.kind}"`);
-  },
+  resolveDecision: resolveCouncilmanDecision,
 
   weeklyRules(state) {
-    return [...expectationsPressure(state), ...investigationStep(state, "journalist", "party_boss")];
+    return [
+      ...readingRule(state),
+      ...expectationsPressure(state),
+      ...investigationStep(state, "journalist", "party_boss"),
+    ];
   },
 
   events: [],

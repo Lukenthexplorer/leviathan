@@ -57,6 +57,32 @@ export const BALANCE = {
     maxPostsPerWeek: 1,
   },
 
+  laws: {
+    /** A bill passes when its vote score reaches this. */
+    passThreshold: 50,
+    favouredTopicBonus: 8,
+    opposedTopicPenalty: -12,
+    /** Each point of party boss relation adds this many votes. */
+    bossRelationWeight: 0.2,
+    /** Per "council_favours" flag (corridor deals). */
+    councilFavourBonus: 8,
+    rivalAllyBonus: 5,
+    /** Vote happens this many Next-week presses after proposing (1 = at the end of this week). */
+    weeksToVote: 1,
+    /** Party boss reaction when you propose a bill on a topic they like / dislike. */
+    bossFavouredReaction: 5,
+    bossOpposedReaction: -8,
+  },
+
+  neighbourhoodWork: {
+    baseGain: 8,
+    moodGain: 3,
+    /** Opinion gain for resident groups, scaled by their share of the neighbourhood. */
+    residentOpinion: 8,
+    /** Each point of existing base adds this fraction to resident opinion gain (roots compound). */
+    baseCompounding: 0.01,
+  },
+
   relation: {
     min: -100,
     max: 100,

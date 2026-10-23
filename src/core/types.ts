@@ -125,6 +125,9 @@ export type Effect =
   | { type: "flag"; key: string; add?: number; set?: number }
   | { type: "law"; id: string; status: LawStatus }
   | { type: "deliver"; amount: number }
+  | { type: "startBook"; id: string }
+  | { type: "readProgress"; amount: number }
+  | { type: "finishBook"; id: string }
   | { type: "schedule"; inTurns: number; label: string; effects: Effect[] }
   | { type: "deskItem"; item: DeskItem }
   | { type: "log"; text: string };

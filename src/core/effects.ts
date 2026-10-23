@@ -60,6 +60,16 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
     case "law":
       state.laws[effect.id] = effect.status;
       return;
+    case "startBook":
+      state.books.reading = { id: effect.id, progress: 0 };
+      return;
+    case "readProgress":
+      if (state.books.reading) state.books.reading.progress += effect.amount;
+      return;
+    case "finishBook":
+      if (!state.books.finished.includes(effect.id)) state.books.finished.push(effect.id);
+      if (state.books.reading?.id === effect.id) state.books.reading = null;
+      return;
     case "schedule":
       // Not applied now: parked in the queue with the ORIGINAL cause attached.
       state.queue.push({ fireOnTurn: state.turn + effect.inTurns, label: effect.label, effects: effect.effects, cause });

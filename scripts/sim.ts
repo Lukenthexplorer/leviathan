@@ -6,14 +6,34 @@
  *   npm run sim -- populist 30    # one strategy, 30 weeks
  *   npm run sim -- dirty 40 liberal
  */
+import { lawAvailable } from "../src/chapters/councilman/actions";
 import { councilmanChapter as chapter } from "../src/chapters/councilman/chapter";
+import { LAW_IDS } from "../src/content/councilman/laws";
 import { GROUP_IDS } from "../src/content/councilman/groups";
 import { advanceTurn } from "../src/core/advanceTurn";
 import { readRef } from "../src/core/conditions";
 import { allOpinions } from "../src/core/groups";
 import type { Decision, GameState } from "../src/core/types";
 
-type Strategy = { describe: string; setup?: (s: GameState) => void; decide: (s: GameState) => Decision[] };
+type Strategy = {
+  describe: string;
+  setup?: (s: GameState) => void;
+  decide: (s: GameState) => Decision[];
+  /** Which choice id to pick for papers on the desk, by preference. */
+  prefers?: string[];
+};
+
+/** Answer every paper on the desk with the first preferred choice it offers (else the last one). */
+function answerDesk(s: GameState, prefers: string[]): Decision[] {
+  return s.inbox
+    .filter((i) => i.choices?.length)
+    .map((i) => {
+      const pick = prefers.find((p) => i.choices!.some((c) => c.id === p)) ?? i.choices!.at(-1)!.id;
+      return { kind: "choose", itemId: i.id, choiceId: pick };
+    });
+}
+
+const firstLaw = (s: GameState) => LAW_IDS.find((l) => lawAvailable(s, l));
 
 const rotate = (s: GameState) => GROUP_IDS[s.turn % GROUP_IDS.length]!;
 
@@ -26,6 +46,30 @@ const STRATEGIES: Record<string, Strategy> = {
   populist: {
     describe: "Populist posts for 10 weeks, then goes quiet",
     decide: (s) => (s.turn <= 10 ? [{ kind: "post", style: "populist", group: rotate(s) }] : []),
+  },
+  builder: {
+    describe: "Honest builder: reads Keynes, proposes a bill a week, works the hill, refuses dirty money",
+    prefers: ["honest", "refuse", "independent", "keynes_jobs", "own_way", "decline", "ally"],
+    decide: (s) => {
+      const law = firstLaw(s);
+      const d: Decision[] = [{ kind: "neighbourhood", id: "morro_esperanca" }];
+      if (s.turn === 1) d.push({ kind: "read", book: "keynes" });
+      else if (law) d.push({ kind: "proposeLaw", law });
+      if (s.turn % 3 === 0) d.push({ kind: "post", style: "informative", group: rotate(s) });
+      return d;
+    },
+  },
+  climber: {
+    describe: "Corrupt climber: takes the cash, sells votes, posts populism, rides the party machine",
+    prefers: ["cash", "vote_for", "learn", "loyal", "promise", "ally"],
+    decide: (s) => {
+      const law = firstLaw(s);
+      const d: Decision[] = [{ kind: "post", style: "populist", group: rotate(s) }];
+      if (s.turn === 1) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "mentor" });
+      else if (s.turn === 3) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "party_boss" });
+      else if (law) d.push({ kind: "proposeLaw", law });
+      return d;
+    },
   },
   dirty: {
     describe: "Starts with two undeclared donations in the dossier",
@@ -58,7 +102,8 @@ for (const name of names) {
   console.log(`week | ${GROUP_IDS.map((g) => pad(g.slice(0, 5), 5)).join(" ")} |   avg | expec | integ | invest | notes`);
 
   for (let i = 0; i < weeks && !s.ending; i++) {
-    const { state, report } = advanceTurn(s, strat.decide(s), chapter);
+    const decisions = [...answerDesk(s, strat.prefers ?? []), ...strat.decide(s)];
+    const { state, report } = advanceTurn(s, decisions, chapter);
     s = state;
     const ops = allOpinions(s);
     const notes = [
@@ -71,4 +116,8 @@ for (const name of names) {
     );
   }
   console.log(s.ending ? `>>> ENDING: ${s.ending} in week ${s.turn}` : `>>> Still standing after ${weeks} weeks`);
+  console.log(
+    `    funds ${s.player.funds}k | boss ${s.characters.party_boss!.relation} | laws passed ${s.flags.laws_passed ?? 0}, ` +
+      `rejected ${s.flags.laws_rejected ?? 0} | books ${s.books.finished.join(", ") || "none"} | dossier threads ${s.hidden.dossier.reduce((a, d) => a + d.threads, 0)}`,
+  );
 }
