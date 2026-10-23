@@ -45,7 +45,7 @@ function LawRow({ id, state }: { id: LawId; state: GameState }) {
     <div className={`action-row law-row ${queued ? "queued" : ""} ${available ? "" : "disabled"}`}>
       <div className="action-main">
         <div className="action-title">
-          {law.title} <span className="law-cost">{law.cost} CP</span>
+          {law.title} <span className="law-cost">custa {law.cost} de capital</span>
         </div>
         <div className="action-desc">{law.summary}</div>
         {!available && <div className="action-locked">{status !== "draft" ? STATUS_LABEL[status] : lockReason(law.requires)}</div>}
@@ -78,7 +78,7 @@ function LawRow({ id, state }: { id: LawId; state: GameState }) {
                   title={`${score} votos · ${passes ? "deve passar" : "ainda falta"}`}
                   onClick={() => queue({ kind: "proposeLaw", law: id, ...(lobby ? { lobby } : {}) })}
                 >
-                  {LOBBY_LABEL[lobby]} · {cost} CP{lobby > 0 ? ` → ${score}` : ""}
+                  {LOBBY_LABEL[lobby]} · {cost} de capital{lobby > 0 ? ` → ${score} votos` : ""}
                 </DeskButton>
               );
             })
