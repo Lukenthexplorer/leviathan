@@ -172,3 +172,45 @@ describe("meetings", () => {
     expect(s.flags.knows_mentor_agenda).toBe(1);
   });
 });
+
+describe("courting someone every week", () => {
+  /** Meet the party boss and answer with the small-talk choice, `weeks` times in a row. */
+  function courtBoss(weeks: number, gap = 0) {
+    let s = start();
+    s.flags.met_boss_loyalty = 1; // skip the one-off summons: straight to small talk
+    s.firedEvents.push("boss_fundraiser", "boss_warning"); // keep other party papers off the desk
+    const gains: number[] = [];
+    for (let i = 0; i < weeks; i++) {
+      s = step(s, [{ kind: "meeting", with: "party_boss" }]).state;
+      const paper = s.inbox.find((p) => p.from === "party_boss" && p.choices)!;
+      const before = s.characters.party_boss!.relation;
+      s = step(s, [{ kind: "choose", itemId: paper.id, choiceId: "report" }]).state;
+      gains.push(s.characters.party_boss!.relation - before);
+      for (let g = 0; g < gap; g++) s = step(s).state;
+    }
+    return { gains, last: s };
+  }
+
+  it("gives less each time in a row", () => {
+    const { gains } = courtBoss(4);
+    expect(gains[0]).toBeGreaterThan(gains[1]!);
+    expect(gains[1]).toBeGreaterThanOrEqual(gains[2]!);
+    expect(gains.at(-1)).toBeLessThanOrEqual(1);
+  });
+
+  it("resets after giving people some space", () => {
+    const { gains } = courtBoss(3, BALANCE.meetings.repeatWindowWeeks + 1);
+    expect(gains).toEqual([gains[0], gains[0], gains[0]]);
+  });
+
+  it("the text shows the impatience", () => {
+    let s = start();
+    s.flags.met_boss_loyalty = 1;
+    for (let i = 0; i < 3; i++) {
+      s = step(s, [{ kind: "meeting", with: "party_boss" }]).state;
+      const paper = s.inbox.find((p) => p.from === "party_boss" && p.choices)!;
+      if (i < 2) s = step(s, [{ kind: "choose", itemId: paper.id, choiceId: "report" }]).state;
+      else expect(paper.body).toContain("terceira vez");
+    }
+  });
+});

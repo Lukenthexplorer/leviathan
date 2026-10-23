@@ -99,6 +99,13 @@ export const BALANCE = {
     bossOpposedReaction: -8,
   },
 
+  meetings: {
+    /** Repeat small talk within this many weeks counts as "again?". */
+    repeatWindowWeeks: 3,
+    /** Each repeat in a row multiplies the relation gain by this (0.5 = halves it). */
+    repeatDecay: 0.5,
+  },
+
   fundraising: {
     /** A small-donor drive ("vaquinha"): base amount plus a share of your total roots across neighbourhoods. */
     base: 2,

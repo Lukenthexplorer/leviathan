@@ -221,17 +221,49 @@ export function nextMeeting(state: GameState, who: CharacterId) {
   );
 }
 
+/**
+ * How many times in a row you've made small talk with this person recently.
+ * Courting someone every week stops working: each repeat is worth less.
+ */
+export function smalltalkStreak(state: GameState, who: string): number {
+  const last = state.flags[`smalltalk_last_${who}`];
+  if (last === undefined || state.turn - last > BALANCE.meetings.repeatWindowWeeks) return 0;
+  return state.flags[`smalltalk_streak_${who}`] ?? 0;
+}
+
+const IMPATIENT = "\n\nDá para notar: é a terceira vez em pouco tempo. A conversa é educada, mas mais curta.";
+
 export function resolveMeeting(state: GameState, who: CharacterId): Resolved {
   const m = nextMeeting(state, who);
   if (!m) throw new Error(`Nobody to meet: "${who}"`);
+
+  // Repeat small talk: relation gains shrink with each visit in a row.
+  const streak = m.repeatable ? smalltalkStreak(state, who) : 0;
+  const factor = BALANCE.meetings.repeatDecay ** streak;
+  const choices = m.choices.map((c) => ({
+    ...c,
+    effects: c.effects.map((e) => (e.type === "relation" && e.delta > 0 ? { ...e, delta: Math.round(e.delta * factor) } : e)),
+  }));
+
   const item = pickVariant(
     state,
-    { id: `${m.id}@${state.turn}`, kind: "letter" as const, from: who, title: m.title, body: m.body, choices: m.choices, turn: state.turn },
+    { id: `${m.id}@${state.turn}`, kind: "letter" as const, from: who, title: m.title, body: m.body, choices, turn: state.turn },
     m.variants,
   );
+  if (streak >= 2) item.body += IMPATIENT;
+
   return {
     cause: { kind: "meeting", id: m.id, label: m.title },
-    effects: [{ type: "flag", key: `met_${m.id}` }, { type: "deskItem", item }],
+    effects: [
+      { type: "flag", key: `met_${m.id}` },
+      ...(m.repeatable
+        ? ([
+            { type: "flag", key: `smalltalk_streak_${who}`, set: streak + 1 },
+            { type: "flag", key: `smalltalk_last_${who}`, set: state.turn },
+          ] as Effect[])
+        : []),
+      { type: "deskItem", item },
+    ],
   };
 }
 
