@@ -14,7 +14,7 @@ import { clearSave, loadGame, saveGame } from "../persistence/save";
  * slice of the store they read changes.
  */
 
-export type Screen = "title" | "party" | "desk" | "ending";
+export type Screen = "title" | "party" | "desk" | "election" | "ending";
 
 interface GameStore {
   screen: Screen;
@@ -89,7 +89,9 @@ export const useGame = create<GameStore>((set, get) => ({
     let savedAt: number | null = null;
     if (next.ending) clearSave();
     else if (saveGame(next)) savedAt = Date.now();
-    set({ state: next, pending: [], report, screen: next.ending ? "ending" : "desk", savedAt });
+    // An election result means election night first; any other ending goes straight to the newspaper.
+    const screen = next.election ? "election" : next.ending ? "ending" : "desk";
+    set({ state: next, pending: [], report, screen, savedAt });
     return report;
   },
 

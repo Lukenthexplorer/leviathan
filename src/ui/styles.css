@@ -760,3 +760,106 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .poll-row.me .poll-bar { background: var(--red); }
 .poll-row strong { font-family: var(--type); text-align: right; }
 .poll-note { font-family: var(--type); font-size: 0.7rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* ===================================================================== election night: the old CRT TV */
+
+.night { position: fixed; inset: 0; overflow: hidden; background: #0b0806 center / cover; display: grid; place-items: center; }
+.night-dark { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, #0a0f1acc, #000 75%); opacity: 0; pointer-events: none; }
+
+/* At scale 1 the screen fills the viewport and the cabinet runs off the edges; the intro starts it small. */
+/* Centered with `translate` (not transform), so GSAP's scale on transform never fights the centering. */
+.tv { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 112vw; height: 118vh; will-change: transform; }
+.tv-cabinet {
+  position: absolute; inset: 0;
+  padding: 9vh 6vw 9vh 6vw;
+  border-radius: 4vw;
+  background: linear-gradient(160deg, #6b4428, #3a2414 60%, #2a190d);
+  box-shadow: inset 0 0 0 1.2vw #1c120a, inset 0 0 6vw #000a, 0 4vw 8vw #000;
+}
+.tv-screen {
+  position: relative; width: 100%; height: 100%;
+  border-radius: 3.5vw / 4.5vh;
+  overflow: hidden;
+  background: #050812;
+  box-shadow: 0 0 0 0.6vw #0b0b0b, inset 0 0 3vw #000;
+}
+.tv-knobs { position: absolute; right: 1.6vw; top: 40%; display: flex; flex-direction: column; gap: 2vh; }
+.tv-knobs span { width: 2.6vw; height: 2.6vw; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d9c08a, #6b5428); box-shadow: 0 0.4vw 0.6vw #000a; }
+.tv-knobs i { width: 2.6vw; height: 6vh; background: repeating-linear-gradient(#1a1a1a 0 3px, #333 3px 6px); border-radius: 4px; }
+
+.crt {
+  position: absolute; inset: 0;
+  display: grid; grid-template-rows: auto 1fr auto;
+  gap: 1.5vh; padding: 2.5vh 2.5vw;
+  color: #fff;
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+  background: radial-gradient(ellipse at 50% 40%, #1d3a7a, #0c1a40 70%, #060d24);
+  animation: crt-flicker 0.12s infinite alternate;
+}
+@keyframes crt-flicker { from { opacity: 0.97; } to { opacity: 1; } }
+.crt-scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px); }
+.crt-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 12vw #000c; border-radius: 3.5vw / 4.5vh; }
+
+.bc-top { display: flex; justify-content: space-between; align-items: center; gap: 2vw; }
+.bc-brand { display: flex; flex-direction: column; }
+.bc-flag {
+  font-weight: 700; font-size: clamp(1.4rem, 3vw, 2.8rem); letter-spacing: 0.06em; color: #ffd23f;
+  text-shadow: 2px 0 #ff3b3b, -2px 0 #2ee6ff, 0 0 14px #ffd23f88;
+}
+.bc-channel { font-size: clamp(0.8rem, 1.2vw, 1.1rem); letter-spacing: 0.3em; color: #9fb4e0; }
+.bc-progress { flex: 1; max-width: 46vw; }
+.bc-progress-label { font-size: clamp(0.9rem, 1.5vw, 1.4rem); letter-spacing: 0.08em; text-align: right; }
+.bc-progress-track { height: 1.2vh; background: #0007; border: 1px solid #9fb4e055; margin-top: 0.6vh; }
+.bc-progress-fill { height: 100%; background: linear-gradient(90deg, #ffd23f, #ffb000); transition: width 0.8s ease; }
+
+.bc-main { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2vw; min-height: 0; }
+.bc-chart { width: 100%; height: 100%; background: #0005; border: 1px solid #9fb4e033; }
+.bc-grid { stroke: #9fb4e022; stroke-width: 1; }
+.bc-axis { fill: #9fb4e0; font-size: 14px; font-family: "Oswald", sans-serif; }
+.bc-side { display: flex; flex-direction: column; gap: 1.5vh; min-height: 0; }
+
+.bc-bars { display: flex; flex-direction: column; gap: 1vh; }
+.bc-bar-row { display: grid; grid-template-columns: 4.2vw 1fr auto; gap: 0.8vw; align-items: center; padding: 0.6vh 0.6vw; background: #0004; }
+.bc-bar-row.leading { animation: lead-pulse 1.2s ease-in-out infinite; }
+@keyframes lead-pulse { 50% { background: #ffd23f22; } }
+.bc-face { width: 4.2vw; height: 4.2vw; border: 3px solid; overflow: hidden; display: grid; place-items: center; background: #0a1430; font-size: 1.6vw; color: #ffd23f; }
+.bc-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.bc-bar-name { font-size: clamp(0.85rem, 1.25vw, 1.25rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-bar-name small { color: #9fb4e0; font-size: 0.75em; margin-left: 0.4em; }
+.bc-bar-track { height: 1vh; background: #0006; margin-top: 0.4vh; }
+.bc-bar-fill { height: 100%; width: 0; }
+.bc-bar-nums { text-align: right; line-height: 1.1; }
+.bc-bar-nums strong { display: block; font-size: clamp(1rem, 1.8vw, 1.8rem); color: #ffd23f; text-shadow: 1px 0 #ff3b3b, -1px 0 #2ee6ff; }
+.bc-bar-nums span { font-size: clamp(0.7rem, 0.95vw, 0.95rem); color: #c9d6f2; }
+
+.bc-map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.6vh; }
+.bc-map svg { flex: 1; min-height: 0; width: 100%; }
+.bc-map polygon { transition: fill 0.6s ease; }
+.bc-regions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4vw; }
+.bc-regions span { font-size: clamp(0.6rem, 0.8vw, 0.8rem); text-align: center; padding: 0.3vh 0; transition: background 0.6s ease; }
+
+.bc-ticker { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1.2vw; background: #ffd23f; color: #0c1a40; padding: 0.8vh 1vw; }
+.bc-anchor { display: flex; align-items: center; gap: 0.6vw; font-weight: 700; font-size: clamp(0.8rem, 1.1vw, 1.1rem); }
+.bc-anchor img { width: 3.4vw; height: 3.4vw; object-fit: cover; border: 2px solid #0c1a40; }
+.bc-line { font-size: clamp(0.95rem, 1.6vw, 1.6rem); font-weight: 500; animation: ticker-in 0.4s ease-out; }
+@keyframes ticker-in { from { transform: translateX(3vw); opacity: 0; } }
+
+.bc-interstitial { position: absolute; inset: 0; display: grid; place-items: center; background: #000; z-index: 3; }
+.bc-static { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.35; image-rendering: pixelated; }
+.bc-interstitial-text { position: relative; max-width: 70%; text-align: center; font-size: clamp(1.2rem, 2.6vw, 2.6rem); color: #ffd23f; text-shadow: 0 0 20px #000; }
+.bc-virada {
+  position: absolute; left: 50%; top: 42%; translate: -50% -50%; z-index: 4;
+  font-weight: 700; font-size: clamp(3rem, 10vw, 9rem); color: #ffd23f; letter-spacing: 0.04em;
+  text-shadow: 4px 0 #ff3b3b, -4px 0 #2ee6ff, 0 0 40px #ffd23f; opacity: 0; pointer-events: none;
+}
+
+/* The controls sit on the TV's bottom bezel, below the picture. */
+.night-controls { position: fixed; right: 3vw; bottom: 0.6vh; z-index: 10; display: flex; gap: 8px; }
+.night-controls .desk-btn { font-size: 0.75rem; padding: 4px 10px; }
+.night-controls .ghost { color: var(--cream); border-color: #cdbb98aa; background: #000a; }
+
+@media (prefers-reduced-motion: reduce) {
+  .crt { animation: none; }
+  .bc-bar-row.leading { animation: none; }
+  .bc-line { animation: none; }
+}

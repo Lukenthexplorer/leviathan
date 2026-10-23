@@ -27,7 +27,12 @@ function svg(w: number, h: number, bg: string, label: string, sub = "") {
 </svg>`;
 }
 
-const PORTRAIT_SUBJECTS = ["mentor", "rival", "journalist", "party_boss_labour", "donor", "community_leader"];
+const PORTRAIT_SUBJECTS = [
+  "mentor", "rival", "journalist", "party_boss_labour", "donor", "community_leader",
+  // election night: opponents and the anchor
+  "candidate_galvao", "candidate_tiao", "candidate_heitor", "candidate_marcia", "candidate_jorginho",
+  "candidate_nilton", "candidate_moura", "candidate_cleide", "anchor_cid",
+];
 const EXPRESSIONS: Record<string, string> = {
   neutral: "#5a4a3a",
   pleased: "#6b5a32",
@@ -106,6 +111,17 @@ const SFX: Record<string, Float32Array> = {
   scandal_sting: synth(1.0, (t) => (sine(110, t) + sine(116.5, t) + sine(155, t)) * 0.25 * decay(t, 2.5)),
   opinion_up: synth(0.25, (t) => sine(660 + t * 600, t) * 0.2 * decay(t, 10)),
   opinion_down: synth(0.25, (t) => sine(520 - t * 400, t) * 0.2 * decay(t, 10)),
+  // election night
+  tv_power_on: synth(0.8, (t) => (sine(15000 - t * 9000, t) * 0.08 + noise() * 0.15 * decay(t, 6)) * Math.min(1, t * 20)),
+  tv_static: synth(1.2, () => noise() * 0.18),
+  plantao_jingle: synth(2.2, (t) => {
+    const notes = [523, 659, 784, 1047, 784, 1047];
+    const n = notes[Math.min(notes.length - 1, Math.floor(t / 0.3))]!;
+    return (sine(n, t) * 0.25 + sine(n * 1.5, t) * 0.08) * decay(t % 0.3, 4) * (t < 1.8 ? 1 : decay(t - 1.8, 6));
+  }),
+  virada_sting: synth(0.9, (t) => (sine(220, t) + sine(277, t) + sine(330, t) + sine(440, t)) * 0.18 * decay(t, 3)),
+  crowd_cheer: synth(2.5, (t) => noise() * 0.35 * Math.sin(Math.PI * Math.min(1, t / 2.5)) * (0.7 + 0.3 * sine(3, t))),
+  crowd_murmur: synth(2.5, () => noise() * 0.08),
 };
 for (const [id, s] of Object.entries(SFX)) write(`audio/sfx/${id}.wav`, wav(s));
 

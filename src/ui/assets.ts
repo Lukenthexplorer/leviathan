@@ -20,6 +20,12 @@ export const SFX = {
   scandal_sting: "assets/audio/sfx/scandal_sting.wav",
   opinion_up: "assets/audio/sfx/opinion_up.wav",
   opinion_down: "assets/audio/sfx/opinion_down.wav",
+  tv_power_on: "assets/audio/sfx/tv_power_on.wav",
+  tv_static: "assets/audio/sfx/tv_static.wav",
+  plantao_jingle: "assets/audio/sfx/plantao_jingle.wav",
+  virada_sting: "assets/audio/sfx/virada_sting.wav",
+  crowd_cheer: "assets/audio/sfx/crowd_cheer.wav",
+  crowd_murmur: "assets/audio/sfx/crowd_murmur.wav",
 } as const;
 export type SfxId = keyof typeof SFX;
 
