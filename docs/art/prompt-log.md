@@ -12,3 +12,4 @@
 | 2026-10-22 | portraits/journalist_suspicious.png (Helena Vaz) | (added by Lucas; model/settings to fill in) | Helena Vaz, skeptical, sepia polaroid | – | Generated from the neutral one as reference |
 | 2026-10-22 | desk/city_skyline.png (Ruas drawer) | (added by Lucas; model/settings to fill in) | warm umber city skyline | – | Background removed |
 | 2026-10-22 | desk/book_stack.png (Estante drawer) | (added by Lucas; model/settings to fill in) | worn stack of political and economic books | – | Background removed |
+| 2026-10-22 | desk.png (desk background, "Warm Light on Worn Mahogany") | (added by Lucas; model/settings to fill in) | worn mahogany desk top, warm light top-left | – | 1672x941, no alpha. Lamp light is baked in at top-left |

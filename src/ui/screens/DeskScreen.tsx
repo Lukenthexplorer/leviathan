@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { DeskItem } from "../../core/types";
-import { DESK_ART } from "../assets";
+import { BLOTTER, DESK_ART } from "../assets";
 import { audio } from "../audio/audio";
 import { musicTension } from "../audio/tension";
 import { useHoverLift } from "../feel/useHoverLift";
@@ -116,6 +116,10 @@ export function DeskScreen() {
 
   return (
     <div className="desk-screen" ref={desk} style={{ backgroundImage: `url(${DESK_ART.desk_bg})` }}>
+      {/* Visual layers, bottom to top: wood (background) > blotter > lamp light + vignette > UI. None take clicks. */}
+      {BLOTTER && <div className="desk-blotter" style={{ backgroundImage: `url(${BLOTTER})` }} aria-hidden />}
+      <div className="desk-light" aria-hidden />
+
       <header className="desk-top">
         <div className="badge">
           <div className={`badge-party party-${state.party}`}>{party.short}</div>

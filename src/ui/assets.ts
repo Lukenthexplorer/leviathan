@@ -32,7 +32,7 @@ export const MUSIC_STEMS = {
 export type StemId = keyof typeof MUSIC_STEMS;
 
 export const DESK_ART = {
-  desk_bg: "assets/desk/desk_bg.svg",
+  desk_bg: "assets/desk.png", // final art: "Warm Light on Worn Mahogany"
   paper_blank: "assets/desk/paper_blank.svg",
   stamp_approved: "assets/desk/stamp_approved.svg",
   stamp_rejected: "assets/desk/stamp_rejected.svg",
@@ -47,6 +47,12 @@ export const DESK_ART = {
   book_stack: "assets/desk/book_stack.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
+
+/**
+ * Leather desk blotter under the papers. Optional: set this to "assets/blotter.png"
+ * once that file exists, and the desk shows it. Null = no blotter layer.
+ */
+export const BLOTTER: string | null = null;
 
 export type Expression = "neutral" | "pleased" | "angry" | "suspicious";
 
