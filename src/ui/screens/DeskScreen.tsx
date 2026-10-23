@@ -31,7 +31,7 @@ const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
   { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
   { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
   { id: "streets", label: "Ruas", hint: "Construir uma base" },
-  { id: "social", label: "Celular", hint: "Postar nas redes" },
+  { id: "social", label: "Celular", hint: "Postar nas redes", icon: DESK_ART.brick_phone },
   { id: "library", label: "Estante", hint: "Ler e aprender" },
 ];
 

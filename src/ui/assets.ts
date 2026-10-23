@@ -42,6 +42,7 @@ export const DESK_ART = {
   bills_folder: "assets/desk/bills_folder.png", // final art
   rolodex: "assets/desk/rolodex.png", // final art
   city_map_folded: "assets/desk/city_map_folded.png", // final art
+  brick_phone: "assets/desk/brick_phone.png", // final art
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 
