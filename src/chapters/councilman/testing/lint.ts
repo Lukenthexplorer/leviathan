@@ -7,13 +7,14 @@ import type { Condition, Effect } from "../../../core/types";
 
 /** Content lint helpers: return a list of problems (empty = all good). */
 
-const CAUSE_PREFIXES = [...Object.keys(LAWS), "media_populist", "media_informative"];
+// Projects are dated per neighbourhood: {{date:nb_potholes_{nbid}}} becomes nb_potholes_<id> once localized.
+const CAUSE_PREFIXES = [...Object.keys(LAWS), "media_populist", "media_informative", "nb_"];
 
 export function badTemplates(text: string): string[] {
   const problems: string[] = [];
   for (const [, key, arg = ""] of text.matchAll(/\{\{(\w+)(?::([^}]+))?\}\}/g)) {
     if (key === "worst" && !(arg in GROUPS)) problems.push(`{{worst:${arg}}}`);
-    if ((key === "date" || key === "what") && !CAUSE_PREFIXES.some((p) => p.startsWith(arg))) problems.push(`{{${key}:${arg}}}`);
+    if ((key === "date" || key === "what") && !CAUSE_PREFIXES.some((p) => p.startsWith(arg) || arg.startsWith(p))) problems.push(`{{${key}:${arg}}}`);
     if (key === "g" && !arg.includes("/")) problems.push(`{{g:${arg}}} needs both forms, like {{g:o/a}}`);
     if (!["player", "PLAYER", "g", "flag", "date", "what", "worst"].includes(key!)) problems.push(`{{${key}}}`);
   }

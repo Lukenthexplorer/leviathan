@@ -1,4 +1,4 @@
-import { expectations, flag, funds, integrity, opinion, relation } from "../helpers";
+import { dirtyFunds, expectations, flag, funds, integrity, opinion, relation } from "../helpers";
 import type { MeetingDef } from "../types";
 
 /**
@@ -66,7 +66,7 @@ export const MEETINGS: MeetingDef[] = [
         id: "vote_for",
         label: "Prometer seu voto",
         effects: [
-          funds(20),
+          dirtyFunds(20),
           integrity(-10),
           relation("donor", 15),
           { type: "dossier", id: "ring_road_vote", label: "Voto vendido na licitação do anel viário", threads: 2 },

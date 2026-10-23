@@ -121,7 +121,12 @@ export interface HistoryEntry {
  */
 export type Effect =
   | { type: "opinion"; group: string; delta: number; label: string }
-  | { type: "funds"; delta: number }
+  /**
+   * Money in or out. Income is tagged clean (declared) or dirty (undeclared);
+   * running totals live in flags income_clean / income_dirty / spent_total,
+   * so the press and the legacy page can compare what came in with what went out.
+   */
+  | { type: "funds"; delta: number; source?: "clean" | "dirty" }
   | { type: "capital"; delta: number }
   | { type: "integrity"; delta: number }
   | { type: "expectations"; delta: number }

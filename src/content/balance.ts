@@ -106,6 +106,14 @@ export const BALANCE = {
     repeatDecay: 0.5,
   },
 
+  /** Neighbourhood projects ("Ajuda do gabinete"). */
+  projects: {
+    /** A neighbourhood can only receive one project every this many weeks. */
+    cooldownWeeks: 6,
+    /** Each project raises expectations: "o vereador resolve tudo". */
+    expectationsPerProject: 3,
+  },
+
   fundraising: {
     /** A small-donor drive ("vaquinha"): base amount plus a share of your total roots across neighbourhoods. */
     base: 2,

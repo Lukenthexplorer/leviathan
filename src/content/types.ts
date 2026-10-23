@@ -143,3 +143,19 @@ export interface MediaChannelDef {
   /** History/cause label, e.g. "Deu entrevista na rádio sobre {topic}". */
   cause: string;
 }
+
+/**
+ * A neighbourhood project paid from the campaign chest ("Ajuda do gabinete").
+ * Written once, done anywhere: inside effects, `"@here"` means the chosen
+ * neighbourhood, an opinion for group `"@residents"` is shared among the groups
+ * living there (by their share), and `{nb}` / `{nbid}` in text become its
+ * name / id.
+ */
+export interface ProjectDef {
+  title: string;
+  summary: string;
+  /** Campaign money it costs, in thousands. */
+  cost: number;
+  effects: Effect[];
+  followUps?: { inTurns: number; label: string; effects: Effect[] }[];
+}

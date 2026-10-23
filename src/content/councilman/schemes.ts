@@ -1,4 +1,4 @@
-import { flag, funds, integrity, log, newspaper, opinion, relation } from "../helpers";
+import { dirtyFunds, flag, funds, integrity, log, newspaper, opinion, relation } from "../helpers";
 import type { SchemeDef } from "../types";
 
 /**
@@ -14,7 +14,7 @@ export const SCHEMES = {
     dossierId: "teixeira_cash",
     dossierLabel: "Dinheiro não declarado da Teixeira Construções {intermediary}, {payment}",
     headline: "O DINHEIRO DA EMPREITEIRA",
-    effects: [funds(40), integrity(-12), flag("hid_donation"), log("Escondeu uma doação ilegal da Teixeira Construções")],
+    effects: [dirtyFunds(40), integrity(-12), flag("hid_donation"), log("Escondeu uma doação ilegal da Teixeira Construções")],
     slots: [
       {
         id: "intermediary",

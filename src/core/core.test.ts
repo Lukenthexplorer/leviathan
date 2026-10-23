@@ -170,3 +170,20 @@ describe("events", () => {
     expect(opinionOf(s, "workers")).toBe(10);
   });
 });
+
+describe("money trails", () => {
+  it("income is split clean/dirty; spending is totalled", () => {
+    const s = makeState();
+    applyEffect(s, { type: "funds", delta: 10 }, cause);
+    applyEffect(s, { type: "funds", delta: 30, source: "dirty" }, cause);
+    applyEffect(s, { type: "funds", delta: -15 }, cause);
+    expect(s.flags).toMatchObject({ income_clean: 10, income_dirty: 30, spent_total: 15 });
+  });
+
+  it("can't spend money you don't have, and only counts what was really spent", () => {
+    const s = makeState({ player: { name: "T", form: "m", funds: 4, capital: 0 } });
+    applyEffect(s, { type: "funds", delta: -10 }, cause);
+    expect(s.player.funds).toBe(0);
+    expect(s.flags.spent_total).toBe(4);
+  });
+});

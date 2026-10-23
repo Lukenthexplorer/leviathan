@@ -18,9 +18,18 @@ export function applyEffect(state: GameState, effect: Effect, cause: Cause): voi
       g.memories.push({ label: effect.label, impact: effect.delta, turn: state.turn, cause });
       return;
     }
-    case "funds":
-      state.player.funds = Math.max(0, state.player.funds + effect.delta);
+    case "funds": {
+      const before = state.player.funds;
+      state.player.funds = Math.max(0, before + effect.delta);
+      const moved = state.player.funds - before;
+      if (moved > 0) {
+        const key = effect.source === "dirty" ? "income_dirty" : "income_clean";
+        state.flags[key] = (state.flags[key] ?? 0) + moved;
+      } else if (moved < 0) {
+        state.flags.spent_total = (state.flags.spent_total ?? 0) - moved;
+      }
       return;
+    }
     case "capital":
       state.player.capital = clamp(state.player.capital + effect.delta, 0, BALANCE.capital.max);
       return;

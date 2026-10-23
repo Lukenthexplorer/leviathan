@@ -4,6 +4,7 @@ import { CHARACTERS, type CharacterId } from "../content/councilman/characters";
 import { GROUPS } from "../content/councilman/groups";
 import { LAWS } from "../content/councilman/laws";
 import { NEIGHBOURHOODS } from "../content/councilman/neighbourhoods";
+import { PROJECTS } from "../content/councilman/projects";
 import { PARTIES, type PartyId } from "../content/councilman/parties";
 import type { Condition, Decision, GameState } from "../core/types";
 import { portrait, type Expression } from "./assets";
@@ -44,6 +45,8 @@ export function describeDecision(state: GameState, d: Decision): string {
       return "Plano em andamento";
     case "fundraise":
       return "Fazer uma vaquinha de campanha";
+    case "project":
+      return `${PROJECTS[c.project].title} em ${NEIGHBOURHOODS[c.nb].name}`;
     case "seekNomination":
       return "Pedir a indicação do partido";
   }

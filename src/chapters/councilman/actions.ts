@@ -6,7 +6,8 @@ import { MEETINGS } from "../../content/councilman/meetings";
 import { NEIGHBOURHOODS, type NeighbourhoodId } from "../../content/councilman/neighbourhoods";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import { SCHEMES, type SchemeId } from "../../content/councilman/schemes";
-import type { SchemeDef, SchemeOption } from "../../content/types";
+import { PROJECTS, type ProjectId } from "../../content/councilman/projects";
+import type { ProjectDef, SchemeDef, SchemeOption } from "../../content/types";
 import type { CharacterId } from "../../content/councilman/characters";
 import { channelFor } from "../../content/media";
 import { yearOf } from "../../core/calendar";
@@ -32,6 +33,8 @@ export type CouncilmanDecision =
   | { kind: "meeting"; with: CharacterId }
   | { kind: "read"; book: BookId }
   | { kind: "fundraise" }
+  /** Pay for a visible fix in a neighbourhood ("Ajuda do gabinete"). */
+  | { kind: "project"; project: ProjectId; nb: NeighbourhoodId }
   | { kind: "seekNomination" }
   /** Answer a scheme paper with a plan (picks per slot), or null to walk away. */
   | { kind: "scheme"; itemId: string; scheme: SchemeId; picks: Record<string, string> | null };
@@ -302,6 +305,73 @@ export function readingRule(state: GameState): Effect[] {
   ];
 }
 
+// ------------------------------------------------------------------ neighbourhood projects
+
+const P = BALANCE.projects;
+
+/** Weeks until this neighbourhood can receive another project (0 = now). */
+export function projectCooldown(state: GameState, nb: NeighbourhoodId): number {
+  const last = state.flags[`project_last_${nb}`];
+  return last === undefined ? 0 : Math.max(0, last + P.cooldownWeeks - state.turn);
+}
+
+/**
+ * Turn a project written for "any neighbourhood" into effects for this one:
+ * "@here" -> the neighbourhood, "@residents" -> its resident groups by share,
+ * "{nb}"/"{NB}"/"{nbid}" in text -> its name / name in capitals / id.
+ */
+export function localize(effects: readonly Effect[], nb: NeighbourhoodId): Effect[] {
+  const def = NEIGHBOURHOODS[nb];
+  const text = (t: string) => t.replaceAll("{nbid}", nb).replaceAll("{NB}", def.name.toUpperCase()).replaceAll("{nb}", def.name);
+  return effects.flatMap((e): Effect[] => {
+    switch (e.type) {
+      case "neighbourhood":
+        return [{ ...e, id: e.id === "@here" ? nb : e.id }];
+      case "opinion":
+        if (e.group !== "@residents") return [e];
+        return Object.entries(def.residents).map(([group, share]) => ({
+          type: "opinion",
+          group,
+          delta: Math.round(e.delta * share * 10) / 10,
+          label: e.label,
+        }));
+      case "flag":
+        return [{ ...e, key: text(e.key) }];
+      case "log":
+        return [{ ...e, text: text(e.text) }];
+      case "schedule":
+        return [{ ...e, label: text(e.label), effects: localize(e.effects, nb) }];
+      case "deskItem":
+        return [{ ...e, item: { ...e.item, id: text(e.item.id), title: text(e.item.title), body: text(e.item.body) } }];
+      default:
+        return [e];
+    }
+  });
+}
+
+export function resolveProject(state: GameState, id: ProjectId, nb: NeighbourhoodId): Resolved {
+  const project: ProjectDef = PROJECTS[id];
+  if (!project) throw new Error(`Unknown project "${id}"`);
+  const place = NEIGHBOURHOODS[nb];
+  if (!place) throw new Error(`Unknown neighbourhood "${nb}"`);
+  if (state.player.funds < project.cost) throw new Error(`Dinheiro insuficiente: "${project.title}" custa ${project.cost} mil`);
+  const wait = projectCooldown(state, nb);
+  if (wait > 0) throw new Error(`${place.name} acabou de receber um projeto. Espere mais ${wait} semana${wait > 1 ? "s" : ""}`);
+
+  const followUps: Effect[] = (project.followUps ?? []).map((f) => ({ type: "schedule", inTurns: f.inTurns, label: f.label, effects: [...f.effects] }));
+  return {
+    // The id carries the neighbourhood, so a newspaper can date *this* project: {{date:nb_potholes_morro_esperanca}}.
+    cause: { kind: "neighbourhood", id: `${id}_${nb}`, label: `${project.title} em ${place.name}` },
+    effects: [
+      { type: "funds", delta: -project.cost },
+      { type: "expectations", delta: P.expectationsPerProject },
+      { type: "flag", key: `project_last_${nb}`, set: state.turn },
+      { type: "flag", key: "projects_done" },
+      ...localize([...project.effects, ...followUps], nb),
+    ],
+  };
+}
+
 // ------------------------------------------------------------------ campaign
 
 /** How much a small-donor drive raises: honest money grows with your roots in the neighbourhoods. */
@@ -388,6 +458,8 @@ export function resolveCouncilmanDecision(state: GameState, decision: ChapterDec
       return resolveScheme(state, d);
     case "fundraise":
       return resolveFundraise(state);
+    case "project":
+      return resolveProject(state, d.project, d.nb);
     case "seekNomination":
       return resolveSeekNomination();
   }

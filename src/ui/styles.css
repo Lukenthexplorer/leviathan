@@ -717,3 +717,11 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
   width: 12px; height: 12px; border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #ff8a7a, #9e1a10); box-shadow: 0 2px 2px #0008;
 }
+
+/* neighbourhood projects ("Ajuda do gabinete") */
+.nb-block { border-bottom: 1px dashed #0003; padding-bottom: 8px; }
+.nb-block .action-row { border-bottom: none; }
+.project-strip { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: -4px; }
+.project-strip-label { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); margin-right: 4px; }
+.project-strip .desk-btn { font-size: 0.75rem; padding: 5px 9px; }
+.project-wait { font-family: var(--type); font-size: 0.75rem; color: var(--ink-soft); }
