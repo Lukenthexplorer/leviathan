@@ -12,12 +12,14 @@ const sfxCache = new Map<SfxId, Howl>();
 const stems = new Map<StemId, Howl>();
 let musicStarted = false;
 let tension = 0;
+/** True while the city map is open: the street ambience comes forward. */
+let cityFocus = false;
 
 // Target volume of each stem as a function of tension.
 const STEM_MIX: Record<StemId, (t: number) => number> = {
   office_piano_stem: (t) => 0.5 * (1 - t * 0.6),
   tension_drums_stem: (t) => 0.6 * Math.max(0, (t - 0.3) / 0.7),
-  city_ambience: () => 0.25,
+  city_ambience: () => (cityFocus ? 0.7 : 0.25),
 };
 
 function getSfx(id: SfxId): Howl {
@@ -51,6 +53,11 @@ export const audio = {
 
   setTension(next: number, fadeMs = 2000) {
     tension = Math.max(0, Math.min(1, next));
+    for (const [id, h] of stems) h.fade(h.volume(), STEM_MIX[id](tension), fadeMs);
+  },
+
+  setCityFocus(on: boolean, fadeMs = 1200) {
+    cityFocus = on;
     for (const [id, h] of stems) h.fade(h.volume(), STEM_MIX[id](tension), fadeMs);
   },
 

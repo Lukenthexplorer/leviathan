@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { DeskItem } from "../../core/types";
 import { DESK_ART } from "../assets";
@@ -18,6 +19,8 @@ import { LibraryPanel } from "../desk/panels/LibraryPanel";
 import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
 import { SocialPanel } from "../desk/panels/SocialPanel";
+import { MapThumb } from "../map/MapThumb";
+import { MapView } from "../map/MapView";
 import { agendaOf, answerFor, useGame } from "../store";
 
 type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
@@ -46,6 +49,21 @@ export function DeskScreen() {
   const curtain = useRef<HTMLDivElement>(null);
   const curtainText = useRef<HTMLDivElement>(null);
   const flash = useRef<HTMLDivElement>(null);
+  const desk = useRef<HTMLDivElement>(null);
+  const mapThumb = useRef<HTMLButtonElement>(null);
+  const [mapFrom, setMapFrom] = useState<DOMRect | null>(null);
+  const [mapOpen, setMapOpen] = useState(false);
+
+  /** Zoom out from the desk to the living city map. */
+  function openMap() {
+    setMapFrom(mapThumb.current?.getBoundingClientRect() ?? null);
+    setMapOpen(true);
+    gsap.to(desk.current, { scale: 1.06, filter: "blur(4px) brightness(0.6)", duration: 0.7, ease: "power3.inOut" });
+  }
+  function closeMap() {
+    setMapOpen(false);
+    gsap.to(desk.current, { scale: 1, filter: "blur(0px) brightness(1)", duration: 0.5, ease: "power2.out", clearProps: "filter,transform" });
+  }
 
   // The music follows how things are going, including things you can't see.
   useEffect(() => audio.setTension(musicTension(state, report)), [state, report]);
@@ -95,7 +113,7 @@ export function DeskScreen() {
   const PanelComponent = panel ? PANELS[panel] : null;
 
   return (
-    <div className="desk-screen" style={{ backgroundImage: `url(${DESK_ART.desk_bg})` }}>
+    <div className="desk-screen" ref={desk} style={{ backgroundImage: `url(${DESK_ART.desk_bg})` }}>
       <header className="desk-top">
         <div className="badge">
           <div className={`badge-party party-${state.party}`}>{party.short}</div>
@@ -113,19 +131,25 @@ export function DeskScreen() {
       </header>
 
       <main className="desk-middle">
-        <AgendaPad state={state} />
+        <div className="desk-left">
+          <AgendaPad state={state} />
+          <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
+        </div>
         <InboxStack state={state} onOpen={setOpenItem} />
         <nav className="tools">
           {TOOLS.map((t) => (
             <Tool key={t.id} label={t.label} hint={t.hint} onClick={() => setPanel(t.id)} />
           ))}
-          <div className="coffee">
-            <img src={DESK_ART.coffee_cup} alt="" />
-            <span className="steam" />
-            <span className="steam s2" />
-          </div>
         </nav>
       </main>
+
+      {/* Idle desk object: a real-size coffee cup resting on the wood. */}
+      <div className="coffee">
+        <img src={DESK_ART.coffee_cup} alt="" />
+        <span className="steam" />
+        <span className="steam s2" />
+        <span className="steam s3" />
+      </div>
 
       <footer className="desk-bottom">
         <div className="desk-status">
@@ -142,6 +166,9 @@ export function DeskScreen() {
       {report && !advancing && <WeekReport report={report} state={state} onClose={closeReport} />}
 
       <div className="scandal-flash" ref={flash} />
+
+      {/* A portal renders the map outside the desk element, so the desk's zoom-blur doesn't blur the map. */}
+      {mapOpen && createPortal(<MapView state={state} from={mapFrom} onClose={closeMap} />, document.body)}
 
       <div className="curtain" ref={curtain}>
         <div className="curtain-text" ref={curtainText} />
