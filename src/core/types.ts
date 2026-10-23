@@ -30,7 +30,7 @@ export interface GameState {
   history: HistoryEntry[];
   /** Ids of one-shot events that already fired. */
   firedEvents: string[];
-  /** Free-form counters for content ("posts_populist": 3, "met_donor": 1). */
+  /** Free-form counters for content ("media_populist": 3, "met_donor": 1). */
   flags: Record<string, number>;
   ending: string | null;
 }
@@ -99,7 +99,7 @@ export type LawStatus = "draft" | "proposed" | "passed" | "rejected";
 
 /** Why something happened. Attached to every effect so the game can explain itself. */
 export interface Cause {
-  kind: "law" | "post" | "meeting" | "neighbourhood" | "book" | "event" | "scheme" | "system";
+  kind: "law" | "media" | "meeting" | "neighbourhood" | "book" | "event" | "scheme" | "system";
   id: string;
   turn: number;
   label: string;

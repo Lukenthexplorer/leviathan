@@ -121,3 +121,21 @@ export interface SchemeDef {
   slots: SchemeSlot[];
   abort: { label: string; effects: Effect[] };
 }
+
+/**
+ * A way to reach the public, tied to an era. The mechanic is the same in every
+ * era (explain calmly vs promise everything); the channel, words and look change.
+ */
+export interface MediaChannelDef {
+  style: "informative" | "populist";
+  /** Years in which this channel exists (inclusive). */
+  from: number;
+  to: number;
+  name: string;
+  /** Shown in the panel; {topic} and {group} are filled in. */
+  description: string;
+  /** Agenda line, e.g. "Entrevista na rádio para {group}". */
+  agenda: string;
+  /** History/cause label, e.g. "Deu entrevista na rádio sobre {topic}". */
+  cause: string;
+}

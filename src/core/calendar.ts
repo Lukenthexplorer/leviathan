@@ -5,6 +5,11 @@ const MONTHS_LONG = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
 
 const dateOf = (turn: number) => new Date(START + (turn - 1) * 7 * 86_400_000);
 
+/** The calendar year of a turn. Content tied to an era (media channels...) reads this. */
+export function yearOf(turn: number): number {
+  return dateOf(turn).getUTCFullYear();
+}
+
 /** "16 jan 1989" */
 export function weekDate(turn: number): string {
   const d = dateOf(turn);

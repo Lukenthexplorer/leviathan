@@ -7,7 +7,7 @@ import { flag, funds, integrity, opinion, relation } from "../helpers";
  * the state, never chance. Variants change a character's words and face
  * according to hidden variables: this is how hidden morality leaks out.
  *
- * Templates ({{worst:students}}, {{date:post_populist}}, {{g:o/a}}...) let
+ * Templates ({{worst:students}}, {{date:media_populist}}, {{g:o/a}}...) let
  * newspapers name the player's own earlier decision. See core/text.ts.
  */
 export const EVENTS: EventDef[] = [
@@ -404,8 +404,9 @@ export const EVENTS: EventDef[] = [
       kind: "newspaper",
       title: "{{g:O VEREADOR/A VEREADORA}} QUE PROMETEU DEMAIS",
       body:
-        "Desde {{date:post_populist}}, {{g:o vereador/a vereadora}} {{player}} publicou {{flag:posts_populist}} vídeos virais cheios de promessas. " +
-        "O Correio foi atrás dos resultados. Achou muito pouco. Os leitores que compartilhavam os vídeos agora compartilham outra coisa: a decepção.",
+        "Desde {{date:media_populist}}, {{g:o vereador/a vereadora}} {{player}} fez {{flag:media_populist}} promessas em público, " +
+        "do carro de som ao microfone das rádios. O Correio foi atrás dos resultados. Achou muito pouco. " +
+        "Quem aplaudia nas esquinas agora repete outra coisa: a decepção.",
     },
   },
   {

@@ -20,7 +20,7 @@ interface GameStore {
   state: GameState | null;
   pending: Decision[];
   report: TurnReport | null;
-  /** Short message shown when an action is refused ("Only one post per week"). */
+  /** Short message shown when an action is refused ("Só uma aparição na mídia por semana"). */
   notice: string | null;
 
   goto(screen: Screen): void;

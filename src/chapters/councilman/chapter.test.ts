@@ -44,16 +44,16 @@ describe("councilman chapter", () => {
     expect(start().characters.mentor!.relation).toBe(CHARACTERS.mentor.startingRelation);
   });
 
-  it("enforces one post per week and the agenda limit", () => {
-    const post = { kind: "post", style: "informative", group: "workers" } as const;
-    expect(() => advanceTurn(start(), [post, post], chapter)).toThrow("Só um post");
+  it("enforces one media appearance per week and the agenda limit", () => {
+    const radio = { kind: "media", style: "informative", group: "workers" } as const;
+    expect(() => advanceTurn(start(), [radio, radio], chapter)).toThrow("Só uma aparição");
   });
 
   it("populism: fast popularity now, a crash later", () => {
     let s = start();
     const before = readRef(s, "averageOpinion");
     // Eight weeks of populist posts, rotating target groups.
-    s = run(s, 8, (st) => [{ kind: "post", style: "populist", group: GROUP_IDS[st.turn % GROUP_IDS.length]! }]);
+    s = run(s, 8, (st) => [{ kind: "media", style: "populist", group: GROUP_IDS[st.turn % GROUP_IDS.length]! }]);
     const peak = readRef(s, "averageOpinion");
     expect(peak).toBeGreaterThan(before);
     expect(s.hidden.expectations).toBeGreaterThan(BALANCE.expectations.tolerance);
@@ -62,8 +62,8 @@ describe("councilman chapter", () => {
     expect(readRef(s, "averageOpinion")).toBeLessThan(before);
   });
 
-  it("informative posting grows slowly and never builds expectations", () => {
-    const s = run(start(), 8, () => [{ kind: "post", style: "informative", group: "students" }]);
+  it("calm media appearances grow slowly and never build expectations", () => {
+    const s = run(start(), 8, () => [{ kind: "media", style: "informative", group: "students" }]);
     expect(s.hidden.expectations).toBe(0);
     expect(opinionOf(s, "students")).toBeGreaterThan(opinionOf(start(), "students"));
   });

@@ -8,6 +8,8 @@ import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import { SCHEMES, type SchemeId } from "../../content/councilman/schemes";
 import type { SchemeDef, SchemeOption } from "../../content/types";
 import type { CharacterId } from "../../content/councilman/characters";
+import { channelFor } from "../../content/media";
+import { yearOf } from "../../core/calendar";
 import { evaluate } from "../../core/conditions";
 import { pickVariant } from "../../core/text";
 import type { Cause, ChapterDecision, Effect, GameState } from "../../core/types";
@@ -18,10 +20,11 @@ import type { Cause, ChapterDecision, Effect, GameState } from "../../core/types
  * Nothing here mutates state: the core applies the effects.
  */
 
-export type PostStyle = "informative" | "populist";
+export type MediaStyle = "informative" | "populist";
 
 export type CouncilmanDecision =
-  | { kind: "post"; style: PostStyle; group: GroupId }
+  /** Speak to a group through the media of the era: explain calmly, or promise everything. */
+  | { kind: "media"; style: MediaStyle; group: GroupId }
   | { kind: "proposeLaw"; law: LawId }
   | { kind: "neighbourhood"; id: NeighbourhoodId }
   | { kind: "meeting"; with: CharacterId }
@@ -33,20 +36,25 @@ export type CouncilmanDecision =
 
 type Resolved = { effects: Effect[]; cause: Omit<Cause, "turn"> };
 
-// ------------------------------------------------------------------ social media
+// ------------------------------------------------------------------ media
 
-const S = BALANCE.social;
+const M = BALANCE.media;
 
-export function resolvePost(d: { style: PostStyle; group: GroupId }): Resolved {
+/** The channel this style uses in the current year: radio in 1989, social media from 2016. */
+export const mediaChannel = (state: GameState, style: MediaStyle) => channelFor(yearOf(state.turn), style);
+
+export function resolveMedia(state: GameState, d: { style: MediaStyle; group: GroupId }): Resolved {
   const group = GROUPS[d.group];
-  const topic = group.concerns[0];
+  const topic = group.concerns[0]!;
+  const channel = mediaChannel(state, d.style);
+  const fill = (t: string) => t.replace("{topic}", topic).replace("{group}", group.name.toLowerCase());
 
   if (d.style === "informative") {
     return {
-      cause: { kind: "post", id: `post_informative_${d.group}`, label: `Postou uma explicação sobre ${topic}` },
+      cause: { kind: "media", id: `media_informative_${d.group}`, label: fill(channel.cause) },
       effects: [
-        { type: "opinion", group: d.group, delta: S.informativeTarget, label: `Explicou ${topic} com clareza` },
-        { type: "flag", key: "posts_informative" },
+        { type: "opinion", group: d.group, delta: M.informativeTarget, label: `Explicou ${topic} com clareza` },
+        { type: "flag", key: "media_informative" },
       ],
     };
   }
@@ -55,16 +63,16 @@ export function resolvePost(d: { style: PostStyle; group: GroupId }): Resolved {
   const others: Effect[] = GROUP_IDS.filter((g) => g !== d.group).map((g) => ({
     type: "opinion",
     group: g,
-    delta: S.populistOthers,
-    label: "Post viral",
+    delta: M.populistOthers,
+    label: `Repercussão: ${channel.name.toLowerCase()}`,
   }));
   return {
-    cause: { kind: "post", id: `post_populist_${d.group}`, label: `Prometeu mundos e fundos aos ${group.name.toLowerCase()} sobre ${topic}` },
+    cause: { kind: "media", id: `media_populist_${d.group}`, label: fill(channel.cause) },
     effects: [
-      { type: "opinion", group: d.group, delta: S.populistTarget, label: `Prometeu ação sobre ${topic}` },
+      { type: "opinion", group: d.group, delta: M.populistTarget, label: `Prometeu ação sobre ${topic}` },
       ...others,
-      { type: "expectations", delta: S.populistExpectations },
-      { type: "flag", key: "posts_populist" },
+      { type: "expectations", delta: M.populistExpectations },
+      { type: "flag", key: "media_populist" },
     ],
   };
 }
@@ -301,8 +309,8 @@ export function resolveScheme(state: GameState, d: { itemId: string; scheme: Sch
 export function resolveCouncilmanDecision(state: GameState, decision: ChapterDecision): Resolved {
   const d = decision as CouncilmanDecision;
   switch (d.kind) {
-    case "post":
-      return resolvePost(d);
+    case "media":
+      return resolveMedia(state, d);
     case "proposeLaw":
       return resolveProposeLaw(state, d.law);
     case "neighbourhood":

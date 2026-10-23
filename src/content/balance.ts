@@ -52,12 +52,13 @@ export const BALANCE = {
     confessionIntegrity: 10,
   },
 
-  social: {
+  /** Media appearances (radio, TV, blog, social media... the channel depends on the era). */
+  media: {
     informativeTarget: 4,
     populistTarget: 10,
     populistOthers: 3,
     populistExpectations: 8,
-    maxPostsPerWeek: 1,
+    maxPerWeek: 1,
   },
 
   laws: {

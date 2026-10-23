@@ -50,7 +50,7 @@ function createInitialState({ playerName, party, form = "m" }: ChapterSetup): Ga
         body:
           `Parabéns pela eleição, ${playerName}. Você entrou com a última vaga, então não deixe isso subir à cabeça.\n\n` +
           `É assim que funciona. Toda semana você consegue fazer três coisas: um projeto de lei, uma reunião, uma caminhada nos bairros, ` +
-          `um post, um capítulo de um bom livro. Os papéis vão se acumular nesta mesa; responda, eles não se respondem sozinhos.\n\n` +
+          `uma entrevista na rádio, um capítulo de um bom livro. Os papéis vão se acumular nesta mesa; responda, eles não se respondem sozinhos.\n\n` +
           `Daqui a dois anos o partido escolhe quem vai disputar a prefeitura. Conquiste a cúpula, encha o caixa de campanha e ` +
           `ponha o povo do seu lado. Três coisas. Parece simples.\n\nNunca é.\n\n— Otávio`,
         turn: 1,
@@ -109,7 +109,7 @@ export const councilmanChapter: ChapterDefinition = {
       throw new Error(`Só dá para fazer ${BALANCE.turn.agendaSlots} coisas por semana`);
     }
     const count = (kind: string) => decisions.filter((d) => d.kind === kind).length;
-    if (count("post") > BALANCE.social.maxPostsPerWeek) throw new Error("Só um post por semana");
+    if (count("media") > BALANCE.media.maxPerWeek) throw new Error("Só uma aparição na mídia por semana");
     if (count("read") > 1) throw new Error("Só dá para começar um livro por semana");
 
     const met = decisions.filter((d) => d.kind === "meeting").map((d) => d.with as string);

@@ -7,7 +7,7 @@ import type { Condition, Effect } from "../../../core/types";
 
 /** Content lint helpers: return a list of problems (empty = all good). */
 
-const CAUSE_PREFIXES = [...Object.keys(LAWS), "post_populist", "post_informative"];
+const CAUSE_PREFIXES = [...Object.keys(LAWS), "media_populist", "media_informative"];
 
 export function badTemplates(text: string): string[] {
   const problems: string[] = [];

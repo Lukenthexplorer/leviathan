@@ -19,23 +19,24 @@ import { BillsPanel } from "../desk/panels/BillsPanel";
 import { LibraryPanel } from "../desk/panels/LibraryPanel";
 import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
-import { SocialPanel } from "../desk/panels/SocialPanel";
+import { MediaPanel } from "../desk/panels/MediaPanel";
 import { MapThumb } from "../map/MapThumb";
 import { MapView } from "../map/MapView";
 import { agendaOf, answerFor, useGame } from "../store";
 
-type Panel = "bills" | "social" | "streets" | "rolodex" | "library";
+type Panel = "bills" | "media" | "streets" | "rolodex" | "library";
 
 /** Desk drawers, each illustrated with final art. */
 const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
   { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
   { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
   { id: "streets", label: "Ruas", hint: "Construir uma base", icon: DESK_ART.city_skyline },
-  { id: "social", label: "Celular", hint: "Postar nas redes", icon: DESK_ART.brick_phone },
+  // The phone stays as the icon until a period microphone/radio illustration exists.
+  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", icon: DESK_ART.brick_phone },
   { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
 ];
 
-const PANELS = { bills: BillsPanel, social: SocialPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
+const PANELS = { bills: BillsPanel, media: MediaPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
 
 /** The main screen: the councillor's desk. */
 export function DeskScreen() {

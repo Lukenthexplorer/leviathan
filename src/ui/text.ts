@@ -1,4 +1,4 @@
-import type { CouncilmanDecision } from "../chapters/councilman/actions";
+import { mediaChannel, type CouncilmanDecision } from "../chapters/councilman/actions";
 import { BOOKS } from "../content/councilman/books";
 import { CHARACTERS, type CharacterId } from "../content/councilman/characters";
 import { GROUPS } from "../content/councilman/groups";
@@ -23,8 +23,8 @@ export function characterRole(state: GameState, id: string): string {
 export function describeDecision(state: GameState, d: Decision): string {
   const c = d as CouncilmanDecision;
   switch (c.kind) {
-    case "post":
-      return `Post ${c.style === "populist" ? "inflamado" : "explicativo"} para ${GROUPS[c.group].name.toLowerCase()}`;
+    case "media":
+      return mediaChannel(state, c.style).agenda.replace("{group}", GROUPS[c.group].name.toLowerCase());
     case "proposeLaw":
       return `Propor: ${LAWS[c.law].title}`;
     case "neighbourhood":

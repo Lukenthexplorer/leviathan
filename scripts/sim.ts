@@ -46,11 +46,11 @@ const STRATEGIES: Record<string, Strategy> = {
   idle: { describe: "Does nothing at all", decide: () => [] },
   honest: {
     describe: "One informative post per week, rotating groups",
-    decide: (s) => [{ kind: "post", style: "informative", group: rotate(s) }],
+    decide: (s) => [{ kind: "media", style: "informative", group: rotate(s) }],
   },
   populist: {
     describe: "Populist posts for 10 weeks, then goes quiet",
-    decide: (s) => (s.turn <= 10 ? [{ kind: "post", style: "populist", group: rotate(s) }] : []),
+    decide: (s) => (s.turn <= 10 ? [{ kind: "media", style: "populist", group: rotate(s) }] : []),
   },
   builder: {
     describe: "Honest builder: reads Keynes, proposes a bill a week, works the hill, refuses dirty money",
@@ -62,7 +62,7 @@ const STRATEGIES: Record<string, Strategy> = {
       if (s.turn === 1) d.push({ kind: "read", book: "keynes" });
       else if (law) d.push({ kind: "proposeLaw", law });
       else d.push({ kind: "meeting", with: "party_boss" });
-      d.push(s.turn % 2 === 0 ? { kind: "fundraise" } : { kind: "post", style: "informative", group: rotate(s) });
+      d.push(s.turn % 2 === 0 ? { kind: "fundraise" } : { kind: "media", style: "informative", group: rotate(s) });
       return d;
     },
   },
@@ -85,7 +85,7 @@ const STRATEGIES: Record<string, Strategy> = {
       else if (law) d.push({ kind: "proposeLaw", law });
       else d.push({ kind: "neighbourhood", id: home[(s.turn + 1) % home.length]! });
       d.push({ kind: "neighbourhood", id: home[s.turn % home.length]! });
-      d.push(s.turn % 3 === 0 ? { kind: "fundraise" } : { kind: "post", style: "informative", group: allies[s.turn % 3]! });
+      d.push(s.turn % 3 === 0 ? { kind: "fundraise" } : { kind: "media", style: "informative", group: allies[s.turn % 3]! });
       return d;
     },
   },
@@ -95,7 +95,7 @@ const STRATEGIES: Record<string, Strategy> = {
     plan: { intermediary: "brother_in_law", payment: "invoices", knows: "chief_of_staff" },
     decide: (s) => {
       const law = firstLaw(s);
-      const d: Decision[] = [{ kind: "post", style: "populist", group: rotate(s) }];
+      const d: Decision[] = [{ kind: "media", style: "populist", group: rotate(s) }];
       if (s.turn === 1) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "mentor" });
       else if (s.turn === 3) d.push({ kind: "meeting", with: "donor" }, { kind: "meeting", with: "party_boss" });
       else if (law) d.push({ kind: "proposeLaw", law });
