@@ -399,10 +399,11 @@ h1, h2, h3 { margin: 0; }
   filter: var(--desk-drop) drop-shadow(0 0 calc(var(--cm) * 0.7) #ffd99a80) brightness(1.08);
 }
 .desk-object:focus-visible { outline: none; }
-/* A paper tag with the object's name, shown on hover or keyboard focus. */
+/* A paper tag with the object's name, shown on hover or keyboard focus. Above the object:
+   the phone and the map lie at the bottom edge, where a tag underneath would be off-screen. */
 .object-tag {
-  position: absolute; left: 50%; bottom: calc(var(--cm) * -1.2);
-  translate: -50% 6px; rotate: -2deg;
+  position: absolute; left: 50%; bottom: calc(100% + var(--cm) * 0.3);
+  translate: -50% -6px; rotate: -2deg;
   display: flex; flex-direction: column; align-items: flex-start;
   padding: 5px 12px 6px; min-width: calc(var(--cm) * 7);
   background: #efe5c8; color: var(--ink); text-align: left;
@@ -436,8 +437,8 @@ h1, h2, h3 { margin: 0; }
 }
 /* the folded city map, lying under the stack between the phone and the ashtray */
 .deco-map {
-  left: calc(var(--stack-x) - var(--a4) * 0.5 - var(--cm) * 0.5); bottom: calc(var(--cm) * -1.5);
-  width: calc(var(--cm) * 10); rotate: -6deg;
+  left: calc(var(--stack-x) - var(--a4) * 1.3 - var(--cm) * 0.5); bottom: calc(var(--cm) * 9.5);
+  width: calc(var(--cm) * 11); rotate: -6deg;
 }
 .map-thumb.unrest img { animation: unrest 2s ease-in-out infinite; }
 @keyframes unrest {
@@ -447,7 +448,7 @@ h1, h2, h3 { margin: 0; }
 /* a red pushpin with the number of neighbourhoods in crisis */
 .map-thumb-alert {
   position: absolute; top: 14%; right: 18%;
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 20px; height: 20px; border-radius: 50%;
   display: grid; place-items: center;
   font-family: var(--type); font-size: 0.85rem; color: #fff;
   background: radial-gradient(circle at 35% 35%, #ff7a6a, #9e1a10);
@@ -458,8 +459,8 @@ h1, h2, h3 { margin: 0; }
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
   position: absolute; z-index: 2; /* an object on the desk: above the light, under the shade */
-  left: calc(var(--stack-x) + var(--a4) * 0.5 - var(--cm) * 1); bottom: calc(var(--cm) * 0.6);
-  width: calc(var(--cm) * 9.5); /* saucer: 9.5 cm, under half an A4 */
+  left: calc(var(--stack-x) + var(--a4) * 0.8 - var(--cm) * 1); bottom: calc(var(--cm) * 4.6);
+  width: calc(var(--cm) * 12.5); /* saucer: 9.5 cm, under half an A4 */
   pointer-events: none;
 }
 .coffee img { width: 100%; filter: var(--desk-drop); transform: rotate(-8deg); }
@@ -482,8 +483,8 @@ h1, h2, h3 { margin: 0; }
   width: calc(var(--cm) * 10); rotate: -10deg;
 }
 .deco-ashtray {
-  left: calc(var(--stack-x) + var(--cm) * 1); bottom: calc(var(--cm) * 1.4);
-  width: calc(var(--cm) * 6.5);
+  left: calc(var(--stack-x) + var(--cm) * 30); bottom: calc(var(--cm) * 6.4);
+  width: calc(var(--cm) * 7.5);
 }
 .deco-ashtray img { width: 100%; display: block; filter: var(--desk-drop); }
 /* cigarette smoke: thinner and greyer than the coffee's steam, rising from the tip */
