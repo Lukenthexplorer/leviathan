@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { chapterFor } from "../chapters";
 import { advanceTurn } from "../core/advanceTurn";
+import { allOpinions } from "../core/groups";
 import { isDeskAnswer, type Decision, type GameState, type TurnReport } from "../core/types";
 import { clearSave, loadGame, saveGame } from "../persistence/save";
 
@@ -16,6 +17,14 @@ import { clearSave, loadGame, saveGame } from "../persistence/save";
 
 export type Screen = "title" | "party" | "desk" | "election" | "ending";
 
+/** The numbers on the desk as they were before the last week turned (for the ▲▼ marks). UI only, never saved. */
+export interface LastWeek {
+  opinions: Record<string, number>;
+  capital: number;
+  funds: number;
+}
+const snapshot = (s: GameState): LastWeek => ({ opinions: allOpinions(s), capital: s.player.capital, funds: s.player.funds });
+
 interface GameStore {
   screen: Screen;
   state: GameState | null;
@@ -27,6 +36,8 @@ interface GameStore {
   savedAt: number | null;
   /** Dev test scenarios turn autosave off, so they never overwrite the real career. */
   persist: boolean;
+  /** Before the last "Próxima semana"; null right after a new game or a load. */
+  lastWeek: LastWeek | null;
 
   goto(screen: Screen): void;
   newGame(party: string, playerName: string, form?: "m" | "f"): void;
@@ -48,19 +59,20 @@ export const useGame = create<GameStore>((set, get) => ({
   notice: null,
   savedAt: null,
   persist: true,
+  lastWeek: null,
 
   goto: (screen) => set({ screen }),
 
   newGame(party, playerName, form = "m") {
     const state = chapterFor("councilman").createInitialState({ party, playerName, form });
     const persist = get().persist;
-    set({ state, pending: [], report: null, notice: null, screen: "desk", savedAt: persist && saveGame(state) ? Date.now() : null });
+    set({ state, pending: [], report: null, notice: null, lastWeek: null, screen: "desk", savedAt: persist && saveGame(state) ? Date.now() : null });
   },
 
   continueGame() {
     const state = loadGame();
     if (!state) return false;
-    set({ state, pending: [], report: null, notice: null, screen: state.ending ? "ending" : "desk", savedAt: null });
+    set({ state, pending: [], report: null, notice: null, lastWeek: null, screen: state.ending ? "ending" : "desk", savedAt: null });
     return true;
   },
 
@@ -97,7 +109,7 @@ export const useGame = create<GameStore>((set, get) => ({
     }
     // An election result means election night first; any other ending goes straight to the newspaper.
     const screen = next.election ? "election" : next.ending ? "ending" : "desk";
-    set({ state: next, pending: [], report, screen, savedAt });
+    set({ state: next, pending: [], report, screen, savedAt, lastWeek: snapshot(state) });
     return report;
   },
 

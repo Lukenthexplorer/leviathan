@@ -55,7 +55,6 @@ export function PathsCard({ state }: { state: GameState }) {
   const left = K.decisionWeek - state.turn;
   return (
     <div className={`goals ${state.turn === 1 ? "intro" : ""}`}>
-      {state.turn === 1 && <div className="goals-intro-note">Seu objetivo. Na semana {K.decisionWeek}, você escolhe a eleição.</div>}
       <div className="goals-title">Caminhos</div>
       <ul>
         {paths.map((p) => (

@@ -14,7 +14,8 @@ import { DeskLighting } from "../desk/DeskLighting";
 import { DeskObject } from "../desk/DeskObject";
 import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
-import { OpinionStrip } from "../desk/OpinionStrip";
+import { Ledger } from "../desk/Ledger";
+import { PollClipping } from "../desk/PollClipping";
 import { PaperView } from "../desk/PaperView";
 import { WeekReport } from "../desk/WeekReport";
 import { BillsPanel } from "../desk/panels/BillsPanel";
@@ -28,9 +29,7 @@ import { MapThumb } from "../map/MapThumb";
 // without it; the browser fetches the map's code the first time it's opened.
 const MapView = lazy(() => import("../map/MapView").then((m) => ({ default: m.MapView })));
 import { agendaOf, answerFor, useGame } from "../store";
-import { capitalIncome, lawCost } from "../../chapters/councilman/actions";
 import { BALANCE } from "../../content/balance";
-import type { LawId } from "../../content/councilman/laws";
 
 type Panel = "bills" | "campaign" | "media" | "streets" | "rolodex" | "library";
 
@@ -155,12 +154,8 @@ export function DeskScreen() {
           </div>
         </div>
         <Calendar turn={state.turn} />
-        <OpinionStrip state={state} />
-        <CapitalGauge state={state} />
-        <div className="chest" title="Dinheiro de campanha, em milhares">
-          <div className="chest-label">Caixa de campanha</div>
-          <div className="chest-value">{state.player.funds}k</div>
-        </div>
+        <PollClipping state={state} />
+        <Ledger state={state} />
       </header>
 
       <main className="desk-middle">
@@ -239,27 +234,4 @@ export function DeskScreen() {
 function corruptionLevel(state: GameState): number {
   const start = BALANCE.hidden.integrityStart;
   return Math.round(Math.max(0, Math.min(1, (start - state.hidden.integrity) / start)) * 100) / 100;
-}
-
-/** Political capital: what you have, what this week's agenda will spend, and where the income comes from. */
-function CapitalGauge({ state }: { state: GameState }) {
-  const pending = useGame((s) => s.pending);
-  const spending = pending.reduce((sum, d) => (d.kind === "proposeLaw" ? sum + lawCost(d.law as LawId, (d.lobby as number) ?? 0) : sum), 0);
-  const income = capitalIncome(state);
-  const why = [
-    `+${BALANCE.capital.weeklyBase} pelo mandato`,
-    income.supporters ? `+${Math.floor(income.supporters * BALANCE.capital.perSupportingGroup)} por ${income.supporters} grupo(s) a favor` : "",
-    income.bossTrust ? `+${BALANCE.capital.bossTrustBonus} pela confiança da cúpula` : "",
-  ]
-    .filter(Boolean)
-    .join(", ");
-  return (
-    <div className="chest capital" title={`Por semana: +${income.total} (${why}). Gasto para propor e articular leis.`}>
-      <div className="chest-label">Capital político</div>
-      <div className="chest-value">
-        {state.player.capital}
-        {spending > 0 && <small> −{spending}</small>}
-      </div>
-    </div>
-  );
 }

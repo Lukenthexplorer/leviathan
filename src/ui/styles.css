@@ -140,6 +140,11 @@ h1, h2, h3 { margin: 0; }
   --desk-drop: drop-shadow(-10px 14px 14px #000b) drop-shadow(-2px 3px 3px #0008);
 }
 .desk-screen {
+  /* the three bands of the desk: notes on the left, the paper stack in the middle, objects on the right */
+  --left-w: max(230px, calc(var(--cm) * 16));
+  --right-w: max(250px, calc(var(--cm) * 20));
+  /* horizontal centre of the paper stack (the middle column of .desk-middle) */
+  --stack-x: calc((100vw + var(--left-w) - var(--right-w)) / 2);
   position: relative;
   height: 100%;
   display: grid;
@@ -210,25 +215,26 @@ h1, h2, h3 { margin: 0; }
 .desk-top {
   display: flex;
   gap: 20px;
-  align-items: stretch;
-  padding: 14px 22px;
+  align-items: flex-start;
+  /* the lamp sits in the top-right corner: the row stops before it */
+  padding: 14px calc(var(--cm) * 12.5) 6px 22px;
 }
 .desk-middle {
   display: grid;
-  grid-template-columns: max(230px, calc(var(--cm) * 16)) 1fr max(250px, calc(var(--cm) * 20));
+  grid-template-columns: var(--left-w) 1fr var(--right-w);
   gap: 22px;
   padding: 10px 22px;
   min-height: 0;
 }
 .desk-bottom {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-  padding: 14px 22px 20px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 4px 22px 18px;
 }
 .desk-status { font-family: var(--type); color: #cdbb98; font-size: 0.9rem; }
-.desk-saved { margin-right: auto; font-family: var(--type); font-size: 0.8rem; color: #cdbb98; opacity: 0; }
+.desk-saved { position: absolute; left: 22px; bottom: 18px; font-family: var(--type); font-size: 0.8rem; color: #cdbb98; opacity: 0; }
 
 /* badge */
 .badge { display: flex; gap: 10px; align-items: center; min-width: 210px; }
@@ -250,22 +256,47 @@ h1, h2, h3 { margin: 0; }
 .calendar-week { font-family: var(--display); font-size: 1.15rem; color: var(--red); }
 .calendar-date { font-family: var(--type); font-size: 0.75rem; }
 
-/* opinion meters */
-.opinions { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-.meter { padding: 6px 8px; border-radius: 4px; background: #0000; }
-.meter-head { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px; gap: 4px; }
-.meter-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.meter-num { font-family: var(--type); }
-.meter-track { position: relative; height: 8px; background: #0007; border-radius: 4px; overflow: hidden; }
-.meter-zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #fff5; }
-.meter-fill { position: absolute; top: 0; bottom: 0; }
-.meter-fill.pos { background: #7aa65f; }
-.meter-fill.neg { background: #c0533f; }
+/* the opinion poll: a newspaper clipping taped to the desk */
+.poll-clipping {
+  position: relative; flex: 1; min-width: 0;
+  padding: calc(var(--cm) * 0.55) calc(var(--cm) * 1.1) calc(var(--cm) * 0.6);
+  background: center / 100% 100% no-repeat; color: var(--ink);
+  filter: drop-shadow(-4px 6px 6px #000a); rotate: -0.6deg;
+}
+.poll-tape {
+  position: absolute; top: -8px; left: 50%; width: 70px; height: 20px; translate: -50% 0; rotate: 3deg;
+  background: #f3ecd2aa; box-shadow: 0 1px 2px #0003;
+}
+.poll-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2px solid var(--ink); padding-bottom: 2px; margin-bottom: 4px; }
+.poll-head strong { font-family: var(--display); font-weight: 900; font-size: max(0.8rem, calc(var(--cm) * 0.75)); letter-spacing: 0.04em; }
+.poll-head span { font-family: var(--type); font-size: 0.66rem; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poll-groups { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.poll-figure { display: flex; flex-direction: column; align-items: center; padding: 1px 2px; border-radius: 3px; }
+.poll-figure + .poll-figure { border-left: 1px solid #0002; }
+.poll-name { font-family: var(--type); font-size: max(0.66rem, calc(var(--cm) * 0.55)); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.poll-num { font-family: var(--display); font-weight: 900; font-size: max(1.35rem, calc(var(--cm) * 1.35)); line-height: 1.05; }
+.poll-num.pos { color: #2f5f2c; }
+.poll-num.neg { color: var(--red); }
+.poll-change { font-family: var(--type); font-size: 0.68rem; color: var(--ink-soft); line-height: 1; }
+.poll-change.up { color: #2f5f2c; }
+.poll-change.down { color: var(--red); }
 
-/* campaign chest */
-.chest { text-align: right; min-width: 110px; }
-.chest-label { font-size: 0.75rem; opacity: 0.7; }
-.chest-value { font-family: var(--display); font-size: 1.6rem; color: var(--brass-light); }
+/* the account book: political capital and campaign money */
+.ledger {
+  width: max(150px, calc(var(--cm) * 9)); flex: none;
+  padding: calc(var(--cm) * 0.9) calc(var(--cm) * 0.8) calc(var(--cm) * 0.5) calc(var(--cm) * 2);
+  background: top / 100% auto no-repeat; color: var(--ink);
+  filter: drop-shadow(-4px 6px 6px #000a); rotate: 1.5deg;
+  font-family: var(--type);
+}
+.ledger-line { display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 6px; line-height: 1.2; }
+.ledger-line + .ledger-line { margin-top: calc(var(--cm) * 0.35); }
+.ledger-line span { font-size: 0.68rem; color: var(--ink-soft); }
+.ledger-line strong { font-family: var(--display); font-size: max(1.15rem, calc(var(--cm) * 1.1)); text-align: right; }
+.ledger-line strong small { font-size: 0.7rem; color: var(--red); }
+.ledger-change { grid-column: 2; justify-self: end; font-size: 0.66rem; }
+.ledger-change.up { color: #2f5f2c; }
+.ledger-change.down { color: var(--red); }
 
 /* agenda pad */
 .agenda {
@@ -393,7 +424,7 @@ h1, h2, h3 { margin: 0; }
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
   position: absolute; z-index: 2; /* an object on the desk: above the light, under the shade */
-  right: clamp(240px, 17vw, 330px); bottom: 70px;
+  left: calc(var(--stack-x) + var(--a4) * 0.5 - var(--cm) * 1); bottom: calc(var(--cm) * 0.6);
   width: calc(var(--cm) * 9.5); /* saucer: 9.5 cm, under half an A4 */
   pointer-events: none;
 }
@@ -558,7 +589,7 @@ h1, h2, h3 { margin: 0; }
 
 @media (max-width: 1100px) {
   .desk-top { flex-wrap: wrap; }
-  .opinions { grid-template-columns: repeat(3, 1fr); order: 5; flex-basis: 100%; }
+  .poll-clipping { order: 5; flex-basis: 100%; }
 }
 
 /* Focus rings only for keyboard users, not after a mouse click. */
@@ -762,19 +793,17 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .law-actions .desk-btn { font-size: 0.8rem; padding: 7px 10px; }
 .map-loading { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; font-family: var(--type); color: #cdbb98; background: #120d09cc; }
 
-/* desk clock: brass rim, paper face, ticking second hand */
+/* desk clock: a twin-bell alarm clock (desk_clock.png), the hands drawn on its dial */
 .desk-clock {
   position: absolute; z-index: 2;
-  left: clamp(300px, 22vw, 420px); bottom: 70px;
-  width: 118px; aspect-ratio: 1;
-  border-radius: 50%;
-  padding: 7px;
-  background: radial-gradient(circle at 30% 25%, #e8c98a, #9a7438 55%, #5b4120);
-  box-shadow: var(--desk-shadow);
+  left: calc(var(--stack-x) - var(--a4) * 0.5 + var(--cm) * 0.5); bottom: calc(var(--cm) * 1.2);
+  width: calc(var(--cm) * 6.5); aspect-ratio: 1;
+  rotate: -8deg;
   pointer-events: none;
 }
-.clock-face { position: relative; width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f6eedb, #d9cba8); box-shadow: inset 0 2px 6px #0006; }
-.clock-mark { position: absolute; left: 50%; top: 4px; width: 2px; height: 7px; margin-left: -1px; background: var(--ink); transform-origin: 1px 48px; }
+.desk-clock img { width: 100%; display: block; filter: var(--desk-drop); }
+/* the dial's centre and size, as drawn in desk_clock.png */
+.clock-face { position: absolute; left: 50%; top: 54.7%; width: 65%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; }
 .hand-wrap { position: absolute; inset: 0; }
 .hand { position: absolute; left: 50%; bottom: 50%; transform-origin: 50% 100%; border-radius: 2px; }
 .hand-hour { width: 4px; height: 24%; margin-left: -2px; background: var(--ink); animation: clock-spin 43200s linear infinite; rotate: 300deg; }
@@ -791,22 +820,11 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 }
 .screen-goal strong { color: var(--brass-light); }
 .goals.intro { position: relative; animation: goals-glow 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .goals.intro { animation: none; } }
 @keyframes goals-glow {
   0%, 100% { box-shadow: var(--desk-shadow); }
   50% { box-shadow: var(--desk-shadow), 0 0 0 3px #d9b77c, 0 0 26px #d9b77c88; }
 }
-.goals-intro-note {
-  position: absolute; top: 14px; left: calc(100% + 14px); rotate: 5deg;
-  max-width: 150px; padding: 6px 10px;
-  font-family: var(--type); font-size: 0.72rem; line-height: 1.3;
-  background: #f7e27a; color: var(--ink); box-shadow: 3px 4px 6px #0007;
-}
-.goals-intro-note::before {
-  content: ""; position: absolute; top: -6px; left: 50%; translate: -50% 0;
-  width: 12px; height: 12px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ff8a7a, #9e1a10); box-shadow: 0 2px 2px #0008;
-}
-
 /* neighbourhood projects ("Ajuda do gabinete") */
 .nb-block { border-bottom: 1px dashed #0003; padding-bottom: 8px; }
 .nb-block .action-row { border-bottom: none; }

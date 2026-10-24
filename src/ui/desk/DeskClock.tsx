@@ -1,9 +1,10 @@
 import gsap from "gsap";
 import { useLayoutEffect, useRef } from "react";
+import { DESK_ART } from "../assets";
 import { audio } from "../audio/audio";
 
 /**
- * A brass desk clock. Idle: the second hand ticks, the minute hand creeps.
+ * A twin-bell alarm clock on the desk. Idle: the second hand ticks, the minute hand creeps.
  * When the week turns, the hands race round: a week passing in two seconds.
  *
  * Two layers per hand: an outer wrapper GSAP spins on week change, and an
@@ -35,10 +36,8 @@ export function DeskClock({ turn }: { turn: number }) {
 
   return (
     <div className="desk-clock" aria-hidden>
+      <img src={DESK_ART.desk_clock} alt="" />
       <div className="clock-face">
-        {Array.from({ length: 12 }, (_, i) => (
-          <span key={i} className="clock-mark" style={{ rotate: `${i * 30}deg` }} />
-        ))}
         <div className="hand-wrap" ref={hour}>
           <div className="hand hand-hour" />
         </div>
