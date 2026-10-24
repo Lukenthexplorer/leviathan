@@ -145,6 +145,8 @@ h1, h2, h3 { margin: 0; }
   --right-w: max(210px, calc(var(--cm) * 15));
   /* horizontal centre of the paper stack (the middle column of .desk-middle) */
   --stack-x: calc((100vw + var(--left-w) - var(--right-w)) / 2);
+  /* how far below the header the paper stack starts; the drawer boxes on the right line up with it */
+  --stack-top: calc(var(--cm) * 1.8);
   position: relative;
   height: 100%;
   display: grid;
@@ -325,7 +327,7 @@ h1, h2, h3 { margin: 0; }
   position: relative;
   width: var(--a4); height: calc(var(--a4) * 1.414);
   justify-self: center; align-self: start;
-  margin-top: calc(var(--cm) * 0.5);
+  margin-top: var(--stack-top);
 }
 .inbox-empty { align-self: center; justify-self: center; font-style: italic; opacity: 0.5; }
 .paper-card {
@@ -419,7 +421,8 @@ h1, h2, h3 { margin: 0; }
 }
 
 /* ---- the drawers on the right: decorated boxes, the illustration spilling out like an object lying on it */
-.tools { display: flex; flex-direction: column; gap: 12px; align-self: start; position: relative; }
+/* the boxes' top follows the top paper's top edge */
+.tools { display: flex; flex-direction: column; gap: 12px; align-self: start; position: relative; margin-top: calc(var(--stack-top) + var(--cm) * 0.4); }
 .tool {
   position: relative; text-align: left; padding: 12px 14px;
   background: linear-gradient(170deg, var(--wood-light), var(--wood));
