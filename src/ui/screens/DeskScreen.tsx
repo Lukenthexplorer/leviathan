@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { forwardRef, lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { DeskItem, GameState } from "../../core/types";
@@ -24,7 +24,7 @@ import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
 import { CampaignPanel } from "../desk/panels/CampaignPanel";
 import { MediaPanel } from "../desk/panels/MediaPanel";
-import { mapModel } from "../map/model";
+import { MapThumb } from "../map/MapThumb";
 // The map pulls in PixiJS (~500 KB). Lazy-loading it means the desk opens
 // without it; the browser fetches the map's code the first time it's opened.
 const MapView = lazy(() => import("../map/MapView").then((m) => ({ default: m.MapView })));
@@ -70,10 +70,8 @@ export function DeskScreen() {
   const curtainText = useRef<HTMLDivElement>(null);
   const flash = useRef<HTMLDivElement>(null);
   const desk = useRef<HTMLDivElement>(null);
-  /** The Ruas drawer: the living map unfolds from it. */
+  /** The folded map on the desk: the living map unfolds from it. */
   const mapThumb = useRef<HTMLButtonElement>(null);
-  /** Neighbourhoods in crisis: a red pin on the Ruas drawer. */
-  const crises = mapModel(state).districts.filter((d) => d.markers.includes("protest") || d.mood <= -40).length;
   const phone = useRef<PhoneHandle>(null);
   /** The call waiting on the desk, if any: the phone picks it up. */
   const call = state.inbox.find((i) => i.kind === "phone" && !answerFor(pending, i.id)) ?? null;
@@ -173,15 +171,7 @@ export function DeskScreen() {
         <InboxStack state={state} onOpen={setOpenItem} />
         <nav className="tools" aria-label="Gavetas">
           {(state.campaign ? [CAMPAIGN_TOOL, ...TOOLS.filter((t) => t.id !== "bills")] : TOOLS).map((t) => (
-            <Tool
-              key={t.id}
-              ref={t.id === "streets" ? mapThumb : undefined}
-              label={t.label}
-              hint={t.hint}
-              icon={t.icon}
-              alert={t.id === "streets" ? crises : 0}
-              onClick={() => setPanel(t.id)}
-            />
+            <Tool key={t.id} label={t.label} hint={t.hint} icon={t.icon} onClick={() => setPanel(t.id)} />
           ))}
         </nav>
       </main>
@@ -189,6 +179,7 @@ export function DeskScreen() {
       {/* 1989 on the desk: decorations (no clicks), and the phone, which answers calls. */}
       <img className="deco deco-typewriter" src={DESK_ART.typewriter} alt="" aria-hidden />
       <RotaryPhone ref={phone} call={call} onAnswer={setOpenItem} />
+      <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
       <div className="deco deco-ashtray" aria-hidden>
         <img src={DESK_ART.ashtray} alt="" />
         <span className="smoke" />
@@ -257,28 +248,13 @@ function corruptionLevel(state: GameState): number {
   return Math.round(Math.max(0, Math.min(1, (start - state.hidden.integrity) / start)) * 100) / 100;
 }
 
-const Tool = forwardRef<HTMLButtonElement, { label: string; hint: string; icon: string; alert: number; onClick: () => void }>(function Tool(props, outer) {
+function Tool({ label, hint, icon, onClick }: { label: string; hint: string; icon: string; onClick: () => void }) {
   const [ref, hover] = useHoverLift<HTMLButtonElement>();
   return (
-    <button
-      ref={(el) => {
-        ref.current = el;
-        if (typeof outer === "function") outer(el);
-        else if (outer) outer.current = el;
-      }}
-      {...hover}
-      className="tool with-icon"
-      onClick={props.onClick}
-      aria-label={`${props.label}: ${props.hint}${props.alert ? `, ${props.alert} ${props.alert > 1 ? "bairros" : "bairro"} em crise` : ""}`}
-    >
-      <img className="tool-icon" src={props.icon} alt="" />
-      <span className="tool-label">{props.label}</span>
-      <span className="tool-hint">{props.hint}</span>
-      {props.alert > 0 && (
-        <span className="tool-alert" aria-hidden>
-          {props.alert}
-        </span>
-      )}
+    <button ref={ref} {...hover} className="tool with-icon" onClick={onClick} aria-label={`${label}: ${hint}`}>
+      <img className="tool-icon" src={icon} alt="" />
+      <span className="tool-label">{label}</span>
+      <span className="tool-hint">{hint}</span>
     </button>
   );
-});
+}

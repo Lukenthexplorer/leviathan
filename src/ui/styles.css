@@ -434,18 +434,26 @@ h1, h2, h3 { margin: 0; }
   filter: drop-shadow(6px 8px 10px #000b);
   pointer-events: none;
 }
-/* a red pushpin with the number of neighbourhoods in crisis (on Ruas) */
-.tool-alert {
-  position: absolute; top: -8px; right: -8px;
+/* the folded city map, lying under the stack between the phone and the ashtray */
+.deco-map {
+  left: calc(var(--stack-x) - var(--a4) * 0.5 - var(--cm) * 0.5); bottom: calc(var(--cm) * -1.5);
+  width: calc(var(--cm) * 10); rotate: -6deg;
+}
+.map-thumb.unrest img { animation: unrest 2s ease-in-out infinite; }
+@keyframes unrest {
+  0%, 100% { filter: var(--desk-drop); }
+  50% { filter: var(--desk-drop) drop-shadow(0 0 10px #c0261acc); }
+}
+/* a red pushpin with the number of neighbourhoods in crisis */
+.map-thumb-alert {
+  position: absolute; top: 14%; right: 18%;
   width: 26px; height: 26px; border-radius: 50%;
   display: grid; place-items: center;
   font-family: var(--type); font-size: 0.85rem; color: #fff;
   background: radial-gradient(circle at 35% 35%, #ff7a6a, #9e1a10);
   box-shadow: 2px 3px 4px #0009;
-  animation: unrest-pin 2s ease-in-out infinite;
 }
-@keyframes unrest-pin { 50% { box-shadow: 2px 3px 4px #0009, 0 0 12px #c0261acc; } }
-@media (prefers-reduced-motion: reduce) { .tool-alert { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .map-thumb.unrest img { animation: none; } }
 
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
@@ -474,7 +482,7 @@ h1, h2, h3 { margin: 0; }
   width: calc(var(--cm) * 10); rotate: -10deg;
 }
 .deco-ashtray {
-  left: calc(var(--stack-x) - var(--cm) * 1.5); bottom: calc(var(--cm) * 1.4);
+  left: calc(var(--stack-x) + var(--cm) * 1); bottom: calc(var(--cm) * 1.4);
   width: calc(var(--cm) * 6.5);
 }
 .deco-ashtray img { width: 100%; display: block; filter: var(--desk-drop); }
