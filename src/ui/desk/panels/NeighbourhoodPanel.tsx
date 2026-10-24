@@ -11,13 +11,20 @@ import { Sheet } from "../Sheet";
 import { ActionRow } from "./ActionRow";
 
 /** Street work and "Ajuda do gabinete": build roots, or pay for a visible fix. */
-export function NeighbourhoodPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
+export function NeighbourhoodPanel({ state, onClose, onOpenMap }: { state: GameState; onClose: () => void; onOpenMap?: () => void }) {
   return (
     <Sheet title="Os bairros" onClose={onClose} wide>
       <p className="panel-intro">
         Bata de porta em porta, apareça na padaria, escute. Ou pague do caixa de campanha uma obra que o bairro veja. Você tem{" "}
         <strong>{state.player.funds} mil</strong>.
       </p>
+      {onOpenMap && (
+        <div className="panel-map-link">
+          <DeskButton variant="ghost" onClick={onOpenMap}>
+            Desdobrar o mapa da cidade
+          </DeskButton>
+        </div>
+      )}
       <ActionRow title="Vaquinha de campanha" decision={{ kind: "fundraise" }} cta="Arrecadar" aside={<div className="nb-stats">+{fundraiseAmount(state)} mil</div>}>
         Pequenas doações de quem te conhece. Dinheiro limpo e lento: rende mais quanto mais raízes você tem nos bairros.
       </ActionRow>

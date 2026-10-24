@@ -176,8 +176,8 @@ h1, h2, h3 { margin: 0; }
 }
 .desk-lamp {
   position: absolute; z-index: 6; pointer-events: none;
-  right: calc(var(--cm) * -5); top: calc(var(--cm) * -6);
-  width: calc(var(--cm) * 22);
+  right: calc(var(--cm) * -4); top: calc(var(--cm) * -5.5);
+  width: calc(var(--cm) * 18);
   filter: drop-shadow(-14px 18px 18px #000c) drop-shadow(0 0 calc(var(--cm) * 2) #ffd89a55);
 }
 /* Night (election night): lamp turned low, the TV's cold glow in the middle, much darker edges. */
@@ -215,7 +215,7 @@ h1, h2, h3 { margin: 0; }
 }
 .desk-middle {
   display: grid;
-  grid-template-columns: 260px 1fr 200px;
+  grid-template-columns: max(230px, calc(var(--cm) * 16)) 1fr max(250px, calc(var(--cm) * 20));
   gap: 22px;
   padding: 10px 22px;
   min-height: 0;
@@ -353,16 +353,42 @@ h1, h2, h3 { margin: 0; }
   font-family: var(--type); font-size: 0.8rem; transform: rotate(-8deg); mix-blend-mode: multiply;
 }
 
-/* tools */
-.tools { display: flex; flex-direction: column; gap: 12px; align-self: start; position: relative; }
-.tool {
-  text-align: left; padding: 12px 14px;
-  background: linear-gradient(170deg, var(--wood-light), var(--wood));
-  border: 1px solid #b08d5788; border-left: 6px solid var(--brass);
-  border-radius: 3px; cursor: pointer; box-shadow: 0 8px 16px #0009;
+/* ---- objects on the desk that open a panel (DeskObject.tsx). Sizes in desk cm. */
+.desk-objects { position: relative; }
+.desk-object {
+  position: absolute; z-index: 1;
+  padding: 0; border: none; background: none; cursor: pointer;
 }
-.tool-label { display: block; font-family: var(--display); font-size: 1.1rem; color: var(--brass-light); }
-.tool-hint { font-size: 0.78rem; opacity: 0.7; }
+.desk-object img { width: 100%; display: block; filter: var(--desk-drop); transition: filter 0.2s ease; }
+/* Lifted toward the lamp: it catches a little warm light. */
+.desk-object:hover, .desk-object:focus-visible { z-index: 2; }
+.desk-object:hover img, .desk-object:focus-visible img {
+  filter: var(--desk-drop) drop-shadow(0 0 calc(var(--cm) * 0.7) #ffd99a80) brightness(1.08);
+}
+.desk-object:focus-visible { outline: none; }
+/* A paper tag with the object's name, shown on hover or keyboard focus. */
+.object-tag {
+  position: absolute; left: 50%; bottom: calc(var(--cm) * -1.2);
+  translate: -50% 6px; rotate: -2deg;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 5px 12px 6px; min-width: calc(var(--cm) * 7);
+  background: #efe5c8; color: var(--ink); text-align: left;
+  box-shadow: -3px 5px 8px #000a; border-left: 3px solid var(--brass);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s ease, translate 0.15s ease;
+  white-space: nowrap;
+}
+.object-tag strong { font-family: var(--display); font-size: 1rem; }
+.object-tag small { font-family: var(--type); font-size: 0.72rem; color: var(--ink-soft); }
+.desk-object:hover .object-tag, .desk-object:focus-visible .object-tag { opacity: 1; translate: -50% 0; }
+/* Where each lies, inside the right-hand side of the desk. Tops are % of that area, sizes in cm. */
+.at-folder { left: calc(var(--cm) * -0.5); top: 0; width: calc(var(--cm) * 9); rotate: -6deg; }
+.at-rolodex { right: calc(var(--cm) * 0.5); top: 15%; width: calc(var(--cm) * 8.5); rotate: 4deg; }
+.at-radio { left: 0; top: 34%; width: calc(var(--cm) * 10.5); rotate: -3deg; }
+.at-books { right: 0; top: 48%; width: calc(var(--cm) * 8.5); rotate: 5deg; }
+.at-map { left: calc(var(--cm) * 0.5); top: 69%; width: calc(var(--cm) * 11.5); rotate: -5deg; }
+@media (prefers-reduced-motion: reduce) {
+  .object-tag, .desk-object img { transition: none; }
+}
 
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
@@ -401,6 +427,7 @@ h1, h2, h3 { margin: 0; }
 .sheet.wide { width: min(900px, 100%); }
 .sheet-title { font-family: var(--display); font-size: 1.6rem; margin-bottom: 8px; }
 .sheet-close { position: absolute; top: 10px; right: 14px; border: none; background: none; font-size: 1.8rem; cursor: pointer; color: var(--ink-soft); }
+.panel-map-link { display: flex; justify-content: flex-end; margin: -6px 0 10px; }
 .panel-intro { font-style: italic; color: var(--ink-soft); margin-top: 0; }
 
 /* opened document */
@@ -532,7 +559,6 @@ h1, h2, h3 { margin: 0; }
 @media (max-width: 1100px) {
   .desk-top { flex-wrap: wrap; }
   .opinions { grid-template-columns: repeat(3, 1fr); order: 5; flex-basis: 100%; }
-  .desk-middle { grid-template-columns: 220px 1fr 170px; }
 }
 
 /* Focus rings only for keyboard users, not after a mouse click. */
@@ -650,13 +676,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 /* ------------------------------------------------------------- step 7: city map */
 
 .desk-left { display: flex; flex-direction: column; gap: 26px; align-self: start; }
-.map-thumb {
-  position: relative;
-  width: 260px; margin-left: -10px;
-  padding: 0; border: none; background: none; cursor: pointer;
-  transform: rotate(-4deg);
-}
-.map-thumb img { width: 100%; display: block; filter: var(--desk-drop); }
 .map-thumb.unrest img { animation: unrest 2s ease-in-out infinite; }
 @keyframes unrest {
   0%, 100% { filter: var(--desk-drop); }
@@ -710,15 +729,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .map-card .action-row { grid-template-columns: 1fr auto; border-bottom: none; padding-bottom: 0; }
 .map-card-hint { font-family: var(--type); font-size: 0.8rem; color: var(--ink-soft); margin: 0; }
 .map-card-notice { font-family: var(--type); font-size: 0.8rem; color: var(--red); margin: 6px 0 0; }
-
-/* Tools with final art: the illustration spills out of the drawer, like an object lying on it. */
-.tool.with-icon { position: relative; padding-left: 92px; min-height: 76px; }
-.tool-icon {
-  position: absolute; left: -14px; top: 50%; translate: 0 -50%;
-  width: 104px; rotate: -8deg;
-  filter: drop-shadow(0 8px 10px #000b);
-  pointer-events: none;
-}
 
 /* goals card */
 .goals {

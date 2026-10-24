@@ -6,12 +6,12 @@ import type { DeskItem, GameState } from "../../core/types";
 import { BLOTTER, DESK_ART } from "../assets";
 import { audio } from "../audio/audio";
 import { musicTension } from "../audio/tension";
-import { useHoverLift } from "../feel/useHoverLift";
 import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
 import { DeskClock } from "../desk/DeskClock";
 import { DeskLighting } from "../desk/DeskLighting";
+import { DeskObject } from "../desk/DeskObject";
 import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { OpinionStrip } from "../desk/OpinionStrip";
@@ -34,16 +34,16 @@ import type { LawId } from "../../content/councilman/laws";
 
 type Panel = "bills" | "campaign" | "media" | "streets" | "rolodex" | "library";
 
-/** Desk drawers, each illustrated with final art. */
-const TOOLS: { id: Panel; label: string; hint: string; icon?: string }[] = [
-  { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
-  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
-  { id: "streets", label: "Ruas", hint: "Construir uma base", icon: DESK_ART.city_skyline },
-  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", icon: DESK_ART.radio },
-  { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
+/** The objects on the desk that open a panel. `place` positions them (styles.css, in desk cm). The map (Ruas) is MapThumb. */
+const OBJECTS: { id: Panel; label: string; hint: string; img: string; place: string }[] = [
+  { id: "bills", label: "Projetos", hint: "Propor uma lei", img: DESK_ART.bills_folder, place: "at-folder" },
+  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", img: DESK_ART.rolodex, place: "at-rolodex" },
+  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", img: DESK_ART.radio, place: "at-radio" },
+  { id: "library", label: "Estante", hint: "Ler e aprender", img: DESK_ART.book_stack, place: "at-books" },
 ];
 
-const CAMPAIGN_TOOL = { id: "campaign" as Panel, label: "Campanha", hint: "Ruas, apoios, palanque", icon: DESK_ART.campaign_folder };
+/** In the campaign the Câmara is in recess: the campaign folder takes the bills folder's place. */
+const CAMPAIGN_OBJECT = { id: "campaign" as Panel, label: "Campanha", hint: "Ruas, apoios, palanque", img: DESK_ART.campaign_folder, place: "at-folder" };
 
 const PANELS = { bills: BillsPanel, campaign: CampaignPanel, media: MediaPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
 
@@ -167,14 +167,13 @@ export function DeskScreen() {
         <div className="desk-left">
           <AgendaPad state={state} />
           <PathsCard state={state} />
-          <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
         </div>
         <InboxStack state={state} onOpen={setOpenItem} />
-        <nav className="tools">
-          {/* In the campaign the Câmara is in recess: the bills folder gives way to the campaign folder. */}
-          {(state.campaign ? [CAMPAIGN_TOOL, ...TOOLS.filter((t) => t.id !== "bills")] : TOOLS).map((t) => (
-            <Tool key={t.id} label={t.label} hint={t.hint} icon={t.icon} onClick={() => setPanel(t.id)} />
+        <nav className="desk-objects" aria-label="Objetos da mesa">
+          {(state.campaign ? [CAMPAIGN_OBJECT, ...OBJECTS.filter((o) => o.id !== "bills")] : OBJECTS).map((o) => (
+            <DeskObject key={o.id} place={o.place} label={o.label} hint={o.hint} img={o.img} onClick={() => setPanel(o.id)} />
           ))}
+          <MapThumb ref={mapThumb} state={state} onOpen={() => setPanel("streets")} />
         </nav>
       </main>
 
@@ -201,7 +200,16 @@ export function DeskScreen() {
         </DeskButton>
       </footer>
 
-      {PanelComponent && <PanelComponent state={state} onClose={() => setPanel(null)} />}
+      {PanelComponent && (
+        <PanelComponent
+          state={state}
+          onClose={() => setPanel(null)}
+          onOpenMap={() => {
+            setPanel(null);
+            openMap();
+          }}
+        />
+      )}
       {openItem && <PaperView item={openItem} state={state} onClose={() => setOpenItem(null)} />}
       {report && !advancing && <WeekReport report={report} state={state} onClose={closeReport} />}
 
@@ -253,16 +261,5 @@ function CapitalGauge({ state }: { state: GameState }) {
         {spending > 0 && <small> −{spending}</small>}
       </div>
     </div>
-  );
-}
-
-function Tool({ label, hint, icon, onClick }: { label: string; hint: string; icon?: string; onClick: () => void }) {
-  const [ref, hover] = useHoverLift<HTMLButtonElement>();
-  return (
-    <button ref={ref} {...hover} className={`tool ${icon ? "with-icon" : ""}`} onClick={onClick}>
-      {icon && <img className="tool-icon" src={icon} alt="" />}
-      <span className="tool-label">{label}</span>
-      <span className="tool-hint">{hint}</span>
-    </button>
   );
 }
