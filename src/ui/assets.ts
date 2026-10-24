@@ -109,7 +109,7 @@ export const MUSIC_BEDS = {
 
 export const MUSIC_LAYERS = {
   tension_drums_stem: "assets/audio/music/tension_drums_stem.wav",
-  city_ambience: "assets/audio/music/city_ambience.mp3",
+  city_ambience: "assets/audio/music/city_ambience.wav", // generated: Lucas preferred it to the recording
 } as const;
 export type LayerId = keyof typeof MUSIC_LAYERS;
 
