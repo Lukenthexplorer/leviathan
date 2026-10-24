@@ -20,14 +20,14 @@ export type NarrationSituation = "opening" | "ballots" | "close_race" | "landsli
 
 /** Higher interrupts lower. Equal or lower is dropped, never queued. */
 export const NARRATION_PRIORITY: Record<NarrationSituation, number> = {
-  ballots: 1,
+  final: 8,
+  last_ballot: 7,
+  lead_change: 6,
+  outraged: 5,
+  close_race: 4,
+  landslide: 3,
   opening: 2,
-  close_race: 2,
-  landslide: 2,
-  last_ballot: 3,
-  outraged: 3,
-  lead_change: 4,
-  final: 5,
+  ballots: 1,
 };
 
 /** One voice at a time: may `next` start while `current` is speaking? */

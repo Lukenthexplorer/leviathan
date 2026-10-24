@@ -112,6 +112,11 @@ export function ElectionNight() {
       t.to({}, { duration: ri === 0 ? 3 : 4 });
       t.call(() => setInterstitial(null));
       r.frames.forEach((f, fi) => {
+        // The deciding batch: "última urna!" on the radio, a dramatic silence, then the reveal.
+        if (f.lastBallotPause !== undefined) {
+          t.call(() => audio.narrate("last_ballot"));
+          t.to({}, { duration: f.lastBallotPause });
+        }
         t.addLabel(`r${ri}b${fi}`);
         t.call(() => setFrameIdx(fi));
         t.to({}, { duration: f.duration });

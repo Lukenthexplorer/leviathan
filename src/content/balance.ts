@@ -212,12 +212,22 @@ export const BALANCE = {
     nullMax: 0.3,
     /** Each unit's urns are counted in batches of these sizes (sum = 1). */
     batchFractions: [0.3, 0.25, 0.25, 0.2],
-    /** Under this margin (points), the race is "close" (TV slows down). */
+    /** Under this margin (points), the race is "close": the TV slows down and the radio narrator gets busier. */
     closeRaceMargin: 3,
-    /** Election night: a batch that cuts the leader's margin by more than this (points) outrages the narrator. */
-    outragedSwing: 3,
-    /** Election night: the "urnas chegando" narration plays every this many batches (never every batch). */
-    ballotsNarrationEvery: 4,
+    /** The election-night radio narrator: when each kind of line is tried (broadcast.ts). */
+    narration: {
+      /** "Urnas chegando" at most every this many batches, by race. A close race talks like the mayor's. */
+      ballotsEvery: { council: 6, deputy: 4, mayor: 3 },
+      /** A batch that cuts the leader's margin by more than this (points) without flipping it: outraged. */
+      outragedSwing: 3,
+      /** ...or a batch where the player does this many points worse than their running share: outraged too. */
+      outragedPlayerDrop: 12,
+      /** The leader's margin (points) that counts as a landslide, once past this % of the count. Never in a council race. */
+      landslideMargin: 15,
+      landslideAfterPct: 50,
+      /** Seconds of silence after "última urna!" before the last batch is revealed. */
+      lastBallotPause: 1.5,
+    },
     /** Seats: re-election needs a top-N finish among the party's candidates; deputy, among the slate. */
     councilSeats: 2,
     deputySeats: 2,

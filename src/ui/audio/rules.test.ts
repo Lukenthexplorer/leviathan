@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeRoundRobin, mayInterrupt, musicBed, musicMix } from "./rules";
+import { NARRATION_PRIORITY, makeRoundRobin, mayInterrupt, musicBed, musicMix } from "./rules";
 
 describe("sound variations", () => {
   it("rotate through every variation, never the same twice in a row", () => {
@@ -26,6 +26,8 @@ describe("one narrator at a time", () => {
     expect(mayInterrupt("lead_change", "ballots")).toBe(false);
     expect(mayInterrupt("close_race", "close_race")).toBe(false);
     expect(mayInterrupt("final", "lead_change")).toBe(false);
+    expect(mayInterrupt("last_ballot", "lead_change")).toBe(false);
+    expect(mayInterrupt("landslide", "close_race")).toBe(true);
   });
 });
 
@@ -44,5 +46,12 @@ describe("music beds", () => {
     expect(musicMix({ kind: "office" }, 1, false).tension_drums_stem).toBeGreaterThan(musicMix({ kind: "office" }, 0.2, false).tension_drums_stem);
     expect(musicMix({ kind: "election" }, 1, true).tension_drums_stem).toBe(0);
     expect(musicMix({ kind: "election" }, 1, true).bed).toBeGreaterThan(musicMix({ kind: "election" }, 0.1, true).bed);
+  });
+});
+
+describe("narrator priorities", () => {
+  it("final > last_ballot > lead_change > outraged > close_race > landslide > opening > ballots", () => {
+    const order = Object.entries(NARRATION_PRIORITY).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+    expect(order).toEqual(["final", "last_ballot", "lead_change", "outraged", "close_race", "landslide", "opening", "ballots"]);
   });
 });

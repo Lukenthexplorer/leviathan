@@ -26,6 +26,8 @@ let musicStarted = false;
 let tension = 0;
 /** True while the city map is open: the street ambience comes forward. */
 let cityFocus = false;
+/** A more important line fades the current one out over this many ms. */
+const INTERRUPT_FADE = 200;
 /** While the narrator speaks, the music drops to this fraction. */
 const DUCK = 0.3;
 let ducked = false;
@@ -106,10 +108,10 @@ export const audio = {
     const src = variant(`narration:${situation}`, NARRATION[situation]);
     if (!src) return false;
     if (voice) {
-      // Interrupted: a quick fade so it doesn't click.
+      // Interrupted: a quick fade (~0.2 s) so it doesn't click.
       const old = voice;
-      old.howl.fade(old.howl.volume(), 0, 150, old.id);
-      window.setTimeout(() => old.howl.stop(old.id), 160);
+      old.howl.fade(old.howl.volume(), 0, INTERRUPT_FADE, old.id);
+      window.setTimeout(() => old.howl.stop(old.id), INTERRUPT_FADE + 10);
     }
     const h = howl(src, true);
     const id = h.play();
