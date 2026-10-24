@@ -4,7 +4,7 @@ import { buildBroadcast, type Frame } from "../../chapters/councilman/broadcast"
 import { PLAYER } from "../../chapters/councilman/election";
 import { ELECTION_LINES } from "../../content/councilman/election_lines";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
-import { portrait } from "../assets";
+import { DESK_ART, TV_SCREEN, portrait } from "../assets";
 import { audio } from "../audio/audio";
 import { electionTension } from "../audio/tension";
 import { DeskButton } from "../desk/DeskButton";
@@ -14,6 +14,16 @@ import { BarsPanel, CHART_COLORS, LineChart, MiniMap } from "./Broadcast";
 import { StaticNoise } from "./StaticNoise";
 
 type Phase = "night" | "tv" | "broadcast" | "final";
+
+/** The measured screen hole of tv_set.webp, handed to the CSS (see .tv in styles.css). */
+const TV_VARS = {
+  "--hole-l": TV_SCREEN.left,
+  "--hole-t": TV_SCREEN.top,
+  "--hole-w": TV_SCREEN.width,
+  "--hole-h": TV_SCREEN.height,
+  "--tv-aspect": TV_SCREEN.aspect,
+  "--hole-aspect": (TV_SCREEN.width * TV_SCREEN.aspect) / TV_SCREEN.height,
+} as React.CSSProperties;
 
 const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -63,7 +73,7 @@ export function ElectionNight() {
       // Night falls: the blue-lit desk fades in over the day one (same framing, so nothing jumps).
       .fromTo(".night-wood", { opacity: 0 }, { opacity: 1, duration: fast ? 0.1 : 1.6, ease: "power1.inOut" })
       .fromTo(".night-dark", { opacity: 0 }, { opacity: 0.88, duration: fast ? 0.1 : 1.4, ease: "power1.in" }, "<0.6")
-      .fromTo(tv.current, { scale: 0.42, opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: fast ? 0.1 : 0.6 }, "-=0.4")
+      .fromTo(tv.current, { scale: 0.38, opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: fast ? 0.1 : 0.6 }, "-=0.4")
       .add(() => {
         setPhase("tv");
         audio.sfx("tv_power_on");
@@ -180,9 +190,8 @@ export function ElectionNight() {
     <div className={`night ${reducedMotion() ? "reduced" : ""}`} ref={root}>
       <DeskLighting variant="night" />
       <div className="night-dark" />
-      <div className="tv" ref={tv}>
-        <div className="tv-cabinet">
-          <div className="tv-screen" ref={screen}>
+      <div className="tv" ref={tv} style={TV_VARS}>
+        <div className="tv-screen" ref={screen}>
             {phase !== "night" && (
               <div className="crt">
                 <header className="bc-top">
@@ -210,7 +219,8 @@ export function ElectionNight() {
 
                 <footer className="bc-ticker">
                   <div className="bc-anchor">
-                    <img src={portrait("anchor_cid")} alt="" />
+                    {/* Cid lights up on a lead change and when he calls the result. */}
+                    <img src={portrait("anchor_cid", phase === "final" || frame?.leadChange ? "pleased" : "neutral")} alt="" />
                     <span>{ELECTION_LINES.anchor}</span>
                   </div>
                   <div className="bc-line" key={`${roundIdx}-${frameIdx}-${phase}`}>
@@ -231,13 +241,9 @@ export function ElectionNight() {
                 <div className="crt-vignette" />
               </div>
             )}
-          </div>
-          <div className="tv-knobs">
-            <span />
-            <span />
-            <i />
-          </div>
         </div>
+        {/* The real set on top: its screen is a hole, so the broadcast shows through. */}
+        <img className="tv-frame" src={DESK_ART.tv_set} alt="" />
       </div>
 
       {phase === "broadcast" && (

@@ -906,43 +906,40 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 
 .night { position: fixed; inset: 0; overflow: hidden; background: #0b0806; display: grid; place-items: center; }
 .night-dark { position: absolute; inset: 0; z-index: 7; background: radial-gradient(ellipse at 50% 55%, #0a0f1acc, #000 75%); opacity: 0; pointer-events: none; }
-.night .tv { z-index: 8; }
-
-/* At scale 1 the screen fills the viewport and the cabinet runs off the edges; the intro starts it small. */
-/*
- * Centered by plain geometry (half the viewport minus half the TV), with no
- * translate/transform involved: GSAP owns `transform` for the zoom, and mixing
- * the two centered differently across browsers.
+.night /*
+ * The TV is the real set (tv_set.webp) with its screen hole measured in TV_SCREEN
+ * (assets.ts, passed in as --hole-* in % of the image). At scale 1 the hole fills
+ * the viewport (as large as fits, keeping its shape) and sits dead centre; GSAP
+ * owns `transform` for the zoom, around the hole's centre.
  */
 .tv {
-  position: absolute;
-  width: 112vw; height: 118vh;
-  left: calc(50vw - 56vw); top: calc(50vh - 59vh);
-  transform-origin: 50% 50%;
+  --hole-px-h: min(100vh, calc(100vw / var(--hole-aspect)));
+  --tv-h: calc(var(--hole-px-h) * 100 / var(--hole-h));
+  --tv-w: calc(var(--tv-h) * var(--tv-aspect));
+  position: absolute; z-index: 8; /* above the night falling over the desk (.night-dark) and the lamp */
+  width: var(--tv-w); height: var(--tv-h);
+  left: calc(50vw - var(--tv-w) * (var(--hole-l) + var(--hole-w) / 2) / 100);
+  top: calc(50vh - var(--tv-h) * (var(--hole-t) + var(--hole-h) / 2) / 100);
+  transform-origin: calc((var(--hole-l) + var(--hole-w) / 2) * 1%) calc((var(--hole-t) + var(--hole-h) / 2) * 1%);
   will-change: transform;
 }
-.tv-cabinet {
-  position: absolute; inset: 0;
-  padding: 9vh 6vw 9vh 6vw;
-  border-radius: 4vw;
-  background: linear-gradient(160deg, #6b4428, #3a2414 60%, #2a190d);
-  box-shadow: inset 0 0 0 1.2vw #1c120a, inset 0 0 6vw #000a, 0 4vw 8vw #000;
-}
+/* The picture: a little larger than the hole, behind the frame, which masks the curved corners. */
 .tv-screen {
-  position: relative; width: 100%; height: 100%;
-  border-radius: 3.5vw / 4.5vh;
+  position: absolute; z-index: 0;
+  left: calc((var(--hole-l) - 0.4) * 1%); top: calc((var(--hole-t) - 0.4) * 1%);
+  width: calc((var(--hole-w) + 0.8) * 1%); height: calc((var(--hole-h) + 0.8) * 1%);
   overflow: hidden;
   background: #050812;
-  box-shadow: 0 0 0 0.6vw #0b0b0b, inset 0 0 3vw #000;
+  /* the broadcast is sized in % of the screen (cqw/cqh), not of the window */
+  container-type: size;
 }
-.tv-knobs { position: absolute; right: 1.6vw; top: 40%; display: flex; flex-direction: column; gap: 2vh; }
-.tv-knobs span { width: 2.6vw; height: 2.6vw; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d9c08a, #6b5428); box-shadow: 0 0.4vw 0.6vw #000a; }
-.tv-knobs i { width: 2.6vw; height: 6vh; background: repeating-linear-gradient(#1a1a1a 0 3px, #333 3px 6px); border-radius: 4px; }
+.tv-frame { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(1.2vw 2vw 2.4vw #000c); }
 
 .crt {
   position: absolute; inset: 0;
   display: grid; grid-template-rows: auto 1fr auto;
-  gap: 1.5vh; padding: 2.5vh 2.5vw;
+  /* wide margins: the tube's frame curves over the corners */
+  gap: 1.5cqh; padding: 6cqh 5.5cqw 5.5cqh;
   color: #fff;
   font-family: "Oswald", "Arial Narrow", sans-serif;
   background: radial-gradient(ellipse at 50% 40%, #1d3a7a, #0c1a40 70%, #060d24);
@@ -950,58 +947,58 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 }
 @keyframes crt-flicker { from { opacity: 0.97; } to { opacity: 1; } }
 .crt-scanlines { position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(rgba(0, 0, 0, 0.25) 0 1px, transparent 1px 3px); }
-.crt-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 12vw #000c; border-radius: 3.5vw / 4.5vh; }
+.crt-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 12cqw #000c; border-radius: 3.5cqw / 4.5cqh; }
 
-.bc-top { display: flex; justify-content: space-between; align-items: center; gap: 2vw; }
+.bc-top { display: flex; justify-content: space-between; align-items: center; gap: 2cqw; }
 .bc-brand { display: flex; flex-direction: column; }
 .bc-flag {
-  font-weight: 700; font-size: clamp(1.4rem, 3vw, 2.8rem); letter-spacing: 0.06em; color: #ffd23f;
+  font-weight: 700; font-size: clamp(1.4rem, 3cqw, 2.8rem); letter-spacing: 0.06em; color: #ffd23f;
   text-shadow: 2px 0 #ff3b3b, -2px 0 #2ee6ff, 0 0 14px #ffd23f88;
 }
-.bc-channel { font-size: clamp(0.8rem, 1.2vw, 1.1rem); letter-spacing: 0.3em; color: #9fb4e0; }
-.bc-progress { flex: 1; max-width: 46vw; }
-.bc-progress-label { font-size: clamp(0.9rem, 1.5vw, 1.4rem); letter-spacing: 0.08em; text-align: right; }
-.bc-progress-track { height: 1.2vh; background: #0007; border: 1px solid #9fb4e055; margin-top: 0.6vh; }
+.bc-channel { font-size: clamp(0.8rem, 1.2cqw, 1.1rem); letter-spacing: 0.3em; color: #9fb4e0; }
+.bc-progress { flex: 1; max-width: 46cqw; }
+.bc-progress-label { font-size: clamp(0.9rem, 1.5cqw, 1.4rem); letter-spacing: 0.08em; text-align: right; }
+.bc-progress-track { height: 1.2cqh; background: #0007; border: 1px solid #9fb4e055; margin-top: 0.6cqh; }
 .bc-progress-fill { height: 100%; background: linear-gradient(90deg, #ffd23f, #ffb000); transition: width 0.8s ease; }
 
-.bc-main { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2vw; min-height: 0; }
+.bc-main { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2cqw; min-height: 0; }
 .bc-chart { width: 100%; height: 100%; background: #0005; border: 1px solid #9fb4e033; }
 .bc-grid { stroke: #9fb4e022; stroke-width: 1; }
 .bc-axis { fill: #9fb4e0; font-size: 14px; font-family: "Oswald", sans-serif; }
-.bc-side { display: flex; flex-direction: column; gap: 1.5vh; min-height: 0; }
+.bc-side { display: flex; flex-direction: column; gap: 1.5cqh; min-height: 0; }
 
-.bc-bars { display: flex; flex-direction: column; gap: 1vh; }
-.bc-bar-row { display: grid; grid-template-columns: 4.2vw 1fr auto; gap: 0.8vw; align-items: center; padding: 0.6vh 0.6vw; background: #0004; }
+.bc-bars { display: flex; flex-direction: column; gap: 1cqh; }
+.bc-bar-row { display: grid; grid-template-columns: 4.2cqw 1fr auto; gap: 0.8cqw; align-items: center; padding: 0.6cqh 0.6cqw; background: #0004; }
 .bc-bar-row.leading { animation: lead-pulse 1.2s ease-in-out infinite; }
 @keyframes lead-pulse { 50% { background: #ffd23f22; } }
-.bc-face { width: 4.2vw; height: 4.2vw; border: 3px solid; overflow: hidden; display: grid; place-items: center; background: #0a1430; font-size: 1.6vw; color: #ffd23f; }
+.bc-face { width: 4.2cqw; height: 4.2cqw; border: 3px solid; overflow: hidden; display: grid; place-items: center; background: #0a1430; font-size: 1.6cqw; color: #ffd23f; }
 .bc-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
-.bc-bar-name { font-size: clamp(0.85rem, 1.25vw, 1.25rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-bar-name { font-size: clamp(0.85rem, 1.25cqw, 1.25rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bc-bar-name small { color: #9fb4e0; font-size: 0.75em; margin-left: 0.4em; }
-.bc-bar-track { height: 1vh; background: #0006; margin-top: 0.4vh; }
+.bc-bar-track { height: 1cqh; background: #0006; margin-top: 0.4cqh; }
 .bc-bar-fill { height: 100%; width: 0; }
 .bc-bar-nums { text-align: right; line-height: 1.1; }
-.bc-bar-nums strong { display: block; font-size: clamp(1rem, 1.8vw, 1.8rem); color: #ffd23f; text-shadow: 1px 0 #ff3b3b, -1px 0 #2ee6ff; }
-.bc-bar-nums span { font-size: clamp(0.7rem, 0.95vw, 0.95rem); color: #c9d6f2; }
+.bc-bar-nums strong { display: block; font-size: clamp(1rem, 1.8cqw, 1.8rem); color: #ffd23f; text-shadow: 1px 0 #ff3b3b, -1px 0 #2ee6ff; }
+.bc-bar-nums span { font-size: clamp(0.7rem, 0.95cqw, 0.95rem); color: #c9d6f2; }
 
-.bc-map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.6vh; }
+.bc-map { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.6cqh; }
 .bc-map svg { flex: 1; min-height: 0; width: 100%; }
 .bc-map polygon { transition: fill 0.6s ease; }
-.bc-regions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4vw; }
-.bc-regions span { font-size: clamp(0.6rem, 0.8vw, 0.8rem); text-align: center; padding: 0.3vh 0; transition: background 0.6s ease; }
+.bc-regions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4cqw; }
+.bc-regions span { font-size: clamp(0.6rem, 0.8cqw, 0.8rem); text-align: center; padding: 0.3cqh 0; transition: background 0.6s ease; }
 
-.bc-ticker { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1.2vw; background: #ffd23f; color: #0c1a40; padding: 0.8vh 1vw; }
-.bc-anchor { display: flex; align-items: center; gap: 0.6vw; font-weight: 700; font-size: clamp(0.8rem, 1.1vw, 1.1rem); }
-.bc-anchor img { width: 3.4vw; height: 3.4vw; object-fit: cover; border: 2px solid #0c1a40; }
-.bc-line { font-size: clamp(0.95rem, 1.6vw, 1.6rem); font-weight: 500; animation: ticker-in 0.4s ease-out; }
-@keyframes ticker-in { from { transform: translateX(3vw); opacity: 0; } }
+.bc-ticker { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 1.2cqw; background: #ffd23f; color: #0c1a40; padding: 0.8cqh 1cqw; }
+.bc-anchor { display: flex; align-items: center; gap: 0.6cqw; font-weight: 700; font-size: clamp(0.8rem, 1.1cqw, 1.1rem); }
+.bc-anchor img { width: 3.4cqw; height: 3.4cqw; object-fit: cover; border: 2px solid #0c1a40; }
+.bc-line { font-size: clamp(0.95rem, 1.6cqw, 1.6rem); font-weight: 500; animation: ticker-in 0.4s ease-out; }
+@keyframes ticker-in { from { transform: translateX(3cqw); opacity: 0; } }
 
 .bc-interstitial { position: absolute; inset: 0; display: grid; place-items: center; background: #000; z-index: 3; }
 .bc-static { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.35; image-rendering: pixelated; }
-.bc-interstitial-text { position: relative; max-width: 70%; text-align: center; font-size: clamp(1.2rem, 2.6vw, 2.6rem); color: #ffd23f; text-shadow: 0 0 20px #000; }
+.bc-interstitial-text { position: relative; max-width: 70%; text-align: center; font-size: clamp(1.2rem, 2.6cqw, 2.6rem); color: #ffd23f; text-shadow: 0 0 20px #000; }
 .bc-virada {
   position: absolute; left: 50%; top: 42%; translate: -50% -50%; z-index: 4;
-  font-weight: 700; font-size: clamp(3rem, 10vw, 9rem); color: #ffd23f; letter-spacing: 0.04em;
+  font-weight: 700; font-size: clamp(3rem, 10cqw, 9rem); color: #ffd23f; letter-spacing: 0.04em;
   text-shadow: 4px 0 #ff3b3b, -4px 0 #2ee6ff, 0 0 40px #ffd23f; opacity: 0; pointer-events: none;
 }
 
