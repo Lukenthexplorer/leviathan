@@ -144,7 +144,6 @@ export const DESK_ART = {
   campaign_folder: "assets/desk/campaign_folder.svg", // placeholder: santinhos and a flag
   desk_night: "assets/desk_night.webp", // final art: same size and framing as desk.png, lit blue for election night
   lamp: "assets/desk/lamp.webp", // final art
-  ashtray: "assets/desk/ashtray.webp", // final art
   typewriter: "assets/desk/typewriter.webp", // final art
   rotary_phone: "assets/desk/rotary_phone.webp", // final art
   tv_set: "assets/desk/tv_set.webp", // final art: the screen is a transparent hole (TV_SCREEN)

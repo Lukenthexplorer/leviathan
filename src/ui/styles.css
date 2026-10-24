@@ -438,7 +438,7 @@ h1, h2, h3 { margin: 0; }
   filter: drop-shadow(6px 8px 10px #000b);
   pointer-events: none;
 }
-/* the folded city map, lying under the stack between the phone and the ashtray */
+/* the folded city map */
 .deco-map {
   left: calc(var(--stack-x) - var(--a4) * 1.3 - var(--cm) * 0.5); bottom: calc(var(--cm) * 9.5);
   width: calc(var(--cm) * 11); rotate: -6deg;
@@ -474,7 +474,7 @@ h1, h2, h3 { margin: 0; }
 }
 .steam.s2 { left: 48%; animation-delay: 1.2s; }
 .steam.s3 { left: 30%; animation-delay: 2.4s; }
-/* 1989 on the desk: typewriter (bottom-left, running off the edge), rotary phone, ashtray. */
+/* 1989 on the desk: typewriter (bottom-left, running off the edge) and rotary phone. */
 .deco { position: absolute; z-index: 2; pointer-events: none; }
 .deco-typewriter {
   left: calc(var(--cm) * -1.5); bottom: calc(var(--cm) * -10);
@@ -484,24 +484,6 @@ h1, h2, h3 { margin: 0; }
 .deco-phone {
   left: calc(var(--stack-x) - var(--a4) * 0.5 - var(--cm) * 11.5); bottom: calc(var(--cm) * -1.5);
   width: calc(var(--cm) * 10); rotate: -10deg;
-}
-.deco-ashtray {
-  left: calc(var(--stack-x) + var(--cm) * 30); bottom: calc(var(--cm) * 6.4);
-  width: calc(var(--cm) * 7.5);
-}
-.deco-ashtray img { width: 100%; display: block; filter: var(--desk-drop); }
-/* cigarette smoke: thinner and greyer than the coffee's steam, rising from the tip */
-.smoke {
-  position: absolute; left: 42%; top: 22%; width: 9%; height: 46%;
-  border-radius: 50%; background: #d8d8d833; filter: blur(5px);
-  animation: smoke 5.2s ease-in-out infinite;
-}
-.smoke.s2 { left: 46%; animation-delay: 2.6s; }
-@keyframes smoke {
-  0% { transform: translate(0, 10px) scale(0.6, 1); opacity: 0; }
-  30% { opacity: 0.9; }
-  60% { transform: translate(6px, -70%) scale(1.3, 1.4) skewX(12deg); }
-  100% { transform: translate(-4px, -150%) scale(2.2, 1.8) skewX(-10deg); opacity: 0; }
 }
 @keyframes steam {
   0% { transform: translateY(10px) scaleX(1); opacity: 0; }
@@ -1010,7 +992,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 
 @media (prefers-reduced-motion: reduce) {
   .steam { animation: none; opacity: 0.4; }
-  .smoke { animation: none; opacity: 0.35; }
   .crt { animation: none; }
   .bc-bar-row.leading { animation: none; }
   .bc-line { animation: none; }

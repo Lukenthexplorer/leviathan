@@ -180,11 +180,6 @@ export function DeskScreen() {
       <img className="deco deco-typewriter" src={DESK_ART.typewriter} alt="" aria-hidden />
       <RotaryPhone ref={phone} call={call} onAnswer={setOpenItem} />
       <MapThumb ref={mapThumb} state={state} onOpen={openMap} />
-      <div className="deco deco-ashtray" aria-hidden>
-        <img src={DESK_ART.ashtray} alt="" />
-        <span className="smoke" />
-        <span className="smoke s2" />
-      </div>
 
       {/* Idle desk object: a real-size coffee cup resting on the wood. */}
       <div className="coffee">
