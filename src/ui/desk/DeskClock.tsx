@@ -20,6 +20,8 @@ export function DeskClock({ turn }: { turn: number }) {
       first.current = false;
       return;
     }
+    // Reduced motion: no racing hands, just the tick of a new week.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return void audio.sfx("clock_tick", { volume: 0.5 });
     const tl = gsap.timeline();
     tl.to(minute.current, { rotation: "+=1440", duration: 1.8, ease: "power2.inOut" }, 0).to(
       hour.current,

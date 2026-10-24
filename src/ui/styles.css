@@ -1011,6 +1011,7 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 @media (prefers-reduced-motion: reduce) {
   .steam { animation: none; opacity: 0.4; }
   .smoke { animation: none; opacity: 0.35; }
+  .hand { animation: none; }
   .crt { animation: none; }
   .bc-bar-row.leading { animation: none; }
   .bc-line { animation: none; }
