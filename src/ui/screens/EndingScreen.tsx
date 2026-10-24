@@ -17,6 +17,7 @@ export function EndingScreen() {
 
   useLayoutEffect(() => {
     if (!legacy) return;
+    audio.setMusic({ kind: "office" });
     audio.setTension(legacy.tone === "defeat" ? 1 : 0);
     audio.sfx("newspaper_spin");
     const ctx = gsap.context(() => {

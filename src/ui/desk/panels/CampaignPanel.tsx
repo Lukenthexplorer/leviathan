@@ -11,6 +11,7 @@ import { LAWS, LAW_IDS } from "../../../content/councilman/laws";
 import { NEIGHBOURHOODS, NEIGHBOURHOOD_IDS, type NeighbourhoodId } from "../../../content/councilman/neighbourhoods";
 import { REGIONS, REGION_IDS } from "../../../content/councilman/regions";
 import type { Decision, GameState } from "../../../core/types";
+import { audio } from "../../audio/audio";
 import { useGame } from "../../store";
 import { DeskButton } from "../DeskButton";
 import { Sheet } from "../Sheet";
@@ -103,6 +104,12 @@ export function CampaignPanel({ state, onClose }: { state: GameState; onClose: (
   );
 }
 
+/** Planning a street action already sounds like it: the truck passes, the crowd roars. */
+function actionSound(d: Decision) {
+  if (d.kind === "soundTruck") audio.sfx("sound_truck", { volume: 0.6, pitchJitter: 0, fadeOutAfterMs: 3500 });
+  if (d.kind === "rally") audio.sfx("rally_crowd", { volume: 0.6, pitchJitter: 0.03 });
+}
+
 function StreetRow({ state, nb }: { state: GameState; nb: NeighbourhoodId }) {
   const pending = useGame((s) => s.pending);
   const queue = useGame((s) => s.queue);
@@ -116,7 +123,7 @@ function StreetRow({ state, nb }: { state: GameState; nb: NeighbourhoodId }) {
         {label} ✓
       </DeskButton>
     ) : (
-      <DeskButton key={label} variant="ghost" disabled={state.player.funds < cost} onClick={() => queue(d)}>
+      <DeskButton key={label} variant="ghost" disabled={state.player.funds < cost} onClick={() => (actionSound(d), queue(d))}>
         {label} · {cost} mil
       </DeskButton>
     );

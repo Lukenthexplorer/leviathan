@@ -1,6 +1,7 @@
 import { councilmanChapter } from "../chapters/councilman/chapter";
 import { BALANCE } from "../content/balance";
 import type { GameState } from "../core/types";
+import { audio } from "./audio/audio";
 import { useGame } from "./store";
 
 /**
@@ -93,5 +94,7 @@ export function loadDevScenario(): string | null {
     return null;
   }
   useGame.setState({ state: make(), screen: "desk", pending: [], report: null, notice: null, persist: false });
+  // Skipping the title screen skips its music start too: the first click does it.
+  window.addEventListener("pointerdown", () => audio.unlock(), { once: true });
   return name;
 }

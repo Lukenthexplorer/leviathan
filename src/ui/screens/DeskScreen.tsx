@@ -86,6 +86,11 @@ export function DeskScreen() {
 
   // The music follows how things are going, including things you can't see.
   useEffect(() => audio.setTension(musicTension(state, report)), [state, report]);
+  // Campaign weeks have their own track, alternating its two versions week by week.
+  const campaignWeek = !!state.campaign && state.turn >= BALANCE.campaign.startWeek && state.turn <= BALANCE.campaign.endWeek;
+  useEffect(() => audio.setMusic(campaignWeek ? { kind: "campaign", week: state.turn } : { kind: "office" }), [campaignWeek, state.turn]);
+  /** Funds as of the last report: spending is heard when the week lands. */
+  const fundsSeen = useRef(state.player.funds);
 
   // A new week has landed: scandals hit with a red flash, phones ring.
   useEffect(() => {
@@ -93,6 +98,8 @@ export function DeskScreen() {
     const scandal = report.exposed.length > 0;
     const calls = state.inbox.filter((i) => i.kind === "phone" && i.turn >= report.fromTurn).length;
     const timers: number[] = [];
+    if (state.player.funds < fundsSeen.current) timers.push(window.setTimeout(() => audio.sfx("cash", { volume: 0.7 }), 300));
+    fundsSeen.current = state.player.funds;
     if (scandal) {
       audio.sfx("scandal_sting");
       gsap.fromTo(flash.current, { opacity: 0.75 }, { opacity: 0, duration: 0.4, repeat: 2, yoyo: true, ease: "power1.inOut" });

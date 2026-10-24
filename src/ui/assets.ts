@@ -59,15 +59,25 @@ export const NARRATION: Record<NarrationSituation, readonly string[]> = {
   last_urn: [],
 };
 
-/** Music stems play together in a loop; their volumes follow the tension level. */
-import type { NarrationSituation } from "./audio/rules";
+import type { MusicBeds, NarrationSituation } from "./audio/rules";
 
-export const MUSIC_STEMS = {
-  office_piano_stem: "assets/audio/music/office_piano_stem.wav",
+/**
+ * Music. One "bed" plays at a time, chosen by the moment (office weeks, the
+ * campaign, election night); the layers loop on top of it all game long, their
+ * volumes following the tension level. Real recordings are seamless loops.
+ */
+export const MUSIC_BEDS = {
+  office: ["assets/audio/music/office_piano_stem.wav"],
+  // Two versions of the same track, alternating week by week.
+  campaign: ["assets/audio/music/campaign_stem_1.mp3", "assets/audio/music/campaign_stem_2.mp3"],
+  election: ["assets/audio/music/election_tension_stem.mp3"],
+} as const satisfies MusicBeds;
+
+export const MUSIC_LAYERS = {
   tension_drums_stem: "assets/audio/music/tension_drums_stem.wav",
-  city_ambience: "assets/audio/music/city_ambience.mp3", // seamless loop
+  city_ambience: "assets/audio/music/city_ambience.mp3",
 } as const;
-export type StemId = keyof typeof MUSIC_STEMS;
+export type LayerId = keyof typeof MUSIC_LAYERS;
 
 export const DESK_ART = {
   desk_bg: "assets/desk.png", // final art: "Warm Light on Worn Mahogany"

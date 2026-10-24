@@ -6,6 +6,7 @@ import { ELECTION_LINES } from "../../content/councilman/election_lines";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import { DESK_ART, portrait } from "../assets";
 import { audio } from "../audio/audio";
+import { electionTension } from "../audio/tension";
 import { DeskButton } from "../desk/DeskButton";
 import { useGame } from "../store";
 import { BarsPanel, CHART_COLORS, LineChart, MiniMap } from "./Broadcast";
@@ -38,6 +39,10 @@ export function ElectionNight() {
   const screen = useRef<HTMLDivElement>(null);
   const virada = useRef<HTMLDivElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
+  /** When the plantão jingle ends (ms timestamp): the radio waits for it. */
+  const jingleEnds = useRef(0);
+  const timers = useRef<number[]>([]);
+  const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
 
   const round = broadcast.rounds[roundIdx]!;
   const frame: Frame | undefined = round.frames[frameIdx];
@@ -62,7 +67,11 @@ export function ElectionNight() {
       })
       .add(() => audio.sfx("tv_static", { volume: 0.5 }), "+=0.5")
       .fromTo(screen.current, { scaleY: 0.01, filter: "brightness(3)" }, { scaleY: 1, filter: "brightness(1)", duration: fast ? 0.1 : 0.5, ease: "power2.out" })
-      .add(() => audio.sfx("plantao_jingle"), "+=0.6")
+      .add(() => {
+        // Duration is 0 until the file has loaded; then it's a fair guess at the recording's length.
+        const seconds = audio.sfx("plantao_jingle", { pitchJitter: 0 }) || 6.7;
+        jingleEnds.current = performance.now() + seconds * 1000;
+      }, "+=0.6")
       // Push in until the picture nearly fills the room: a sliver of the wooden cabinet stays as a frame.
       .to(tv.current, { scale: 0.92, duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
     return () => {
@@ -79,8 +88,13 @@ export function ElectionNight() {
         setRoundIdx(ri);
         setFrameIdx(-1);
         setInterstitial(r.intro);
-        if (ri === 0) audio.narrate("opening");
-        else audio.sfx("tv_static", { volume: 0.5 });
+        if (ri === 0) {
+          // Once the jingle is over, the counting music comes in and the radio opens.
+          later(() => {
+            audio.setMusic({ kind: "election" });
+            audio.narrate("opening");
+          }, Math.max(0, jingleEnds.current - performance.now()));
+        } else audio.sfx("tv_static", { volume: 0.5 });
       });
       t.to({}, { duration: ri === 0 ? 3 : 4 });
       t.call(() => setInterstitial(null));
@@ -111,7 +125,7 @@ export function ElectionNight() {
   useEffect(() => {
     if (!frame || phase !== "broadcast") return;
     audio.sfx("vote_tick", { volume: 0.7, pitchJitter: 0.02 });
-    audio.setTension(frame.close ? 0.9 : frame.leader === PLAYER ? 0.2 : 0.55);
+    audio.setTension(electionTension(frame), 1200);
     if (frame.leadChange) {
       audio.sfx("lead_change");
       if (virada.current && !reducedMotion()) {
@@ -122,8 +136,14 @@ export function ElectionNight() {
     if (frame.narration) audio.narrate(frame.narration);
   }, [frame, phase]);
 
-  // Leaving the screen silences the radio.
-  useEffect(() => () => audio.stopNarration(), []);
+  // Leaving the screen silences the radio and cancels anything still scheduled.
+  useEffect(
+    () => () => {
+      audio.stopNarration();
+      timers.current.forEach(clearTimeout);
+    },
+    [],
+  );
 
   function finish() {
     tl.current?.kill();
@@ -132,13 +152,15 @@ export function ElectionNight() {
     setFrameIdx(broadcast.rounds[last]!.frames.length - 1);
     setInterstitial(null);
     setPhase("final");
-    audio.setTension(broadcast.playerWon ? 0 : 1);
-    // 100%: the narrator calls it (interrupting anything), then fireworks and the crowd outside.
-    audio.narrate("final");
-    window.setTimeout(() => {
+    // 100%: the counting music stops on the sting, then the crowd outside, then the radio calls it.
+    audio.stopNarration();
+    audio.setMusic({ kind: "silent" });
+    audio.sfx(broadcast.playerWon ? "victory_sting" : "defeat_sting", { volume: 0.9, pitchJitter: 0 });
+    later(() => {
       audio.sfx("fireworks", { volume: broadcast.playerWon ? 0.9 : 0.4, pitchJitter: 0 });
       audio.sfx(broadcast.playerWon ? "crowd_cheer" : "crowd_groan", { volume: 0.8, pitchJitter: 0 });
     }, 1200);
+    later(() => audio.narrate("final"), 2500);
   }
 
   function toNewspaper() {
