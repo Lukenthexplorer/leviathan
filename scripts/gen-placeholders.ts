@@ -3,8 +3,9 @@
  * Real assets later replace these files one-for-one: same id, same folder.
  * Run: npm run gen:placeholders
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
+import { deflateSync } from "node:zlib";
 
 const ROOT = join(import.meta.dirname, "..", "public", "assets");
 
@@ -20,9 +21,14 @@ function hasRealAsset(file: string): boolean {
   return readdirSync(dir).some((f) => extname(f) !== extname(file) && (basename(f, extname(f)) === stem || basename(f, extname(f)).startsWith(`${stem}_`)));
 }
 
+/** Every placeholder PNG carries this text chunk; a PNG without it is real art and is never touched. */
+const PLACEHOLDER_MARK = "leviathan-placeholder";
+
 function write(rel: string, data: string | Buffer) {
   const file = join(ROOT, rel);
   if (hasRealAsset(file)) return;
+  // Real art may arrive with the very same name (lamp.png): keep it.
+  if (extname(file) === ".png" && existsSync(file) && !readFileSync(file).includes(PLACEHOLDER_MARK)) return;
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, data);
 }
@@ -69,6 +75,139 @@ const DESK_ART: Record<string, [number, number, string]> = {
 for (const [id, [w, h, bg]] of Object.entries(DESK_ART)) {
   write(`desk/${id}.svg`, svg(w, h, bg, id));
 }
+
+// ---------------------------------------------------------------- desk objects (PNG)
+// Top-down silhouettes drawn from simple shapes, so the desk can be composed and
+// lit before the real art exists. No text: the file name is the label.
+
+const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  return c >>> 0;
+});
+function crc32(buf: Buffer): number {
+  let c = 0xffffffff;
+  for (const b of buf) c = CRC_TABLE[(c ^ b) & 0xff]! ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+function chunk(type: string, data: Buffer): Buffer {
+  const head = Buffer.alloc(8);
+  head.writeUInt32BE(data.length, 0);
+  head.write(type, 4, "ascii");
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(Buffer.concat([head.subarray(4), data])), 0);
+  return Buffer.concat([head, data, crc]);
+}
+/** RGBA pixels -> PNG (8-bit, no interlace), tagged as a placeholder. */
+function png(w: number, h: number, rgba: Uint8Array): Buffer {
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(w, 0);
+  ihdr.writeUInt32BE(h, 4);
+  ihdr.set([8, 6, 0, 0, 0], 8); // 8-bit RGBA
+  const raw = Buffer.alloc((w * 4 + 1) * h);
+  for (let y = 0; y < h; y++) raw.set(rgba.subarray(y * w * 4, (y + 1) * w * 4), y * (w * 4 + 1) + 1); // filter 0 per row
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk("IHDR", ihdr),
+    chunk("tEXt", Buffer.from(`Comment\0${PLACEHOLDER_MARK}`, "latin1")),
+    chunk("IDAT", deflateSync(raw)),
+    chunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+/** A shape is a signed distance (negative inside) plus a colour; later shapes paint over earlier ones. */
+type Shape = { d: (x: number, y: number) => number; color: string };
+const circle = (cx: number, cy: number, r: number, color: string): Shape => ({ d: (x, y) => Math.hypot(x - cx, y - cy) - r, color });
+const box = (x0: number, y0: number, x1: number, y1: number, radius: number, color: string): Shape => ({
+  d: (x, y) => {
+    const qx = Math.abs(x - (x0 + x1) / 2) - (x1 - x0) / 2 + radius;
+    const qy = Math.abs(y - (y0 + y1) / 2) - (y1 - y0) / 2 + radius;
+    return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - radius;
+  },
+  color,
+});
+const capsule = (ax: number, ay: number, bx: number, by: number, r: number, color: string): Shape => ({
+  d: (x, y) => {
+    const t = Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)));
+    return Math.hypot(x - ax - t * (bx - ax), y - ay - t * (by - ay)) - r;
+  },
+  color,
+});
+
+function draw(w: number, h: number, shapes: Shape[]): Buffer {
+  const px = new Uint8Array(w * h * 4);
+  const rgb = shapes.map((s) => [1, 3, 5, 7].map((i) => (i < s.color.length ? parseInt(s.color.slice(i, i + 2), 16) : 255)));
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let [r, g, b, a] = [0, 0, 0, 0];
+      shapes.forEach((s, i) => {
+        const cover = Math.max(0, Math.min(1, 0.5 - s.d(x + 0.5, y + 0.5))) * (rgb[i]![3]! / 255); // 1px anti-aliasing
+        if (cover <= 0) return;
+        const [sr, sg, sb] = rgb[i]!;
+        const out = cover + a * (1 - cover);
+        r = (sr! * cover + r * a * (1 - cover)) / out;
+        g = (sg! * cover + g * a * (1 - cover)) / out;
+        b = (sb! * cover + b * a * (1 - cover)) / out;
+        a = out;
+      });
+      px.set([r, g, b, a * 255].map(Math.round), (y * w + x) * 4);
+    }
+  }
+  return png(w, h, px);
+}
+
+const range = (n: number) => Array.from({ length: n }, (_, i) => i);
+
+const DESK_OBJECTS: Record<string, () => Buffer> = {
+  // Desk lamp seen from above, for the top-right corner: brass base in the corner, the arm reaching
+  // toward the middle of the desk, green shade with the bulb glowing in its mouth.
+  lamp: () => draw(520, 520, [
+    circle(410, 110, 95, "#6b5226"), circle(410, 110, 80, "#a8843c"), circle(410, 110, 22, "#4a3a1a"),
+    capsule(410, 110, 220, 300, 16, "#8a6c30"),
+    circle(200, 320, 150, "#1f4a32"), circle(200, 320, 130, "#2c6446"), circle(200, 320, 70, "#fff2c8"), circle(200, 320, 40, "#fffbe8"),
+  ]),
+  ashtray: () => draw(320, 320, [
+    circle(160, 160, 150, "#9fb6b4cc"), circle(160, 160, 112, "#6f8584cc"), circle(160, 160, 100, "#3a3634"),
+    circle(130, 175, 30, "#5a5450"), circle(190, 140, 22, "#4c4744"),
+    ...range(4).map((i) => box(152 + Math.cos((i * Math.PI) / 2) * 128 - 14, 152 + Math.sin((i * Math.PI) / 2) * 128 - 6, 152 + Math.cos((i * Math.PI) / 2) * 128 + 30, 152 + Math.sin((i * Math.PI) / 2) * 128 + 22, 6, "#2e2a28")),
+    capsule(150, 160, 300, 100, 11, "#f2ece0"), capsule(150, 160, 175, 150, 11.5, "#d8a050"), circle(150, 160, 10, "#e0582a"),
+  ]),
+  typewriter: () => draw(720, 560, [
+    box(110, 20, 610, 210, 6, "#f4efe2"), // the sheet in the carriage
+    box(40, 170, 680, 250, 24, "#2a2826"), box(20, 185, 60, 235, 10, "#b8b0a0"), box(660, 185, 700, 235, 10, "#b8b0a0"), // carriage, knobs
+    box(60, 240, 660, 540, 40, "#3a3836"),
+    box(120, 260, 600, 330, 20, "#1c1b1a"), // type basket
+    ...range(4).flatMap((row) => range(11 - (row === 3 ? 4 : 0)).map((k) => circle(150 + row * 18 + k * 42 + (row === 3 ? 84 : 0), 360 + row * 40, 15, "#e8e2d4"))),
+    box(230, 510, 490, 532, 10, "#e8e2d4"), // space bar
+  ]),
+  rotary_phone: () => draw(440, 440, [
+    box(40, 120, 400, 420, 60, "#161514"),
+    capsule(70, 90, 370, 90, 42, "#0e0d0c"), circle(70, 90, 56, "#1d1c1b"), circle(370, 90, 56, "#1d1c1b"), // handset on the cradle
+    circle(220, 290, 110, "#e8e2d4"), circle(220, 290, 104, "#2a2826"),
+    ...range(10).map((i) => circle(220 + Math.cos(-Math.PI / 3 + (i * Math.PI * 1.6) / 9) * 74, 290 + Math.sin(-Math.PI / 3 + (i * Math.PI * 1.6) / 9) * 74, 15, "#e8e2d4")),
+    circle(220, 290, 34, "#c4302a"),
+  ]),
+  // Twin-bell alarm clock, face up. The hands are drawn by the game on top.
+  desk_clock: () => draw(320, 320, [
+    circle(80, 70, 50, "#9a7a3a"), circle(240, 70, 50, "#9a7a3a"), capsule(80, 70, 240, 70, 8, "#6b5226"),
+    capsule(80, 260, 50, 305, 12, "#6b5226"), capsule(240, 260, 270, 305, 12, "#6b5226"),
+    circle(160, 175, 120, "#a8843c"), circle(160, 175, 104, "#f3ead2"),
+    ...range(12).map((i) => circle(160 + Math.sin((i * Math.PI) / 6) * 88, 175 - Math.cos((i * Math.PI) / 6) * 88, i % 3 ? 3 : 6, "#2a2320")),
+  ]),
+  // A torn newspaper clipping; the game prints the poll on it.
+  poll_clipping: () => draw(1000, 300, [
+    { d: (x, y) => Math.max(box(0, 0, 1000, 300, 0, "").d(x, y), -Math.min(y, 300 - y, x, 1000 - x) + 6 + 5 * Math.sin(x * 0.21) * Math.cos(y * 0.17)), color: "#e6dfcc" },
+    box(30, 26, 970, 30, 0, "#2a232044"), box(30, 270, 970, 273, 0, "#2a232022"),
+  ]),
+  // A small account book, open: ruled page and a red margin. The game writes on it.
+  ledger: () => draw(380, 480, [
+    box(0, 0, 380, 480, 14, "#3d2a1e"), box(14, 14, 366, 466, 6, "#f1e9d2"),
+    ...range(17).map((i) => box(14, 70 + i * 23, 366, 71 + i * 23, 0, "#7c9ab855")),
+    box(70, 14, 72, 466, 0, "#c4302a88"),
+    capsule(190, 0, 190, 14, 3, "#00000033"),
+  ]),
+};
+for (const [id, make] of Object.entries(DESK_OBJECTS)) write(`desk/${id}.png`, make());
 
 // ---------------------------------------------------------------- audio
 
@@ -158,5 +297,5 @@ for (const [id, s] of Object.entries(MUSIC)) write(`audio/music/${id}.wav`, wav(
 
 console.log(
   `Placeholders written to public/assets: ${PORTRAIT_SUBJECTS.length * 4} portraits, ` +
-    `${Object.keys(DESK_ART).length} desk images, ${Object.keys(SFX).length} sfx, ${Object.keys(MUSIC).length} music stems.`,
+    `${Object.keys(DESK_ART).length} desk images, ${Object.keys(DESK_OBJECTS).length} desk objects, ${Object.keys(SFX).length} sfx, ${Object.keys(MUSIC).length} music stems.`,
 );

@@ -89,11 +89,19 @@ export const DESK_ART = {
   bills_folder: "assets/desk/bills_folder.png", // final art
   rolodex: "assets/desk/rolodex.png", // final art
   city_map_folded: "assets/desk/city_map_folded.png", // final art
-  brick_phone: "assets/desk/brick_phone.png", // final art (kept for phone calls)
+  brick_phone: "assets/desk/brick_phone.png", // final art; not on the 1989 desk (cell phones reach Brazil in late 1990): kept for later chapters
   radio: "assets/desk/radio.png", // final art
   city_skyline: "assets/desk/city_skyline.png", // final art
   book_stack: "assets/desk/book_stack.png", // final art
   campaign_folder: "assets/desk/campaign_folder.svg", // placeholder: santinhos and a flag
+  // Desk redesign: generated placeholders (scripts/gen-placeholders.ts); final art replaces them with the same name.
+  lamp: "assets/desk/lamp.png",
+  ashtray: "assets/desk/ashtray.png",
+  typewriter: "assets/desk/typewriter.png",
+  rotary_phone: "assets/desk/rotary_phone.png",
+  desk_clock: "assets/desk/desk_clock.png",
+  poll_clipping: "assets/desk/poll_clipping.png",
+  ledger: "assets/desk/ledger.png",
   calendar_page: "assets/desk/calendar_page.svg",
 } as const;
 
