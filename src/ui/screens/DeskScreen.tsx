@@ -12,6 +12,7 @@ import { DeskButton } from "../desk/DeskButton";
 import { DeskClock } from "../desk/DeskClock";
 import { DeskLighting } from "../desk/DeskLighting";
 import { DeskObject } from "../desk/DeskObject";
+import { RotaryPhone, type PhoneHandle } from "../desk/RotaryPhone";
 import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { Ledger } from "../desk/Ledger";
@@ -70,6 +71,9 @@ export function DeskScreen() {
   const flash = useRef<HTMLDivElement>(null);
   const desk = useRef<HTMLDivElement>(null);
   const mapThumb = useRef<HTMLButtonElement>(null);
+  const phone = useRef<PhoneHandle>(null);
+  /** The call waiting on the desk, if any: the phone picks it up. */
+  const call = state.inbox.find((i) => i.kind === "phone" && !answerFor(pending, i.id)) ?? null;
   const [mapFrom, setMapFrom] = useState<DOMRect | null>(null);
   const [mapOpen, setMapOpen] = useState(false);
 
@@ -105,7 +109,7 @@ export function DeskScreen() {
       gsap.fromTo(flash.current, { opacity: 0.75 }, { opacity: 0, duration: 0.4, repeat: 2, yoyo: true, ease: "power1.inOut" });
     }
     for (let i = 0; i < (scandal ? Math.max(calls, 2) : calls); i++) {
-      timers.push(window.setTimeout(() => audio.sfx("phone_ring", { volume: 0.7 }), 700 + i * 1300));
+      timers.push(window.setTimeout(() => phone.current?.ring(), 700 + i * 1300));
     }
     return () => timers.forEach(clearTimeout);
     // Only when a new report arrives.
@@ -172,7 +176,15 @@ export function DeskScreen() {
         </nav>
       </main>
 
+      {/* 1989 on the desk: decorations (no clicks), and the phone, which answers calls. */}
+      <img className="deco deco-typewriter" src={DESK_ART.typewriter} alt="" aria-hidden />
+      <RotaryPhone ref={phone} call={call} onAnswer={setOpenItem} />
       <DeskClock turn={state.turn} />
+      <div className="deco deco-ashtray" aria-hidden>
+        <img src={DESK_ART.ashtray} alt="" />
+        <span className="smoke" />
+        <span className="smoke s2" />
+      </div>
 
       {/* Idle desk object: a real-size coffee cup resting on the wood. */}
       <div className="coffee">
