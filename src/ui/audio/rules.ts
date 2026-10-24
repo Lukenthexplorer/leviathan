@@ -55,13 +55,14 @@ export function musicMix(mode: MusicMode, tension: number, cityFocus: boolean) {
     office: 0.5 * (1 - t * 0.6),
     campaign: 0.55 * (1 - t * 0.4),
     // Counting night: the bed itself carries the tension, louder as the margin tightens.
-    election: 0.25 + 0.55 * t,
+    // Election night: the same piano and drums as the desk, the drums following the count's margin.
+    election: 0.5 * (1 - t * 0.6),
     silent: 0,
   }[mode.kind];
   return {
     bed,
-    // The drums are the desk's warning sign; on election night the tension bed takes over.
-    tension_drums_stem: mode.kind === "election" || mode.kind === "silent" ? 0 : 0.6 * Math.max(0, (t - 0.3) / 0.7),
+    // The drums are the warning sign, at the desk and on election night alike.
+    tension_drums_stem: mode.kind === "silent" ? 0 : 0.6 * Math.max(0, (t - 0.3) / 0.7),
     city_ambience: cityFocus ? 0.7 : 0.25,
   };
 }

@@ -42,10 +42,11 @@ describe("music beds", () => {
     expect(musicBed({ kind: "silent" }, beds)).toBeNull();
   });
 
-  it("drums follow tension at the desk; on election night the bed itself gets louder instead", () => {
+  it("drums follow tension, at the desk and on election night; silence mutes the music", () => {
     expect(musicMix({ kind: "office" }, 1, false).tension_drums_stem).toBeGreaterThan(musicMix({ kind: "office" }, 0.2, false).tension_drums_stem);
-    expect(musicMix({ kind: "election" }, 1, true).tension_drums_stem).toBe(0);
-    expect(musicMix({ kind: "election" }, 1, true).bed).toBeGreaterThan(musicMix({ kind: "election" }, 0.1, true).bed);
+    expect(musicMix({ kind: "election" }, 1, true).tension_drums_stem).toBeGreaterThan(musicMix({ kind: "election" }, 0.2, true).tension_drums_stem);
+    expect(musicMix({ kind: "silent" }, 1, true).tension_drums_stem).toBe(0);
+    expect(musicMix({ kind: "silent" }, 1, true).bed).toBe(0);
   });
 });
 

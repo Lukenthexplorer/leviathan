@@ -15,6 +15,13 @@ import { StaticNoise } from "./StaticNoise";
 
 type Phase = "night" | "tv" | "broadcast" | "final";
 
+/**
+ * Final zoom. At scale 1 the screen hole fills the window; the shot we want is
+ * the hole plus ~6% of the image on each side (the tube's bezel and some wood),
+ * so 1 / 1.21.
+ */
+const FINAL_ZOOM = 0.82;
+
 /** The measured screen hole of tv_set.webp, handed to the CSS (see .tv in styles.css). */
 const TV_VARS = {
   "--hole-l": TV_SCREEN.left,
@@ -85,8 +92,8 @@ export function ElectionNight() {
         const seconds = audio.sfx("plantao_jingle", { pitchJitter: 0 }) || 6.7;
         jingleEnds.current = performance.now() + seconds * 1000;
       }, "+=0.6")
-      // Push in until the picture nearly fills the room: a sliver of the wooden cabinet stays as a frame.
-      .to(tv.current, { scale: 0.92, duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
+      // Push in until the screen, its whole dark bezel and a strip of wood fill the room, with even margins.
+      .to(tv.current, { scale: FINAL_ZOOM, duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
     return () => {
       intro.kill();
     };

@@ -100,9 +100,11 @@ import type { MusicBeds, NarrationSituation } from "./audio/rules";
  */
 export const MUSIC_BEDS = {
   office: ["assets/audio/music/office_piano_stem.wav"],
-  // Two versions of the same track, alternating week by week.
-  campaign: ["assets/audio/music/campaign_stem_1.mp3", "assets/audio/music/campaign_stem_2.mp3"],
-  election: ["assets/audio/music/election_tension_stem.mp3"],
+  // Lucas preferred the generated piano + drums everywhere: the campaign and election-night
+  // recordings are kept in art/source/audio/music/ but not used. A list of several files here
+  // alternates them week by week.
+  campaign: ["assets/audio/music/office_piano_stem.wav"],
+  election: ["assets/audio/music/office_piano_stem.wav"],
 } as const satisfies MusicBeds;
 
 export const MUSIC_LAYERS = {
