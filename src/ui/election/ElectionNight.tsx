@@ -60,7 +60,9 @@ export function ElectionNight() {
     audio.setCityFocus(true);
     const intro = gsap.timeline({ onComplete: () => setPhase("broadcast") });
     intro
-      .fromTo(".night-dark", { opacity: 0 }, { opacity: 0.88, duration: fast ? 0.1 : 1.4, ease: "power1.in" })
+      // Night falls: the blue-lit desk fades in over the day one (same framing, so nothing jumps).
+      .fromTo(".night-wood", { opacity: 0 }, { opacity: 1, duration: fast ? 0.1 : 1.6, ease: "power1.inOut" })
+      .fromTo(".night-dark", { opacity: 0 }, { opacity: 0.88, duration: fast ? 0.1 : 1.4, ease: "power1.in" }, "<0.6")
       .fromTo(tv.current, { scale: 0.42, opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: fast ? 0.1 : 0.6 }, "-=0.4")
       .add(() => {
         setPhase("tv");
