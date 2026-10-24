@@ -127,26 +127,69 @@ h1, h2, h3 { margin: 0; }
 
 /* ------------------------------------------------------------- desk layout */
 
+/*
+ * Scale: everything on the desk is measured against one A4 sheet (21 cm wide).
+ * --a4 is as large as the screen allows (width and height both bound it), and
+ * --cm is a centimetre at that scale. A cup is ~9.5 cm, a rolodex ~11 cm...
+ */
+.desk-screen, .night {
+  --a4: min(23vw, calc((100vh - 230px) / 1.414));
+  --cm: calc(var(--a4) / 21);
+  /* One light source: the lamp in the top-right corner. Shadows fall down and to the left. */
+  --desk-shadow: -10px 14px 22px #000a, -3px 4px 5px #0007;
+  --desk-drop: drop-shadow(-10px 14px 14px #000b) drop-shadow(-2px 3px 3px #0008);
+}
 .desk-screen {
   position: relative;
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  /* The wood photo fills any aspect ratio: cropped, never stretched or tiled. */
-  background-color: #1a0f0a;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  /* One light source for the whole desk: a lamp at the top-left. Shadows fall to the bottom-right. */
-  --desk-shadow: 10px 14px 22px #000a, 3px 4px 5px #0007;
-  --desk-drop: drop-shadow(10px 14px 14px #000b) drop-shadow(2px 3px 3px #0008);
+  background-color: #120b07;
 }
 /* Everything interactive sits above the lighting layers. */
-.desk-top, .desk-middle, .desk-bottom { position: relative; z-index: 2; }
+.desk-top, .desk-middle, .desk-bottom { position: relative; z-index: 4; }
+
+/* ---- the light rig (DeskLighting.tsx) */
+/* The wood photo has its light baked in from the left: mirrored, it agrees with the lamp on the right. */
+.desk-wood {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: #1a0f0a center / cover no-repeat;
+  transform: scaleX(-1);
+}
+/* The warm pool of light the papers sit in. */
+.desk-pool {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse calc(var(--a4) * 1.9) calc(var(--a4) * 1.6) at 52% 48%, #ffc98a59 0%, #ffb86626 45%, transparent 75%),
+    radial-gradient(circle calc(var(--cm) * 16) at calc(100% - var(--cm) * 10) calc(var(--cm) * 9), #ffe2a84d, transparent 70%);
+  mix-blend-mode: soft-light;
+}
+/* Strong vignette on the wood: the room around the lamp is dark. */
+.desk-vignette {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse 75% 80% at 52% 48%, transparent 35%, #000000a6 78%, #000000e6 100%);
+}
+/* A lighter shade over the decorations, so they sink into the dark too (papers stay readable above it). */
+.desk-shade {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse 80% 85% at 52% 48%, transparent 55%, #00000059 100%);
+}
+.desk-lamp {
+  position: absolute; z-index: 6; pointer-events: none;
+  right: calc(var(--cm) * -5); top: calc(var(--cm) * -6);
+  width: calc(var(--cm) * 22);
+  filter: drop-shadow(-14px 18px 18px #000c) drop-shadow(0 0 calc(var(--cm) * 2) #ffd89a55);
+}
+/* Night (election night): lamp turned low, the TV's cold glow in the middle, much darker edges. */
+.desk-pool.light-night {
+  background: radial-gradient(ellipse calc(var(--a4) * 1.6) calc(var(--a4) * 1.3) at 50% 50%, #8fb6ff40 0%, #4a6aa020 45%, transparent 75%);
+}
+.desk-vignette.light-night { background: radial-gradient(ellipse 70% 75% at 50% 50%, #00000040 20%, #000000cc 70%, #000 100%); }
+.desk-lamp.light-night { filter: drop-shadow(-14px 18px 18px #000c) brightness(0.45); }
 
 /* Leather blotter: the central writing area between the notes column and the drawers. */
 .desk-blotter {
-  position: absolute; z-index: 0;
+  position: absolute; z-index: 1;
   top: 96px; bottom: 96px;
   left: 304px; right: 246px;
   background: center / contain no-repeat;
@@ -164,20 +207,11 @@ h1, h2, h3 { margin: 0; }
   transition: opacity 4s ease;
 }
 
-/* Lamp light from the top-left, then a vignette darkening the edges. Above the wood, below the UI. */
-.desk-light {
-  position: absolute; inset: 0; z-index: 1;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 70% 60% at 14% 8%, #ffb8661f 0%, #ffb86610 35%, transparent 65%),
-    radial-gradient(ellipse at 50% 45%, transparent 50%, #0000008c 85%, #000000c4 100%);
-}
 .desk-top {
   display: flex;
   gap: 20px;
   align-items: stretch;
   padding: 14px 22px;
-  background: linear-gradient(#0009, #0000);
 }
 .desk-middle {
   display: grid;
@@ -292,9 +326,9 @@ h1, h2, h3 { margin: 0; }
 
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
-  position: absolute; z-index: 2; /* an object on the desk: above the lighting layers */
+  position: absolute; z-index: 2; /* an object on the desk: above the light, under the shade */
   right: clamp(240px, 17vw, 330px); bottom: 70px;
-  width: clamp(150px, 12vw, 220px);
+  width: calc(var(--cm) * 9.5); /* saucer: 9.5 cm, under half an A4 */
   pointer-events: none;
 }
 .coffee img { width: 100%; filter: var(--desk-drop); transform: rotate(-8deg); }
@@ -769,8 +803,9 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 
 /* ===================================================================== election night: the old CRT TV */
 
-.night { position: fixed; inset: 0; overflow: hidden; background: #0b0806 center / cover; display: grid; place-items: center; }
-.night-dark { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 55%, #0a0f1acc, #000 75%); opacity: 0; pointer-events: none; }
+.night { position: fixed; inset: 0; overflow: hidden; background: #0b0806; display: grid; place-items: center; }
+.night-dark { position: absolute; inset: 0; z-index: 7; background: radial-gradient(ellipse at 50% 55%, #0a0f1acc, #000 75%); opacity: 0; pointer-events: none; }
+.night .tv { z-index: 8; }
 
 /* At scale 1 the screen fills the viewport and the cabinet runs off the edges; the intro starts it small. */
 /*
@@ -875,6 +910,7 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .night-controls .ghost { color: var(--cream); border-color: #cdbb98aa; background: #000a; }
 
 @media (prefers-reduced-motion: reduce) {
+  .steam { animation: none; opacity: 0.4; }
   .crt { animation: none; }
   .bc-bar-row.leading { animation: none; }
   .bc-line { animation: none; }

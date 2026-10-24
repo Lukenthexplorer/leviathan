@@ -11,6 +11,7 @@ import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
 import { DeskClock } from "../desk/DeskClock";
+import { DeskLighting } from "../desk/DeskLighting";
 import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
 import { OpinionStrip } from "../desk/OpinionStrip";
@@ -139,14 +140,10 @@ export function DeskScreen() {
   const PanelComponent = panel ? PANELS[panel] : null;
 
   return (
-    <div
-      className="desk-screen"
-      ref={desk}
-      style={{ backgroundImage: `url(${DESK_ART.desk_bg})`, ["--corruption" as string]: corruptionLevel(state) }}
-    >
-      {/* Visual layers, bottom to top: wood (background) > blotter > lamp light + vignette > UI. None take clicks. */}
+    <div className="desk-screen" ref={desk} style={{ ["--corruption" as string]: corruptionLevel(state) }}>
+      {/* Light layers (wood, lamp pool, vignette, shade, lamp) and the corruption chill. None take clicks. */}
+      <DeskLighting />
       {BLOTTER && <div className="desk-blotter" style={{ backgroundImage: `url(${BLOTTER})` }} aria-hidden />}
-      <div className="desk-light" aria-hidden />
       <div className="desk-chill" aria-hidden />
 
       <header className="desk-top">

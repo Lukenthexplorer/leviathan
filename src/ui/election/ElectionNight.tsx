@@ -4,10 +4,11 @@ import { buildBroadcast, type Frame } from "../../chapters/councilman/broadcast"
 import { PLAYER } from "../../chapters/councilman/election";
 import { ELECTION_LINES } from "../../content/councilman/election_lines";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
-import { DESK_ART, portrait } from "../assets";
+import { portrait } from "../assets";
 import { audio } from "../audio/audio";
 import { electionTension } from "../audio/tension";
 import { DeskButton } from "../desk/DeskButton";
+import { DeskLighting } from "../desk/DeskLighting";
 import { useGame } from "../store";
 import { BarsPanel, CHART_COLORS, LineChart, MiniMap } from "./Broadcast";
 import { StaticNoise } from "./StaticNoise";
@@ -174,7 +175,8 @@ export function ElectionNight() {
   const totalPct = frame?.pct ?? 0;
 
   return (
-    <div className={`night ${reducedMotion() ? "reduced" : ""}`} ref={root} style={{ backgroundImage: `url(${DESK_ART.desk_bg})` }}>
+    <div className={`night ${reducedMotion() ? "reduced" : ""}`} ref={root}>
+      <DeskLighting variant="night" />
       <div className="night-dark" />
       <div className="tv" ref={tv}>
         <div className="tv-cabinet">
