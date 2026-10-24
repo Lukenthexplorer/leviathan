@@ -16,7 +16,7 @@ export function makeRoundRobin() {
 }
 
 /** What the election-night radio narrator can say, by situation. */
-export type NarrationSituation = "opening" | "ballots" | "close_race" | "landslide" | "last_urn" | "lead_change" | "outraged" | "final";
+export type NarrationSituation = "opening" | "ballots" | "close_race" | "landslide" | "last_ballot" | "lead_change" | "outraged" | "final";
 
 /** Higher interrupts lower. Equal or lower is dropped, never queued. */
 export const NARRATION_PRIORITY: Record<NarrationSituation, number> = {
@@ -24,7 +24,7 @@ export const NARRATION_PRIORITY: Record<NarrationSituation, number> = {
   opening: 2,
   close_race: 2,
   landslide: 2,
-  last_urn: 3,
+  last_ballot: 3,
   outraged: 3,
   lead_change: 4,
   final: 5,

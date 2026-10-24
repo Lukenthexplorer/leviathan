@@ -45,18 +45,50 @@ export const SFX = {
 export type SfxId = keyof typeof SFX;
 
 /**
- * Election-night radio narration, by situation. Each situation takes several
- * variations; empty lists are ready for future recordings (they simply don't play).
+ * Election-night radio narration, by situation, each with its variations
+ * (played in rotation, never the same one twice in a row).
  */
 export const NARRATION: Record<NarrationSituation, readonly string[]> = {
-  opening: ["assets/audio/narration/radio_opening.mp3"],
-  ballots: ["assets/audio/narration/radio_ballots_1.mp3"],
-  close_race: ["assets/audio/narration/radio_close_race.mp3"],
-  lead_change: ["assets/audio/narration/radio_lead_change.mp3"],
-  outraged: ["assets/audio/narration/radio_outraged.mp3"],
-  final: ["assets/audio/narration/radio_final.mp3"],
-  landslide: [],
-  last_urn: [],
+  opening: [
+    "assets/audio/narration/radio_opening_1.mp3",
+    "assets/audio/narration/radio_opening_2.mp3",
+  ],
+  ballots: [
+    "assets/audio/narration/radio_ballots_1.mp3",
+    "assets/audio/narration/radio_ballots_2.mp3",
+    "assets/audio/narration/radio_ballots_3.mp3",
+    "assets/audio/narration/radio_ballots_4.mp3",
+    "assets/audio/narration/radio_ballots_5.mp3",
+    "assets/audio/narration/radio_ballots_6.mp3",
+  ],
+  close_race: [
+    "assets/audio/narration/radio_close_race_1.mp3",
+    "assets/audio/narration/radio_close_race_2.mp3",
+    "assets/audio/narration/radio_close_race_3.mp3",
+    "assets/audio/narration/radio_close_race_4.mp3",
+  ],
+  lead_change: [
+    "assets/audio/narration/radio_lead_change_1.mp3",
+    "assets/audio/narration/radio_lead_change_2.mp3",
+    "assets/audio/narration/radio_lead_change_3.mp3",
+    "assets/audio/narration/radio_lead_change_4.mp3",
+  ],
+  outraged: [
+    "assets/audio/narration/radio_outraged_1.mp3",
+    "assets/audio/narration/radio_outraged_2.mp3",
+    "assets/audio/narration/radio_outraged_3.mp3",
+    "assets/audio/narration/radio_outraged_4.mp3",
+  ],
+  landslide: [
+    "assets/audio/narration/radio_landslide_1.mp3",
+    "assets/audio/narration/radio_landslide_2.mp3",
+  ],
+  last_ballot: ["assets/audio/narration/radio_last_ballot_1.mp3"],
+  final: [
+    "assets/audio/narration/radio_final_1.mp3",
+    "assets/audio/narration/radio_final_2.mp3",
+    "assets/audio/narration/radio_final_3.mp3",
+  ],
 };
 
 import type { MusicBeds, NarrationSituation } from "./audio/rules";
