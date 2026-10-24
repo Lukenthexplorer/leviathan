@@ -25,6 +25,8 @@ interface GameStore {
   notice: string | null;
   /** When the game was last autosaved (drives the little "salvo" indicator). */
   savedAt: number | null;
+  /** Dev test scenarios turn autosave off, so they never overwrite the real career. */
+  persist: boolean;
 
   goto(screen: Screen): void;
   newGame(party: string, playerName: string, form?: "m" | "f"): void;
@@ -45,12 +47,14 @@ export const useGame = create<GameStore>((set, get) => ({
   report: null,
   notice: null,
   savedAt: null,
+  persist: true,
 
   goto: (screen) => set({ screen }),
 
   newGame(party, playerName, form = "m") {
     const state = chapterFor("councilman").createInitialState({ party, playerName, form });
-    set({ state, pending: [], report: null, notice: null, screen: "desk", savedAt: saveGame(state) ? Date.now() : null });
+    const persist = get().persist;
+    set({ state, pending: [], report: null, notice: null, screen: "desk", savedAt: persist && saveGame(state) ? Date.now() : null });
   },
 
   continueGame() {
@@ -87,8 +91,10 @@ export const useGame = create<GameStore>((set, get) => ({
     const { state: next, report } = advanceTurn(state, pending, chapterFor(state.chapterId));
     // Autosave every week. A finished career is cleared: "Continue" never reopens an ending.
     let savedAt: number | null = null;
-    if (next.ending) clearSave();
-    else if (saveGame(next)) savedAt = Date.now();
+    if (get().persist) {
+      if (next.ending) clearSave();
+      else if (saveGame(next)) savedAt = Date.now();
+    }
     // An election result means election night first; any other ending goes straight to the newspaper.
     const screen = next.election ? "election" : next.ending ? "ending" : "desk";
     set({ state: next, pending: [], report, screen, savedAt });

@@ -6,6 +6,16 @@ import { TitleScreen } from "./screens/TitleScreen";
 import { useGame } from "./store";
 
 export function App() {
+  const persist = useGame((s) => s.persist);
+  return (
+    <>
+      <Screen />
+      {!persist && <div className="test-mode-tag">Modo teste · salvamento desligado</div>}
+    </>
+  );
+}
+
+function Screen() {
   const screen = useGame((s) => s.screen);
   switch (screen) {
     case "title":

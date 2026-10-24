@@ -873,3 +873,10 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
   .bc-bar-row.leading { animation: none; }
   .bc-line { animation: none; }
 }
+
+/* dev test scenarios (?teste=...) */
+.test-mode-tag {
+  position: fixed; left: 50%; top: 6px; translate: -50% 0; z-index: 100;
+  padding: 3px 10px; font-family: var(--type); font-size: 0.72rem;
+  background: #b3241bdd; color: #fff; border-radius: 3px; pointer-events: none;
+}
