@@ -32,8 +32,14 @@ export const SFX = {
   lead_change: ["assets/audio/sfx/lead_change_1.mp3", "assets/audio/sfx/lead_change_2.mp3"],
   fireworks: ["assets/audio/sfx/fireworks_1.mp3", "assets/audio/sfx/fireworks_2.mp3"],
   crowd_groan: ["assets/audio/sfx/crowd_groan_1.mp3", "assets/audio/sfx/crowd_groan_2.mp3"],
+  plantao_jingle: "assets/audio/sfx/plantao_jingle.mp3",
+  victory_sting: "assets/audio/sfx/victory_sting.mp3",
+  defeat_sting: "assets/audio/sfx/defeat_sting.mp3",
+  // campaign
+  sound_truck: "assets/audio/sfx/sound_truck.mp3",
+  rally_crowd: "assets/audio/sfx/rally_crowd.mp3",
+  cash: "assets/audio/sfx/cash.mp3",
   // still placeholders
-  plantao_jingle: "assets/audio/sfx/plantao_jingle.wav",
   crowd_cheer: "assets/audio/sfx/crowd_cheer.wav",
 } as const satisfies Record<string, string | readonly string[]>;
 export type SfxId = keyof typeof SFX;
@@ -59,7 +65,7 @@ import type { NarrationSituation } from "./audio/rules";
 export const MUSIC_STEMS = {
   office_piano_stem: "assets/audio/music/office_piano_stem.wav",
   tension_drums_stem: "assets/audio/music/tension_drums_stem.wav",
-  city_ambience: "assets/audio/music/city_ambience.wav",
+  city_ambience: "assets/audio/music/city_ambience.mp3", // seamless loop
 } as const;
 export type StemId = keyof typeof MUSIC_STEMS;
 

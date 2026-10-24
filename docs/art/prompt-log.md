@@ -19,3 +19,10 @@
 | 2026-10-23 | portraits/community_leader_neutral.png (Dona Lurdes) | (added by Lucas; model/settings to fill in) | elderly community leader, sepia polaroid | – | 800px web copy |
 | 2026-10-23 | desk/radio.png (Imprensa drawer) | (added by Lucas; model/settings to fill in) | worn 1980s portable radio | – | Transparent; cropped to content and resized to 520px |
 | 2026-10-23 | desk/stamp.png (the rubber stamp that comes down on papers) | (added by Lucas; model/settings to fill in) | vintage top-down wooden stamp | – | Transparent; cropped, 343x360 |
+| 2026-10-23 | audio/music/campaign_stem_1.mp3, campaign_stem_2.mp3 (campaign weeks 33–40, alternating weekly) | ElevenLabs (added by Lucas) | campaign music bed, two versions of the same track | – | 90 s originals; made seamless with `audio:process … loop` (2 s crossfade, 88 s), -16 LUFS, 160 kbps |
+| 2026-10-23 | audio/music/election_tension_stem.mp3 (counting night) | ElevenLabs (added by Lucas) | tense election-night bed | – | Original was misnamed "election_tension_steam"; seamless loop, 58 s |
+| 2026-10-23 | audio/music/city_ambience.mp3 (street layer, replaces placeholder) | ElevenLabs (added by Lucas) | Brazilian city street, 1980s | – | Seamless loop, 58 s |
+| 2026-10-23 | audio/sfx/plantao_jingle.mp3 (replaces placeholder) | ElevenLabs (added by Lucas) | 1980s TV "plantão" news jingle | – | Trimmed to 6.7 s |
+| 2026-10-23 | audio/sfx/victory_sting.mp3, defeat_sting.mp3 | ElevenLabs (added by Lucas) | end-of-count stings | – | -16 LUFS |
+| 2026-10-23 | audio/sfx/sound_truck.mp3, rally_crowd.mp3 (campaign actions) | ElevenLabs (added by Lucas) | sound truck through a neighbourhood; rally crowd | – | sound_truck trimmed 15 → 11.6 s |
+| 2026-10-23 | audio/sfx/cash.mp3 (money spent) | ElevenLabs (added by Lucas) | cash register / coins | – | Peaky: lands at -23.7 LUFS without clipping |
