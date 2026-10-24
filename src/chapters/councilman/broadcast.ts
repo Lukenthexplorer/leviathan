@@ -12,6 +12,9 @@ import { PLAYER } from "./election";
  * and the anchor's line. Pure: the TV (React + GSAP) only plays this back.
  */
 
+/** Which radio line election night should try on a frame (the narrator may still drop it if busy). */
+export type FrameNarration = "lead_change" | "outraged" | "close_race" | "ballots";
+
 export interface Frame {
   label: string;
   unitId: string;
@@ -29,6 +32,8 @@ export interface Frame {
   line: string;
   /** Seconds this frame stays on screen (slower when it's tight or near the end). */
   duration: number;
+  /** The radio line to try here, if any. */
+  narration?: FrameNarration;
 }
 
 export interface Round {
@@ -55,6 +60,8 @@ function frames(state: GameState, result: ElectionResult, batches: ElectionResul
   const unitTotals: Record<string, Record<string, number>> = {};
   const toldUnits = new Set<string>();
   let leader = "";
+  let lastGap = 0;
+  let closeTold = false;
   const out: Frame[] = [];
 
   batches.forEach((b, i) => {
@@ -71,6 +78,18 @@ function frames(state: GameState, result: ElectionResult, batches: ElectionResul
     const close = gap < BALANCE.election.closeRaceMargin;
     const unitDone = i === batches.length - 1 || batches[i + 1]!.unitId !== b.unitId;
     const unitWinner = unitDone ? Object.entries(ut).sort((a, c) => c[1] - a[1])[0]![0] : undefined;
+
+    // The radio: a lead change beats everything; then a batch that slashes the leader's margin
+    // without flipping it (the outraged narrator); the first time it gets tight; and, only every
+    // few batches, "urnas chegando". Never on every batch.
+    const swing = !leadChange && i > 0 && lastGap - gap > BALANCE.election.outragedSwing;
+    let narration: FrameNarration | undefined;
+    if (leadChange) narration = "lead_change";
+    else if (swing) narration = "outraged";
+    else if (close && !closeTold) narration = "close_race";
+    else if (i % BALANCE.election.ballotsNarrationEvery === BALANCE.election.ballotsNarrationEvery - 1) narration = "ballots";
+    if (close) closeTold = true;
+    lastGap = gap;
 
     // The anchor speaks: a lead change beats everything, then a unit's first urns (with a cause), then the mood of the race.
     let line: string;
@@ -96,6 +115,7 @@ function frames(state: GameState, result: ElectionResult, batches: ElectionResul
       ...(unitWinner ? { unitWinner } : {}),
       line: fillTemplate(state, line),
       duration: close || b.cumulativePct >= 80 ? SLOW_SECONDS : BASE_SECONDS,
+      ...(narration ? { narration } : {}),
     });
   });
   return out;

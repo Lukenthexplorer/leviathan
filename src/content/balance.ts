@@ -214,6 +214,10 @@ export const BALANCE = {
     batchFractions: [0.3, 0.25, 0.25, 0.2],
     /** Under this margin (points), the race is "close" (TV slows down). */
     closeRaceMargin: 3,
+    /** Election night: a batch that cuts the leader's margin by more than this (points) outrages the narrator. */
+    outragedSwing: 3,
+    /** Election night: the "urnas chegando" narration plays every this many batches (never every batch). */
+    ballotsNarrationEvery: 4,
     /** Seats: re-election needs a top-N finish among the party's candidates; deputy, among the slate. */
     councilSeats: 2,
     deputySeats: 2,

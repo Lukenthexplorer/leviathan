@@ -55,6 +55,31 @@ describe("election night broadcast", () => {
     expect(frames[0]!.duration).toBeLessThanOrEqual(frames.at(-1)!.duration);
   });
 
+  it("narration: the lead change line on every lead change, ballots only every few batches", () => {
+    const s = career("mayor", periphery);
+    const frames = buildBroadcast(s, computeElection(s, "mayor")).rounds[0]!.frames;
+    for (const f of frames) if (f.leadChange) expect(f.narration).toBe("lead_change");
+    const ballots = frames.filter((f) => f.narration === "ballots").length;
+    expect(ballots).toBeGreaterThan(0);
+    expect(ballots).toBeLessThanOrEqual(Math.ceil(frames.length / BALANCE.election.ballotsNarrationEvery));
+    expect(frames.filter((f) => f.narration === "close_race").length).toBeLessThanOrEqual(1);
+  });
+
+  it("a batch that slashes the leader's margin without flipping it outrages the narrator", () => {
+    const s = career("mayor", periphery);
+    const frames = buildBroadcast(s, computeElection(s, "mayor")).rounds[0]!.frames;
+    frames.forEach((f, i) => {
+      if (f.narration !== "outraged") return;
+      const prev = frames[i - 1]!;
+      const gap = (fr: typeof f) => {
+        const v = Object.values(fr.shares).sort((a, b) => b - a);
+        return v[0]! - v[1]!;
+      };
+      expect(f.leadChange).toBe(false);
+      expect(gap(prev) - gap(f)).toBeGreaterThan(BALANCE.election.outragedSwing - 0.2);
+    });
+  });
+
   it("a mayor race without a majority gets a second round on air", () => {
     const s = career("mayor", periphery);
     const r = computeElection(s, "mayor");

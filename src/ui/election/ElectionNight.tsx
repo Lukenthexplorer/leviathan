@@ -60,8 +60,9 @@ export function ElectionNight() {
         setPhase("tv");
         audio.sfx("tv_power_on");
       })
+      .add(() => audio.sfx("tv_static", { volume: 0.5 }), "+=0.5")
       .fromTo(screen.current, { scaleY: 0.01, filter: "brightness(3)" }, { scaleY: 1, filter: "brightness(1)", duration: fast ? 0.1 : 0.5, ease: "power2.out" })
-      .add(() => audio.sfx("plantao_jingle"), "+=0.2")
+      .add(() => audio.sfx("plantao_jingle"), "+=0.6")
       // Push in until the picture nearly fills the room: a sliver of the wooden cabinet stays as a frame.
       .to(tv.current, { scale: 0.92, duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
     return () => {
@@ -78,7 +79,8 @@ export function ElectionNight() {
         setRoundIdx(ri);
         setFrameIdx(-1);
         setInterstitial(r.intro);
-        audio.sfx("tv_static", { volume: 0.5 });
+        if (ri === 0) audio.narrate("opening");
+        else audio.sfx("tv_static", { volume: 0.5 });
       });
       t.to({}, { duration: ri === 0 ? 3 : 4 });
       t.call(() => setInterstitial(null));
@@ -104,19 +106,24 @@ export function ElectionNight() {
     else tl.current?.resume();
   }, [paused]);
 
-  // Each new batch: a tick, and on a lead change the VIRADA sting. Close races raise the music's tension.
+  // Each new batch: a vote tick; on a lead change the sting and the VIRADA graphic; and the radio
+  // line the broadcast script chose (the narrator drops it if something more important is playing).
   useEffect(() => {
-    if (!frame) return;
-    audio.sfx("clock_tick", { volume: 0.6 });
+    if (!frame || phase !== "broadcast") return;
+    audio.sfx("vote_tick", { volume: 0.7, pitchJitter: 0.02 });
     audio.setTension(frame.close ? 0.9 : frame.leader === PLAYER ? 0.2 : 0.55);
-    if (frame.leadChange && virada.current && !reducedMotion()) {
+    if (frame.leadChange) {
       audio.sfx("lead_change");
-      gsap.fromTo(virada.current, { scale: 2.4, opacity: 0, rotation: -8 }, { scale: 1, opacity: 1, rotation: -4, duration: 0.35, ease: "back.out(2)" });
-      gsap.to(virada.current, { opacity: 0, duration: 0.4, delay: 1.3 });
+      if (virada.current && !reducedMotion()) {
+        gsap.fromTo(virada.current, { scale: 2.4, opacity: 0, rotation: -8 }, { scale: 1, opacity: 1, rotation: -4, duration: 0.35, ease: "back.out(2)" });
+        gsap.to(virada.current, { opacity: 0, duration: 0.4, delay: 1.3 });
+      }
     }
-    // The crowd outside: louder where the player just won a neighbourhood.
-    if (frame.unitDone) audio.sfx(frame.unitWinner === PLAYER ? "crowd_cheer" : "crowd_groan", { volume: 0.5 });
-  }, [frame]);
+    if (frame.narration) audio.narrate(frame.narration);
+  }, [frame, phase]);
+
+  // Leaving the screen silences the radio.
+  useEffect(() => () => audio.stopNarration(), []);
 
   function finish() {
     tl.current?.kill();
@@ -125,11 +132,17 @@ export function ElectionNight() {
     setFrameIdx(broadcast.rounds[last]!.frames.length - 1);
     setInterstitial(null);
     setPhase("final");
-    audio.sfx(broadcast.playerWon ? "crowd_cheer" : "crowd_groan", { volume: broadcast.playerWon ? 1 : 0.6 });
     audio.setTension(broadcast.playerWon ? 0 : 1);
+    // 100%: the narrator calls it (interrupting anything), then fireworks and the crowd outside.
+    audio.narrate("final");
+    window.setTimeout(() => {
+      audio.sfx("fireworks", { volume: broadcast.playerWon ? 0.9 : 0.4, pitchJitter: 0 });
+      audio.sfx(broadcast.playerWon ? "crowd_cheer" : "crowd_groan", { volume: 0.8, pitchJitter: 0 });
+    }, 1200);
   }
 
   function toNewspaper() {
+    audio.stopNarration();
     audio.sfx("tv_power_on", { volume: 0.4 });
     audio.setCityFocus(false);
     gsap.to(screen.current, { scaleY: 0.01, scaleX: 0.02, duration: 0.35, ease: "power2.in", onComplete: () => goto("ending") });
