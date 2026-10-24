@@ -3,15 +3,26 @@
  * Real assets later replace these files one-for-one: same id, same folder.
  * Run: npm run gen:placeholders
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { basename, dirname, extname, join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..", "public", "assets");
 
+/**
+ * Never overwrite or shadow real assets: if `name.anything-else` already exists
+ * next to the placeholder (mentor_neutral.png, tv_power_on.mp3, vote_tick_1.mp3...),
+ * the placeholder is skipped.
+ */
+function hasRealAsset(file: string): boolean {
+  const dir = dirname(file);
+  if (!existsSync(dir)) return false;
+  const stem = basename(file, extname(file));
+  return readdirSync(dir).some((f) => extname(f) !== extname(file) && (basename(f, extname(f)) === stem || basename(f, extname(f)).startsWith(`${stem}_`)));
+}
+
 function write(rel: string, data: string | Buffer) {
   const file = join(ROOT, rel);
-  // Never put a placeholder next to final art (e.g. mentor_neutral.png exists -> skip the .svg).
-  if (rel.endsWith(".svg") && existsSync(file.replace(/\.svg$/, ".png"))) return;
+  if (hasRealAsset(file)) return;
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, data);
 }
@@ -89,59 +100,61 @@ function synth(seconds: number, f: (t: number) => number): Float32Array {
   return out;
 }
 
-// Deterministic noise so regenerating gives identical files (nicer git diffs).
+// Deterministic noise, re-seeded from each sound's name: regenerating gives identical files, and
+// adding or removing one sound never changes the others (nicer git diffs).
 let seed = 1;
+const seeded = (name: string, make: () => Float32Array) => () => {
+  seed = [...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 2147483646, 7) + 1;
+  return make();
+};
 const noise = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) * 2 - 1;
 const sine = (hz: number, t: number) => Math.sin(2 * Math.PI * hz * t);
 const decay = (t: number, k: number) => Math.exp(-t * k);
 
-const SFX: Record<string, Float32Array> = {
-  stamp_thud: synth(0.35, (t) => (sine(70 - t * 80, t) * 0.9 + noise() * 0.4 * decay(t, 40)) * decay(t, 12)),
-  paper_slide: synth(0.4, (t) => noise() * 0.3 * Math.sin(Math.PI * (t / 0.4))),
-  paper_pickup: synth(0.15, (t) => noise() * 0.35 * decay(t, 25)),
-  typewriter_key: synth(0.06, (t) => (noise() * 0.6 + sine(2200, t) * 0.3) * decay(t, 90)),
-  pen_sign: synth(0.6, (t) => noise() * 0.18 * (0.5 + 0.5 * sine(9, t))),
-  page_flip: synth(0.3, (t) => noise() * 0.4 * decay(Math.abs(t - 0.08), 30)),
-  phone_ring: synth(1.2, (t) => (t % 0.6 < 0.4 ? (sine(440, t) + sine(480, t)) * 0.25 : 0)),
-  newspaper_spin: synth(0.7, (t) => noise() * 0.3 * Math.sin(Math.PI * (t / 0.7)) * (0.6 + 0.4 * sine(12, t))),
-  drawer_open: synth(0.4, (t) => (noise() * 0.25 + sine(90, t) * 0.2) * Math.sin(Math.PI * (t / 0.4))),
-  clock_tick: synth(0.04, (t) => sine(3000, t) * 0.3 * decay(t, 150)),
-  ui_hover: synth(0.05, (t) => sine(1400, t) * 0.12 * decay(t, 80)),
-  ui_click: synth(0.08, (t) => sine(900, t) * 0.3 * decay(t, 60)),
-  scandal_sting: synth(1.0, (t) => (sine(110, t) + sine(116.5, t) + sine(155, t)) * 0.25 * decay(t, 2.5)),
-  opinion_up: synth(0.25, (t) => sine(660 + t * 600, t) * 0.2 * decay(t, 10)),
-  opinion_down: synth(0.25, (t) => sine(520 - t * 400, t) * 0.2 * decay(t, 10)),
+const SFX: Record<string, () => Float32Array> = {
+  stamp_thud: seeded("stamp_thud", () => synth(0.35, (t) => (sine(70 - t * 80, t) * 0.9 + noise() * 0.4 * decay(t, 40)) * decay(t, 12))),
+  paper_slide: seeded("paper_slide", () => synth(0.4, (t) => noise() * 0.3 * Math.sin(Math.PI * (t / 0.4)))),
+  paper_pickup: seeded("paper_pickup", () => synth(0.15, (t) => noise() * 0.35 * decay(t, 25))),
+  typewriter_key: seeded("typewriter_key", () => synth(0.06, (t) => (noise() * 0.6 + sine(2200, t) * 0.3) * decay(t, 90))),
+  pen_sign: seeded("pen_sign", () => synth(0.6, (t) => noise() * 0.18 * (0.5 + 0.5 * sine(9, t)))),
+  page_flip: seeded("page_flip", () => synth(0.3, (t) => noise() * 0.4 * decay(Math.abs(t - 0.08), 30))),
+  phone_ring: seeded("phone_ring", () => synth(1.2, (t) => (t % 0.6 < 0.4 ? (sine(440, t) + sine(480, t)) * 0.25 : 0))),
+  newspaper_spin: seeded("newspaper_spin", () => synth(0.7, (t) => noise() * 0.3 * Math.sin(Math.PI * (t / 0.7)) * (0.6 + 0.4 * sine(12, t)))),
+  drawer_open: seeded("drawer_open", () => synth(0.4, (t) => (noise() * 0.25 + sine(90, t) * 0.2) * Math.sin(Math.PI * (t / 0.4)))),
+  clock_tick: seeded("clock_tick", () => synth(0.04, (t) => sine(3000, t) * 0.3 * decay(t, 150))),
+  ui_hover: seeded("ui_hover", () => synth(0.05, (t) => sine(1400, t) * 0.12 * decay(t, 80))),
+  ui_click: seeded("ui_click", () => synth(0.08, (t) => sine(900, t) * 0.3 * decay(t, 60))),
+  scandal_sting: seeded("scandal_sting", () => synth(1.0, (t) => (sine(110, t) + sine(116.5, t) + sine(155, t)) * 0.25 * decay(t, 2.5))),
+  opinion_up: seeded("opinion_up", () => synth(0.25, (t) => sine(660 + t * 600, t) * 0.2 * decay(t, 10))),
+  opinion_down: seeded("opinion_down", () => synth(0.25, (t) => sine(520 - t * 400, t) * 0.2 * decay(t, 10))),
   // election night
-  tv_power_on: synth(0.8, (t) => (sine(15000 - t * 9000, t) * 0.08 + noise() * 0.15 * decay(t, 6)) * Math.min(1, t * 20)),
-  tv_static: synth(1.2, () => noise() * 0.18),
-  plantao_jingle: synth(2.2, (t) => {
+  plantao_jingle: seeded("plantao_jingle", () => synth(2.2, (t) => {
     const notes = [523, 659, 784, 1047, 784, 1047];
     const n = notes[Math.min(notes.length - 1, Math.floor(t / 0.3))]!;
     return (sine(n, t) * 0.25 + sine(n * 1.5, t) * 0.08) * decay(t % 0.3, 4) * (t < 1.8 ? 1 : decay(t - 1.8, 6));
-  }),
-  virada_sting: synth(0.9, (t) => (sine(220, t) + sine(277, t) + sine(330, t) + sine(440, t)) * 0.18 * decay(t, 3)),
-  crowd_cheer: synth(2.5, (t) => noise() * 0.35 * Math.sin(Math.PI * Math.min(1, t / 2.5)) * (0.7 + 0.3 * sine(3, t))),
-  crowd_murmur: synth(2.5, () => noise() * 0.08),
+  })),
+  crowd_cheer: seeded("crowd_cheer", () => synth(2.5, (t) => noise() * 0.35 * Math.sin(Math.PI * Math.min(1, t / 2.5)) * (0.7 + 0.3 * sine(3, t)))),
+  // tv_power_on, tv_static, vote_tick, lead_change, fireworks, crowd_groan: real recordings (art/source/audio).
 };
-for (const [id, s] of Object.entries(SFX)) write(`audio/sfx/${id}.wav`, wav(s));
+for (const [id, s] of Object.entries(SFX)) write(`audio/sfx/${id}.wav`, wav(s()));
 
 // Music stems: 8-second loops that the AudioManager crossfades by tension.
 const chord = [261.6, 329.6, 392.0, 493.9]; // Cmaj7, bossa-ish
-const MUSIC: Record<string, Float32Array> = {
-  office_piano_stem: synth(8, (t) => {
+const MUSIC: Record<string, () => Float32Array> = {
+  office_piano_stem: seeded("office_piano_stem", () => synth(8, (t) => {
     const beat = t % 0.5;
     const note = chord[Math.floor(t / 0.5) % chord.length]!;
     return sine(note, t) * 0.15 * decay(beat, 5);
-  }),
-  tension_drums_stem: synth(8, (t) => {
+  })),
+  tension_drums_stem: seeded("tension_drums_stem", () => synth(8, (t) => {
     const beat = t % 0.5;
     const kick = sine(55, t) * decay(beat, 18) * 0.6;
     const hat = (t % 0.25) < 0.02 ? noise() * 0.12 : 0;
     return kick + hat;
-  }),
-  city_ambience: synth(8, () => noise() * 0.04),
+  })),
+  city_ambience: seeded("city_ambience", () => synth(8, () => noise() * 0.04)),
 };
-for (const [id, s] of Object.entries(MUSIC)) write(`audio/music/${id}.wav`, wav(s));
+for (const [id, s] of Object.entries(MUSIC)) write(`audio/music/${id}.wav`, wav(s()));
 
 console.log(
   `Placeholders written to public/assets: ${PORTRAIT_SUBJECTS.length * 4} portraits, ` +
