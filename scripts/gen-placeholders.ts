@@ -159,34 +159,6 @@ function draw(w: number, h: number, shapes: Shape[]): Buffer {
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
 const DESK_OBJECTS: Record<string, () => Buffer> = {
-  // Desk lamp seen from above, for the top-right corner: brass base in the corner, the arm reaching
-  // toward the middle of the desk, green shade with the bulb glowing in its mouth.
-  lamp: () => draw(520, 520, [
-    circle(410, 110, 95, "#6b5226"), circle(410, 110, 80, "#a8843c"), circle(410, 110, 22, "#4a3a1a"),
-    capsule(410, 110, 220, 300, 16, "#8a6c30"),
-    circle(200, 320, 150, "#1f4a32"), circle(200, 320, 130, "#2c6446"), circle(200, 320, 70, "#fff2c8"), circle(200, 320, 40, "#fffbe8"),
-  ]),
-  ashtray: () => draw(320, 320, [
-    circle(160, 160, 150, "#9fb6b4cc"), circle(160, 160, 112, "#6f8584cc"), circle(160, 160, 100, "#3a3634"),
-    circle(130, 175, 30, "#5a5450"), circle(190, 140, 22, "#4c4744"),
-    ...range(4).map((i) => box(152 + Math.cos((i * Math.PI) / 2) * 128 - 14, 152 + Math.sin((i * Math.PI) / 2) * 128 - 6, 152 + Math.cos((i * Math.PI) / 2) * 128 + 30, 152 + Math.sin((i * Math.PI) / 2) * 128 + 22, 6, "#2e2a28")),
-    capsule(150, 160, 300, 100, 11, "#f2ece0"), capsule(150, 160, 175, 150, 11.5, "#d8a050"), circle(150, 160, 10, "#e0582a"),
-  ]),
-  typewriter: () => draw(720, 560, [
-    box(110, 20, 610, 210, 6, "#f4efe2"), // the sheet in the carriage
-    box(40, 170, 680, 250, 24, "#2a2826"), box(20, 185, 60, 235, 10, "#b8b0a0"), box(660, 185, 700, 235, 10, "#b8b0a0"), // carriage, knobs
-    box(60, 240, 660, 540, 40, "#3a3836"),
-    box(120, 260, 600, 330, 20, "#1c1b1a"), // type basket
-    ...range(4).flatMap((row) => range(11 - (row === 3 ? 4 : 0)).map((k) => circle(150 + row * 18 + k * 42 + (row === 3 ? 84 : 0), 360 + row * 40, 15, "#e8e2d4"))),
-    box(230, 510, 490, 532, 10, "#e8e2d4"), // space bar
-  ]),
-  rotary_phone: () => draw(440, 440, [
-    box(40, 120, 400, 420, 60, "#161514"),
-    capsule(70, 90, 370, 90, 42, "#0e0d0c"), circle(70, 90, 56, "#1d1c1b"), circle(370, 90, 56, "#1d1c1b"), // handset on the cradle
-    circle(220, 290, 110, "#e8e2d4"), circle(220, 290, 104, "#2a2826"),
-    ...range(10).map((i) => circle(220 + Math.cos(-Math.PI / 3 + (i * Math.PI * 1.6) / 9) * 74, 290 + Math.sin(-Math.PI / 3 + (i * Math.PI * 1.6) / 9) * 74, 15, "#e8e2d4")),
-    circle(220, 290, 34, "#c4302a"),
-  ]),
   // Twin-bell alarm clock, face up. The hands are drawn by the game on top.
   desk_clock: () => draw(320, 320, [
     circle(80, 70, 50, "#9a7a3a"), circle(240, 70, 50, "#9a7a3a"), capsule(80, 70, 240, 70, 8, "#6b5226"),

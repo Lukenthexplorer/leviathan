@@ -79,6 +79,20 @@ export const MUSIC_LAYERS = {
 } as const;
 export type LayerId = keyof typeof MUSIC_LAYERS;
 
+/**
+ * Where the screen hole is in tv_set.webp (1374x1145), in % of the image,
+ * measured from its alpha channel (hole: x 186-989, y 410-965 px). The CRT
+ * picture is laid out in exactly this box, behind the frame.
+ */
+export const TV_SCREEN = {
+  left: (186 / 1374) * 100,
+  top: (410 / 1145) * 100,
+  width: ((989 - 186) / 1374) * 100,
+  height: ((965 - 410) / 1145) * 100,
+  /** Width / height of the whole TV image. */
+  aspect: 1374 / 1145,
+} as const;
+
 export const DESK_ART = {
   desk_bg: "assets/desk.png", // final art: "Warm Light on Worn Mahogany"
   paper_blank: "assets/desk/paper_blank.svg",
@@ -94,11 +108,13 @@ export const DESK_ART = {
   city_skyline: "assets/desk/city_skyline.png", // final art
   book_stack: "assets/desk/book_stack.png", // final art
   campaign_folder: "assets/desk/campaign_folder.svg", // placeholder: santinhos and a flag
-  // Desk redesign: generated placeholders (scripts/gen-placeholders.ts); final art replaces them with the same name.
-  lamp: "assets/desk/lamp.png",
-  ashtray: "assets/desk/ashtray.png",
-  typewriter: "assets/desk/typewriter.png",
-  rotary_phone: "assets/desk/rotary_phone.png",
+  desk_night: "assets/desk_night.webp", // final art: same size and framing as desk.png, lit blue for election night
+  lamp: "assets/desk/lamp.webp", // final art
+  ashtray: "assets/desk/ashtray.webp", // final art
+  typewriter: "assets/desk/typewriter.webp", // final art
+  rotary_phone: "assets/desk/rotary_phone.webp", // final art
+  tv_set: "assets/desk/tv_set.webp", // final art: the screen is a transparent hole (TV_SCREEN)
+  // Generated placeholders (scripts/gen-placeholders.ts); final art replaces them with the same name.
   desk_clock: "assets/desk/desk_clock.png",
   poll_clipping: "assets/desk/poll_clipping.png",
   ledger: "assets/desk/ledger.png",
@@ -124,7 +140,21 @@ const FINAL_PORTRAITS: Record<string, Partial<Record<Expression, string>>> = {
     neutral: "assets/portraits/journalist_neutral.png",
     suspicious: "assets/portraits/journalist_suspicious.png",
   },
-  rival: { neutral: "assets/portraits/rival_neutral.png" },
+  rival: {
+    neutral: "assets/portraits/rival_neutral.png",
+    pleased: "assets/portraits/rival_pleased.webp",
+    angry: "assets/portraits/rival_angry.webp",
+  },
+  candidate_galvao: {
+    neutral: "assets/portraits/cand_galvao_neutral.webp",
+    pleased: "assets/portraits/cand_galvao_pleased.webp",
+    angry: "assets/portraits/cand_galvao_angry.webp",
+  },
+  // The TV anchor: no polaroid frame, he's on screen. "Excited" is his pleased face.
+  anchor_cid: {
+    neutral: "assets/portraits/anchor_neutral.webp",
+    pleased: "assets/portraits/anchor_excited.webp",
+  },
   donor: { neutral: "assets/portraits/donor_neutral.png" },
   // Each party has its own boss. The "statesman" portrait fits the three men;
   // Cida Ramos (labour) keeps a placeholder until her own portrait exists.
