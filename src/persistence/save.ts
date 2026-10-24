@@ -35,9 +35,25 @@ export interface SaveSummary {
 export const MIGRATIONS: Record<number, (state: GameState) => GameState> = {
   // v2 added political capital. Old careers start with the default amount.
   1: (state) => ({ ...state, version: 2, player: { ...state.player, capital: state.player.capital ?? BALANCE.capital.start } }),
-  // v3 added the campaign and the election. Saves past the decision week get the decision paper on their next week.
-  2: (state) => ({ ...state, version: 3, campaign: state.campaign ?? null, election: state.election ?? null }),
+  // v3 added the campaign and the election (chapter 1 v2). A career already past the decision week
+  // goes back to the week before it, so the player still chooses a path; careers that ended at the
+  // old party convention (an ending v3 no longer has) reopen there too. Real game overs stay over.
+  2: (state) => {
+    const pastDecision = state.turn >= BALANCE.campaign.decisionWeek;
+    const conventionEnding = state.ending !== null && OLD_CONVENTION_ENDINGS.includes(state.ending);
+    return {
+      ...state,
+      version: 3,
+      campaign: state.campaign ?? null,
+      election: state.election ?? null,
+      turn: pastDecision && (!state.ending || conventionEnding) ? BALANCE.campaign.decisionWeek - 1 : state.turn,
+      ending: conventionEnding ? null : state.ending,
+    };
+  },
 };
+
+/** Chapter 1 v1 ended at a party convention; v2 replaced these with the election. */
+const OLD_CONVENTION_ENDINGS = ["candidacy", "kingmaker", "passed_over"];
 
 type KeyValueStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 

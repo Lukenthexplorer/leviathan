@@ -127,11 +127,11 @@ function nullShare(state: GameState, unit: string): number {
 }
 
 /** The two most decisive reasons in a unit (one for, one against), for the narrator. */
-function unitCauses(state: GameState, unit: string): { unitId: string; text: string; cause: Cause }[] {
+function unitCauses(state: GameState, unit: string): ElectionResult["causes"] {
   const parts = playerComponents(state, unit).filter((p) => p.cause.id !== "mandate" && p.cause.id !== "region");
   const best = [...parts].sort((a, b) => b.value - a.value)[0];
   const worst = [...parts].sort((a, b) => a.value - b.value)[0];
-  return [best, worst].filter((p): p is Component => !!p && Math.abs(p.value) >= 3).map((p) => ({ unitId: unit, text: p.text, cause: p.cause }));
+  return [best, worst].filter((p): p is Component => !!p && Math.abs(p.value) >= 3).map((p) => ({ unitId: unit, text: p.text, cause: p.cause, value: Math.round(p.value * 10) / 10 }));
 }
 
 /** Count every unit in reporting order, batch by batch, for the given candidates. */

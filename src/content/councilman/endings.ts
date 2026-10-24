@@ -9,6 +9,8 @@ export interface EndingDef {
   kicker: string;
   headline: string;
   lede: string;
+  /** Victories: what the next chapter will be about (not written yet). */
+  next?: string;
 }
 
 export const ENDINGS: Record<string, EndingDef> = {
@@ -18,18 +20,21 @@ export const ENDINGS: Record<string, EndingDef> = {
     kicker: "Eleições 1989 · Câmara Municipal",
     headline: "{{PLAYER}} REELEIT{{g:O/A}}",
     lede: "Contados os votos no ginásio, {{player}} garantiu mais quatro anos na Câmara de Porto Ferro. Quem achou que a última vaga tinha sido sorte vai ter que rever.",
+    next: "Mais quatro anos de Câmara, agora sem a desculpa de ser novat{{g:o/a}}. Quem ajudou na eleição vai cobrar.",
   },
   elected_mayor: {
     tone: "victory",
     kicker: "Eleições 1989 · Prefeitura",
     headline: "{{PLAYER}} É {{g:O NOVO PREFEITO/A NOVA PREFEITA}} DE PORTO FERRO",
     lede: "Madrugada de festa no ginásio: {{player}}, que entrou na Câmara com a última vaga, vai governar a cidade. Agora, prometer acabou. Agora é entregar.",
+    next: "A prefeitura: um orçamento de verdade, secretários para nomear, empreiteiras na sala de espera e uma Câmara que você conhece bem demais.",
   },
   elected_deputy: {
     tone: "victory",
     kicker: "Eleições 1989 · Assembleia Legislativa",
     headline: "{{PLAYER}} ELEIT{{g:O/A}} DEPUTAD{{g:O/A}} ESTADUAL",
     lede: "Das ruas de Porto Ferro para a Assembleia Legislativa. {{player}} vai representar a cidade, e o interior que aprendeu a conhecer.",
+    next: "A Assembleia Legislativa: a capital, os gabinetes maiores, os acordos maiores. E Porto Ferro lá longe, esperando a volta.",
   },
   defeated_council: {
     tone: "defeat",

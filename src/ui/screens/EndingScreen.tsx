@@ -27,6 +27,7 @@ export function EndingScreen() {
         .from(".legacy-book", { y: 120, opacity: 0, duration: 0.8, ease: "power3.out" }, "+=0.6")
         .from(".legacy-section", { opacity: 0, y: 16, stagger: 0.35, duration: 0.5, onStart: () => audio.sfx("page_flip", { volume: 0.5 }) }, "-=0.2")
         .from(".legacy-verdict", { opacity: 0, scale: 0.96, duration: 0.8 }, "+=0.3")
+        .from(".legacy-next", { opacity: 0, y: 24, rotation: 3, duration: 0.6, ease: "back.out(1.6)", onStart: () => audio.sfx("paper_slide", { volume: 0.6 }) }, "+=0.2")
         .from(".legacy-actions", { opacity: 0, duration: 0.5 });
     }, root);
     return () => ctx.revert();
@@ -61,6 +62,13 @@ export function EndingScreen() {
           <p>{legacy.verdict.paragraphs[0]}</p>
         </section>
       </article>
+
+      {legacy.next && (
+        <aside className="legacy-next">
+          <div className="legacy-next-kicker">Capítulo 2 · em breve</div>
+          <p>{legacy.next}</p>
+        </aside>
+      )}
 
       <div className="legacy-actions">
         <DeskButton variant="primary" onClick={() => goto("party")}>

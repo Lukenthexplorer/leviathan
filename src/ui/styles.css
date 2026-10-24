@@ -446,6 +446,12 @@ h1, h2, h3 { margin: 0; }
 .legacy-section.secret h2 { color: var(--red); }
 .legacy-verdict { margin-top: 26px; padding: 14px 20px; background: #e9dfc4; border: 1px solid #0002; font-style: italic; }
 .legacy-verdict h2 { font-style: normal; margin-top: 0; }
+.legacy-next {
+  max-width: 560px; margin: 22px auto 0; padding: 14px 22px; rotate: -0.8deg;
+  background: #f4ecd4; border: 1px dashed #0005; box-shadow: 0 6px 18px #0006; color: var(--ink);
+}
+.legacy-next-kicker { font-family: var(--type); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+.legacy-next p { margin: 0; font-style: italic; }
 
 /* ------------------------------------------------------------- small screens */
 

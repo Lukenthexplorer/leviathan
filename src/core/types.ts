@@ -143,8 +143,8 @@ export interface ElectionResult {
   winner: string;
   /** Who takes a seat (1 for mayor; the party's top N for council and deputy). */
   elected: string[];
-  /** Top reasons per unit, for the election-night narrator. */
-  causes: { unitId: string; text: string; cause: Cause }[];
+  /** Top reasons per unit, for the election-night narrator and the legacy page. `value`: score points (missing in early v3 saves). */
+  causes: { unitId: string; text: string; cause: Cause; value?: number }[];
   /** Mayor races where nobody got a majority: the top two face off (Brazil: cities over 200k voters). */
   runoff?: {
     candidates: [string, string];
