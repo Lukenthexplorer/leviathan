@@ -142,7 +142,7 @@ h1, h2, h3 { margin: 0; }
 .desk-screen {
   /* the three bands of the desk: notes on the left, the paper stack in the middle, objects on the right */
   --left-w: max(230px, calc(var(--cm) * 16));
-  --right-w: max(250px, calc(var(--cm) * 20));
+  --right-w: max(210px, calc(var(--cm) * 15));
   /* horizontal centre of the paper stack (the middle column of .desk-middle) */
   --stack-x: calc((100vw + var(--left-w) - var(--right-w)) / 2);
   position: relative;
@@ -155,7 +155,6 @@ h1, h2, h3 { margin: 0; }
    the mouse (objects lying under them, like the phone, stay clickable); only their contents take clicks. */
 .desk-top, .desk-middle, .desk-bottom { position: relative; z-index: 4; pointer-events: none; }
 .desk-top > *, .desk-middle > *, .desk-bottom > *, .desk-object { pointer-events: auto; }
-.desk-middle > .desk-objects { pointer-events: none; }
 
 /* ---- the light rig (DeskLighting.tsx) */
 /* The wood photo has its light baked in from the top-left, where the lamp is. */
@@ -388,8 +387,7 @@ h1, h2, h3 { margin: 0; }
   font-family: var(--type); font-size: 0.8rem; transform: rotate(-8deg); mix-blend-mode: multiply;
 }
 
-/* ---- objects on the desk that open a panel (DeskObject.tsx). Sizes in desk cm. */
-.desk-objects { position: relative; }
+/* ---- an object lying on the desk that does something (DeskObject.tsx: the rotary phone). Sizes in desk cm. */
 .desk-object {
   position: absolute; z-index: 1;
   padding: 0; border: none; background: none; cursor: pointer;
@@ -415,15 +413,39 @@ h1, h2, h3 { margin: 0; }
 .object-tag strong { font-family: var(--display); font-size: 1rem; }
 .object-tag small { font-family: var(--type); font-size: 0.72rem; color: var(--ink-soft); }
 .desk-object:hover .object-tag, .desk-object:focus-visible .object-tag { opacity: 1; translate: -50% 0; }
-/* Where each lies, inside the right-hand side of the desk. Tops are % of that area, sizes in cm. */
-.at-folder { left: calc(var(--cm) * -0.5); top: 0; width: calc(var(--cm) * 9); rotate: -6deg; }
-.at-rolodex { right: calc(var(--cm) * 0.5); top: 15%; width: calc(var(--cm) * 8.5); rotate: 4deg; }
-.at-radio { left: 0; top: 34%; width: calc(var(--cm) * 10.5); rotate: -3deg; }
-.at-books { right: 0; top: 48%; width: calc(var(--cm) * 8.5); rotate: 5deg; }
-.at-map { left: calc(var(--cm) * 0.5); top: 69%; width: calc(var(--cm) * 11.5); rotate: -5deg; }
 @media (prefers-reduced-motion: reduce) {
   .object-tag, .desk-object img { transition: none; }
 }
+
+/* ---- the drawers on the right: decorated boxes, the illustration spilling out like an object lying on it */
+.tools { display: flex; flex-direction: column; gap: 12px; align-self: start; position: relative; }
+.tool {
+  position: relative; text-align: left; padding: 12px 14px;
+  background: linear-gradient(170deg, var(--wood-light), var(--wood));
+  border: 1px solid #b08d5788; border-left: 6px solid var(--brass);
+  border-radius: 3px; cursor: pointer; box-shadow: 6px 8px 16px #0009;
+}
+.tool-label { display: block; font-family: var(--display); font-size: 1.1rem; color: var(--brass-light); }
+.tool-hint { font-size: 0.78rem; opacity: 0.7; }
+.tool.with-icon { padding-left: 92px; min-height: 76px; }
+.tool-icon {
+  position: absolute; left: -14px; top: 50%; translate: 0 -50%;
+  width: 104px; rotate: -8deg;
+  filter: drop-shadow(6px 8px 10px #000b);
+  pointer-events: none;
+}
+/* a red pushpin with the number of neighbourhoods in crisis (on Ruas) */
+.tool-alert {
+  position: absolute; top: -8px; right: -8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--type); font-size: 0.85rem; color: #fff;
+  background: radial-gradient(circle at 35% 35%, #ff7a6a, #9e1a10);
+  box-shadow: 2px 3px 4px #0009;
+  animation: unrest-pin 2s ease-in-out infinite;
+}
+@keyframes unrest-pin { 50% { box-shadow: 2px 3px 4px #0009, 0 0 12px #c0261acc; } }
+@media (prefers-reduced-motion: reduce) { .tool-alert { animation: none; } }
 
 /* idle: coffee — a real-size object resting on the desk */
 .coffee {
@@ -741,21 +763,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 
 /* the notes column starts under the lamp */
 .desk-left { display: flex; flex-direction: column; gap: 26px; align-self: start; margin-top: calc(var(--cm) * 2.6); }
-.map-thumb.unrest img { animation: unrest 2s ease-in-out infinite; }
-@keyframes unrest {
-  0%, 100% { filter: var(--desk-drop); }
-  50% { filter: var(--desk-drop) drop-shadow(0 0 10px #c0261acc); }
-}
-/* a red pushpin with the number of neighbourhoods in crisis */
-.map-thumb-alert {
-  position: absolute; top: 18px; right: 22px;
-  width: 26px; height: 26px; border-radius: 50%;
-  display: grid; place-items: center;
-  font-family: var(--type); font-size: 0.85rem; color: #fff;
-  background: radial-gradient(circle at 35% 35%, #ff7a6a, #9e1a10);
-  box-shadow: 0 3px 4px #0009;
-}
-
 .map-overlay {
   position: fixed; inset: 0; z-index: 30;
   display: grid; grid-template-rows: auto 1fr;
@@ -827,24 +834,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 .law-actions .desk-btn { font-size: 0.8rem; padding: 7px 10px; }
 .map-loading { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; font-family: var(--type); color: #cdbb98; background: #120d09cc; }
 
-/* desk clock: a twin-bell alarm clock (desk_clock.png), the hands drawn on its dial */
-.desk-clock {
-  position: absolute; z-index: 2;
-  left: calc(var(--stack-x) - var(--a4) * 0.5 + var(--cm) * 0.5); bottom: calc(var(--cm) * 1.2);
-  width: calc(var(--cm) * 6.5); aspect-ratio: 1;
-  rotate: -8deg;
-  pointer-events: none;
-}
-.desk-clock img { width: 100%; display: block; filter: var(--desk-drop); }
-/* the dial's centre and size, as drawn in desk_clock.png */
-.clock-face { position: absolute; left: 50%; top: 54.7%; width: 65%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; }
-.hand-wrap { position: absolute; inset: 0; }
-.hand { position: absolute; left: 50%; bottom: 50%; transform-origin: 50% 100%; border-radius: 2px; }
-.hand-hour { width: 4px; height: 24%; margin-left: -2px; background: var(--ink); animation: clock-spin 43200s linear infinite; rotate: 300deg; }
-.hand-minute { width: 3px; height: 36%; margin-left: -1.5px; background: var(--ink); animation: clock-spin 3600s linear infinite; }
-.hand-second { width: 1px; height: 40%; margin-left: -0.5px; background: #9a2f25; animation: clock-spin 60s steps(60) infinite; }
-.clock-pin { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9a7438; }
-@keyframes clock-spin { to { transform: rotate(360deg); } }
 
 /* first-week onboarding: the goals card is pinned and glowing so nobody misses it */
 .screen-goal {
@@ -1010,7 +999,6 @@ button:focus-visible { outline: 2px solid var(--brass-light); outline-offset: 3p
 @media (prefers-reduced-motion: reduce) {
   .steam { animation: none; opacity: 0.4; }
   .smoke { animation: none; opacity: 0.35; }
-  .hand { animation: none; }
   .crt { animation: none; }
   .bc-bar-row.leading { animation: none; }
   .bc-line { animation: none; }

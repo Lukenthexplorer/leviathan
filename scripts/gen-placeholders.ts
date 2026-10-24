@@ -117,7 +117,6 @@ function png(w: number, h: number, rgba: Uint8Array): Buffer {
 
 /** A shape is a signed distance (negative inside) plus a colour; later shapes paint over earlier ones. */
 type Shape = { d: (x: number, y: number) => number; color: string };
-const circle = (cx: number, cy: number, r: number, color: string): Shape => ({ d: (x, y) => Math.hypot(x - cx, y - cy) - r, color });
 const box = (x0: number, y0: number, x1: number, y1: number, radius: number, color: string): Shape => ({
   d: (x, y) => {
     const qx = Math.abs(x - (x0 + x1) / 2) - (x1 - x0) / 2 + radius;
@@ -159,13 +158,6 @@ function draw(w: number, h: number, shapes: Shape[]): Buffer {
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
 const DESK_OBJECTS: Record<string, () => Buffer> = {
-  // Twin-bell alarm clock, face up. The hands are drawn by the game on top.
-  desk_clock: () => draw(320, 320, [
-    circle(80, 70, 50, "#9a7a3a"), circle(240, 70, 50, "#9a7a3a"), capsule(80, 70, 240, 70, 8, "#6b5226"),
-    capsule(80, 260, 50, 305, 12, "#6b5226"), capsule(240, 260, 270, 305, 12, "#6b5226"),
-    circle(160, 175, 120, "#a8843c"), circle(160, 175, 104, "#f3ead2"),
-    ...range(12).map((i) => circle(160 + Math.sin((i * Math.PI) / 6) * 88, 175 - Math.cos((i * Math.PI) / 6) * 88, i % 3 ? 3 : 6, "#2a2320")),
-  ]),
   // A torn newspaper clipping; the game prints the poll on it.
   poll_clipping: () => draw(1000, 300, [
     { d: (x, y) => Math.max(box(0, 0, 1000, 300, 0, "").d(x, y), -Math.min(y, 300 - y, x, 1000 - x) + 6 + 5 * Math.sin(x * 0.21) * Math.cos(y * 0.17)), color: "#e6dfcc" },

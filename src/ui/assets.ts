@@ -149,7 +149,6 @@ export const DESK_ART = {
   rotary_phone: "assets/desk/rotary_phone.webp", // final art
   tv_set: "assets/desk/tv_set.webp", // final art: the screen is a transparent hole (TV_SCREEN)
   // Generated placeholders (scripts/gen-placeholders.ts); final art replaces them with the same name.
-  desk_clock: "assets/desk/desk_clock.png",
   poll_clipping: "assets/desk/poll_clipping.png",
   ledger: "assets/desk/ledger.png",
   calendar_page: "assets/desk/calendar_page.svg",

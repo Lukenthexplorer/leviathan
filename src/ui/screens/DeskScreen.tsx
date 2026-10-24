@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { forwardRef, lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PARTIES, type PartyId } from "../../content/councilman/parties";
 import type { DeskItem, GameState } from "../../core/types";
@@ -9,9 +9,8 @@ import { musicTension } from "../audio/tension";
 import { AgendaPad } from "../desk/AgendaPad";
 import { Calendar } from "../desk/Calendar";
 import { DeskButton } from "../desk/DeskButton";
-import { DeskClock } from "../desk/DeskClock";
 import { DeskLighting } from "../desk/DeskLighting";
-import { DeskObject } from "../desk/DeskObject";
+import { useHoverLift } from "../feel/useHoverLift";
 import { RotaryPhone, type PhoneHandle } from "../desk/RotaryPhone";
 import { PathsCard } from "../desk/PathsCard";
 import { InboxStack } from "../desk/InboxStack";
@@ -25,7 +24,7 @@ import { MeetingsPanel } from "../desk/panels/MeetingsPanel";
 import { NeighbourhoodPanel } from "../desk/panels/NeighbourhoodPanel";
 import { CampaignPanel } from "../desk/panels/CampaignPanel";
 import { MediaPanel } from "../desk/panels/MediaPanel";
-import { MapThumb } from "../map/MapThumb";
+import { mapModel } from "../map/model";
 // The map pulls in PixiJS (~500 KB). Lazy-loading it means the desk opens
 // without it; the browser fetches the map's code the first time it's opened.
 const MapView = lazy(() => import("../map/MapView").then((m) => ({ default: m.MapView })));
@@ -34,16 +33,17 @@ import { BALANCE } from "../../content/balance";
 
 type Panel = "bills" | "campaign" | "media" | "streets" | "rolodex" | "library";
 
-/** The objects on the desk that open a panel. `place` positions them (styles.css, in desk cm). The map (Ruas) is MapThumb. */
-const OBJECTS: { id: Panel; label: string; hint: string; img: string; place: string }[] = [
-  { id: "bills", label: "Projetos", hint: "Propor uma lei", img: DESK_ART.bills_folder, place: "at-folder" },
-  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", img: DESK_ART.rolodex, place: "at-rolodex" },
-  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", img: DESK_ART.radio, place: "at-radio" },
-  { id: "library", label: "Estante", hint: "Ler e aprender", img: DESK_ART.book_stack, place: "at-books" },
+/** Desk drawers, each a decorated box with its illustration spilling out of it. */
+const TOOLS: { id: Panel; label: string; hint: string; icon: string }[] = [
+  { id: "bills", label: "Projetos", hint: "Propor uma lei", icon: DESK_ART.bills_folder },
+  { id: "rolodex", label: "Contatos", hint: "Pedir uma reunião", icon: DESK_ART.rolodex },
+  { id: "streets", label: "Ruas", hint: "Construir uma base", icon: DESK_ART.city_skyline },
+  { id: "media", label: "Imprensa", hint: "Rádio, jornal e rua", icon: DESK_ART.radio },
+  { id: "library", label: "Estante", hint: "Ler e aprender", icon: DESK_ART.book_stack },
 ];
 
 /** In the campaign the Câmara is in recess: the campaign folder takes the bills folder's place. */
-const CAMPAIGN_OBJECT = { id: "campaign" as Panel, label: "Campanha", hint: "Ruas, apoios, palanque", img: DESK_ART.campaign_folder, place: "at-folder" };
+const CAMPAIGN_TOOL = { id: "campaign" as Panel, label: "Campanha", hint: "Ruas, apoios, palanque", icon: DESK_ART.campaign_folder };
 
 const PANELS = { bills: BillsPanel, campaign: CampaignPanel, media: MediaPanel, streets: NeighbourhoodPanel, rolodex: MeetingsPanel, library: LibraryPanel };
 
@@ -70,7 +70,10 @@ export function DeskScreen() {
   const curtainText = useRef<HTMLDivElement>(null);
   const flash = useRef<HTMLDivElement>(null);
   const desk = useRef<HTMLDivElement>(null);
+  /** The Ruas drawer: the living map unfolds from it. */
   const mapThumb = useRef<HTMLButtonElement>(null);
+  /** Neighbourhoods in crisis: a red pin on the Ruas drawer. */
+  const crises = mapModel(state).districts.filter((d) => d.markers.includes("protest") || d.mood <= -40).length;
   const phone = useRef<PhoneHandle>(null);
   /** The call waiting on the desk, if any: the phone picks it up. */
   const call = state.inbox.find((i) => i.kind === "phone" && !answerFor(pending, i.id)) ?? null;
@@ -168,18 +171,24 @@ export function DeskScreen() {
           <PathsCard state={state} />
         </div>
         <InboxStack state={state} onOpen={setOpenItem} />
-        <nav className="desk-objects" aria-label="Objetos da mesa">
-          {(state.campaign ? [CAMPAIGN_OBJECT, ...OBJECTS.filter((o) => o.id !== "bills")] : OBJECTS).map((o) => (
-            <DeskObject key={o.id} place={o.place} label={o.label} hint={o.hint} img={o.img} onClick={() => setPanel(o.id)} />
+        <nav className="tools" aria-label="Gavetas">
+          {(state.campaign ? [CAMPAIGN_TOOL, ...TOOLS.filter((t) => t.id !== "bills")] : TOOLS).map((t) => (
+            <Tool
+              key={t.id}
+              ref={t.id === "streets" ? mapThumb : undefined}
+              label={t.label}
+              hint={t.hint}
+              icon={t.icon}
+              alert={t.id === "streets" ? crises : 0}
+              onClick={() => setPanel(t.id)}
+            />
           ))}
-          <MapThumb ref={mapThumb} state={state} onOpen={() => setPanel("streets")} />
         </nav>
       </main>
 
       {/* 1989 on the desk: decorations (no clicks), and the phone, which answers calls. */}
       <img className="deco deco-typewriter" src={DESK_ART.typewriter} alt="" aria-hidden />
       <RotaryPhone ref={phone} call={call} onAnswer={setOpenItem} />
-      <DeskClock turn={state.turn} />
       <div className="deco deco-ashtray" aria-hidden>
         <img src={DESK_ART.ashtray} alt="" />
         <span className="smoke" />
@@ -247,3 +256,29 @@ function corruptionLevel(state: GameState): number {
   const start = BALANCE.hidden.integrityStart;
   return Math.round(Math.max(0, Math.min(1, (start - state.hidden.integrity) / start)) * 100) / 100;
 }
+
+const Tool = forwardRef<HTMLButtonElement, { label: string; hint: string; icon: string; alert: number; onClick: () => void }>(function Tool(props, outer) {
+  const [ref, hover] = useHoverLift<HTMLButtonElement>();
+  return (
+    <button
+      ref={(el) => {
+        ref.current = el;
+        if (typeof outer === "function") outer(el);
+        else if (outer) outer.current = el;
+      }}
+      {...hover}
+      className="tool with-icon"
+      onClick={props.onClick}
+      aria-label={`${props.label}: ${props.hint}${props.alert ? `, ${props.alert} ${props.alert > 1 ? "bairros" : "bairro"} em crise` : ""}`}
+    >
+      <img className="tool-icon" src={props.icon} alt="" />
+      <span className="tool-label">{props.label}</span>
+      <span className="tool-hint">{props.hint}</span>
+      {props.alert > 0 && (
+        <span className="tool-alert" aria-hidden>
+          {props.alert}
+        </span>
+      )}
+    </button>
+  );
+});
