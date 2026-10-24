@@ -6,22 +6,22 @@ import { audio } from "../audio/audio";
  * desk interaction gets both by calling a single function.
  */
 
-/** Paper slides onto the desk from off-screen with a slight random tilt. */
-export function slideIn(el: Element, delay = 0) {
-  const rot = gsap.utils.random(-4, 4);
+const reducedMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Paper slides onto the desk and settles exactly where it lies. Its resting
+ * tilt is the element's own CSS `rotate` (deterministic, from the paper's id);
+ * this only animates `transform`, so the two never fight.
+ */
+export function slideOnto(el: Element, delay = 0) {
+  if (reducedMotion()) {
+    audio.sfx("paper_slide", { volume: 0.5 });
+    return gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.3, delay, clearProps: "transform" });
+  }
   return gsap.fromTo(
     el,
-    { x: -window.innerWidth * 0.6, y: 80, rotation: rot - 15, opacity: 0 },
-    {
-      x: 0,
-      y: 0,
-      rotation: rot,
-      opacity: 1,
-      duration: 0.6,
-      delay,
-      ease: "power3.out",
-      onStart: () => audio.sfx("paper_slide"),
-    },
+    { x: -window.innerWidth * 0.45, y: 60, rotation: -12, opacity: 0 },
+    { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.6, delay, ease: "power3.out", clearProps: "transform", onStart: () => audio.sfx("paper_slide") },
   );
 }
 
