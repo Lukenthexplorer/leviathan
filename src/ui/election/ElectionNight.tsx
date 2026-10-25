@@ -22,6 +22,14 @@ type Phase = "night" | "tv" | "broadcast" | "final";
  */
 const FINAL_ZOOM = 0.82;
 
+/** Horizontal shift (px) that puts the middle of the whole set, not the screen, in the middle of the window. */
+function centreTheSet(el: HTMLElement | null): number {
+  if (!el) return 0;
+  const holeCentre = (TV_SCREEN.left + TV_SCREEN.width / 2) / 100;
+  // The zoom pivots on the screen's centre; at FINAL_ZOOM the set's middle is this far right of it.
+  return -FINAL_ZOOM * el.offsetWidth * (0.5 - holeCentre);
+}
+
 /** The measured screen hole of tv_set.webp, handed to the CSS (see .tv in styles.css). */
 const TV_VARS = {
   "--hole-l": TV_SCREEN.left,
@@ -93,7 +101,9 @@ export function ElectionNight() {
         jingleEnds.current = performance.now() + seconds * 1000;
       }, "+=0.6")
       // Push in until the screen, its whole dark bezel and a strip of wood fill the room, with even margins.
-      .to(tv.current, { scale: FINAL_ZOOM, duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
+      // ...and slide sideways so the set itself is centred: the screen sits left of the cabinet's middle
+      // (the knobs are on the right), so centring the screen alone left a dark gap on the left.
+      .to(tv.current, { scale: FINAL_ZOOM, x: () => centreTheSet(tv.current), duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
     return () => {
       intro.kill();
     };
