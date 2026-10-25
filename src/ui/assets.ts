@@ -125,6 +125,9 @@ export const TV_SCREEN = {
   height: ((965 - 410) / 1145) * 100,
   /** Width / height of the whole TV image. */
   aspect: 1374 / 1145,
+  /** Where the wooden cabinet starts and ends across the image (x 43-1333 px), in %. */
+  cabinetLeft: (43 / 1374) * 100,
+  cabinetRight: (1334 / 1374) * 100,
 } as const;
 
 export const DESK_ART = {

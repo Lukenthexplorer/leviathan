@@ -18,16 +18,27 @@ type Phase = "night" | "tv" | "broadcast" | "final";
 /**
  * Final zoom. At scale 1 the screen hole fills the window; the shot we want is
  * the hole plus ~6% of the image on each side (the tube's bezel and some wood),
- * so 1 / 1.21.
+ * so 1 / 1.21. On a wide window that would leave dark strips beside the set, so
+ * the zoom grows just enough for the wooden cabinet to cover the whole width,
+ * but never past MAX_ZOOM: the picture itself is never cropped (ultra-wide
+ * windows keep thin strips at the sides instead).
  */
 const FINAL_ZOOM = 0.82;
+const MAX_ZOOM = 0.97;
+
+function finalZoom(el: HTMLElement | null): number {
+  if (!el) return FINAL_ZOOM;
+  const cabinet = (el.offsetWidth * (TV_SCREEN.cabinetRight - TV_SCREEN.cabinetLeft)) / 100;
+  return Math.min(MAX_ZOOM, Math.max(FINAL_ZOOM, (window.innerWidth * 1.01) / cabinet));
+}
 
 /** Horizontal shift (px) that puts the middle of the whole set, not the screen, in the middle of the window. */
 function centreTheSet(el: HTMLElement | null): number {
   if (!el) return 0;
   const holeCentre = (TV_SCREEN.left + TV_SCREEN.width / 2) / 100;
-  // The zoom pivots on the screen's centre; at FINAL_ZOOM the set's middle is this far right of it.
-  return -FINAL_ZOOM * el.offsetWidth * (0.5 - holeCentre);
+  const cabinetCentre = (TV_SCREEN.cabinetLeft + TV_SCREEN.cabinetRight) / 200;
+  // The zoom pivots on the screen's centre; at the final zoom the cabinet's middle is this far right of it.
+  return -finalZoom(el) * el.offsetWidth * (cabinetCentre - holeCentre);
 }
 
 /** The measured screen hole of tv_set.webp, handed to the CSS (see .tv in styles.css). */
@@ -103,7 +114,7 @@ export function ElectionNight() {
       // Push in until the screen, its whole dark bezel and a strip of wood fill the room, with even margins.
       // ...and slide sideways so the set itself is centred: the screen sits left of the cabinet's middle
       // (the knobs are on the right), so centring the screen alone left a dark gap on the left.
-      .to(tv.current, { scale: FINAL_ZOOM, x: () => centreTheSet(tv.current), duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
+      .to(tv.current, { scale: () => finalZoom(tv.current), x: () => centreTheSet(tv.current), duration: fast ? 0.1 : 1.3, ease: "power3.inOut" }, "+=0.6");
     return () => {
       intro.kill();
     };
